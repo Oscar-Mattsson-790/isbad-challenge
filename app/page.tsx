@@ -20,7 +20,7 @@ export default function Home() {
               iskallt vatten.
             </p>
           </div>
-          <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="flex flex-row gap-4 sm:flex-row">
             <Button
               asChild
               size="lg"
@@ -36,11 +36,11 @@ export default function Home() {
           </div>
           <div className="relative w-full max-w-4xl rounded-xl border overflow-hidden shadow-lg">
             <Image
-              src="/placeholder.svg?height=600&width=1200"
+              src="/images/Isbad-elite-tunna-med-lock-och-man-isbadar.webp"
               alt="ISBAD Challenge"
-              width={1200}
-              height={600}
-              className="w-full object-cover"
+              width={400}
+              height={400}
+              className="object-cover"
             />
           </div>
         </div>

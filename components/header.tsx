@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu, LogOut, User, Settings } from "lucide-react";
+import Image from "next/image";
 
 export default function Header() {
   const { supabase, session } = useSupabase();
@@ -37,7 +38,13 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <div className="font-bold text-xl">ISBAD</div>
+          <Image
+            src="/images/isbad_logo_black.png"
+            alt="ISBAD Logo"
+            width={150}
+            height={40}
+            priority
+          />
         </Link>
 
         <nav className="hidden md:flex md:gap-6">
