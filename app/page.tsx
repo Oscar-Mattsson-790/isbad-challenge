@@ -1,103 +1,132 @@
+import Link from "next/link";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import FeaturesGrid from "@/components/features-grid";
+import { ChevronRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <div className="flex flex-col">
+      {/* Hero Section */}
+      <section className="bg-[#D0E7F8] py-16 md:py-24">
+        <div className="container flex flex-col items-center gap-8 text-center md:gap-12">
+          <div className="space-y-4">
+            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
+              30-dagars Isbad Challenge
+            </h1>
+            <p className="mx-auto max-w-[700px] text-lg text-muted-foreground md:text-xl">
+              Utmana dig själv och dina vänner till 30 dagars isbad i rad. Följ
+              din progress, dokumentera dina upplevelser och känn fördelarna av
+              iskallt vatten.
+            </p>
+          </div>
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <Button
+              asChild
+              size="lg"
+              className="bg-[#0B4F82] hover:bg-[#0A3F69]"
+            >
+              <Link href="/signup">
+                Starta din utmaning <ChevronRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href="/about">Läs mer om fördelarna</Link>
+            </Button>
+          </div>
+          <div className="relative w-full max-w-4xl rounded-xl border overflow-hidden shadow-lg">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              src="/placeholder.svg?height=600&width=1200"
+              alt="ISBAD Challenge"
+              width={1200}
+              height={600}
+              className="w-full object-cover"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 md:py-24">
+        <div className="container space-y-12">
+          <div className="space-y-4 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              Hur fungerar det?
+            </h2>
+            <p className="mx-auto max-w-[700px] text-muted-foreground">
+              Följ din 30-dagars isbad utmaning med våra smarta verktyg och
+              funktioner
+            </p>
+          </div>
+          <FeaturesGrid />
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="bg-[#F0F8FF] py-16 md:py-24">
+        <div className="container space-y-8">
+          <div className="space-y-4 text-center">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+              Vad våra användare säger
+            </h2>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-lg bg-white p-6 shadow-md">
+                <div className="flex items-start gap-4">
+                  <div className="rounded-full bg-[#D0E7F8] p-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#0B4F82"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
+                      <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
+                    </svg>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-muted-foreground">
+                      &quot;Jag har aldrig känt mig så pigg och fokuserad som
+                      efter att ha genomfört 30-dagars utmaningen. Min
+                      sömnkvalitet har förbättrats avsevärt!&quot;
+                    </p>
+                    <div>
+                      <p className="font-medium">Anders Svensson</p>
+                      <p className="text-sm text-muted-foreground">
+                        30 dagars deltagare
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 md:py-24">
+        <div className="container flex flex-col items-center gap-8 text-center">
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+              Redo att börja din utmaning?
+            </h2>
+            <p className="mx-auto max-w-[600px] text-muted-foreground">
+              Gå med idag och börja din resa mot förbättrad hälsa och välmående
+              genom isbad.
+            </p>
+          </div>
+          <Button asChild size="lg" className="bg-[#0B4F82] hover:bg-[#0A3F69]">
+            <Link href="/signup">Börja nu</Link>
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }
