@@ -36,7 +36,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container px-6 flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/images/isbad_logo_black.png"

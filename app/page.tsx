@@ -34,13 +34,20 @@ export default function Home() {
               <Link href="/about">Läs mer om fördelarna</Link>
             </Button>
           </div>
-          <div className="relative w-full max-w-4xl rounded-xl border overflow-hidden shadow-lg">
+          <div className="relative w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 rounded-xl border overflow-hidden shadow-lg">
             <Image
               src="/images/Isbad-elite-tunna-med-lock-och-man-isbadar.webp"
               alt="ISBAD Challenge"
               width={400}
               height={400}
-              className="object-cover"
+              className="object-cover w-full h-full"
+            />
+            <Image
+              src="/images/Isbad-Pro-170-med-man-i-kallbadet.webp"
+              alt="ISBAD Pro"
+              width={400}
+              height={400}
+              className="object-cover w-full h-full"
             />
           </div>
         </div>
