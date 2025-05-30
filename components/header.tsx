@@ -50,26 +50,26 @@ export default function Header() {
         <nav className="hidden md:flex md:gap-6">
           <Link
             href="/"
-            className="text-sm font-medium transition-colors hover:text-primary"
+            className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
           >
             Hem
           </Link>
           <Link
             href="/about"
-            className="text-sm font-medium transition-colors hover:text-primary"
+            className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
           >
             Om ISBAD
           </Link>
           <Link
             href="/benefits"
-            className="text-sm font-medium transition-colors hover:text-primary"
+            className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
           >
             Fördelar
           </Link>
           {session ? (
             <Link
               href="/dashboard"
-              className="text-sm font-medium transition-colors hover:text-primary"
+              className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
             >
               Min Utmaning
             </Link>
@@ -116,13 +116,17 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm">
+              <Button
+                asChild
+                size="sm"
+                className="border border-black bg-white text-black hover:bg-black hover:text-white"
+              >
                 <Link href="/login">Logga in</Link>
               </Button>
               <Button
                 asChild
                 size="sm"
-                className="bg-[#0B4F82] hover:bg-[#0A3F69]"
+                className="border border-black bg-[#242422] hover:bg-white hover:text-black"
               >
                 <Link href="/signup">Registrera dig</Link>
               </Button>

@@ -1,12 +1,18 @@
 import type React from "react";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
+import Link from "next/link";
+
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import Header from "@/components/header";
 import { SupabaseProvider } from "@/components/supabase-provider";
 
-const inter = Inter({ subsets: ["latin"] });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
+});
 
 export const metadata = {
   title: "ISBAD Challenge - 30 dagars utmaning",
@@ -20,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="sv" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${poppins.variable} font-sans`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -31,11 +37,12 @@ export default function RootLayout({
             <div className="flex min-h-screen flex-col">
               <Header />
               <main className="flex-1">{children}</main>
-              <footer className="border-t py-6">
-                <div className="container flex flex-col items-center justify-between gap-4 md:flex-row">
-                  <p className="text-center text-sm text-muted-foreground md:text-left">
+              <footer className="border-t py-6 bg-[#242422]">
+                <div className="container flex flex-col items-center justify-center gap-4 md:flex-row">
+                  <p className="text-center text-sm text-white md:text-left">
                     &copy; {new Date().getFullYear()} ISBAD Challenge. Alla
-                    rättigheter förbehållna.
+                    rättigheter förbehållna –{" "}
+                    <Link href="https://www.isbad.se">www.isbad.se</Link>
                   </p>
                 </div>
               </footer>
