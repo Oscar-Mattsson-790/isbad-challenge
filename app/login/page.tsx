@@ -30,7 +30,7 @@ export default function LoginPage() {
       });
 
       if (error) {
-        toast.error("Inloggning misslyckades", {
+        toast.error("Login failed", {
           description: error.message,
         });
         return;
@@ -40,8 +40,8 @@ export default function LoginPage() {
       router.refresh();
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Ett fel uppstod", {
-        description: "Kunde inte logga in. Försök igen senare.",
+      toast.error("An error occurred", {
+        description: "Could not log in. Please try again later.",
       });
     } finally {
       setLoading(false);
@@ -58,14 +58,14 @@ export default function LoginPage() {
       });
 
       if (error) {
-        toast.error("Inloggning misslyckades", {
+        toast.error("Login failed", {
           description: error.message,
         });
       }
     } catch (error) {
       console.error("Google login error:", error);
-      toast.error("Ett fel uppstod", {
-        description: "Kunde inte logga in med Google. Försök igen senare.",
+      toast.error("An error occurred", {
+        description: "Could not log in with Google. Please try again later.",
       });
     }
   };
@@ -74,19 +74,18 @@ export default function LoginPage() {
     <div className="container flex h-screen w-full flex-col items-center justify-center">
       <div className="mx-auto grid w-full max-w-[350px] gap-6">
         <div className="grid gap-2 text-center">
-          <div className="mx-auto text-3xl font-bold">ISBAD</div>
-          <h1 className="text-3xl font-bold">Logga in</h1>
+          <h1 className="text-3xl font-bold">Log in</h1>
           <p className="text-sm text-muted-foreground">
-            Logga in för att fortsätta din isbad challenge
+            Log in to continue your ice bath challenge
           </p>
         </div>
         <form onSubmit={handleEmailLogin} className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="email">E-postadress</Label>
+            <Label htmlFor="email">Email address</Label>
             <Input
               id="email"
               type="email"
-              placeholder="namn@exempel.se"
+              placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -94,9 +93,9 @@ export default function LoginPage() {
           </div>
           <div className="grid gap-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Lösenord</Label>
+              <Label htmlFor="password">Password</Label>
               <Link href="/forgot-password" className="text-sm underline">
-                Glömt lösenord?
+                Forgot password?
               </Link>
             </div>
             <Input
@@ -110,9 +109,9 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="bg-[#0B4F82] hover:bg-[#0A3F69]"
+            className="border border-black bg-black text-white hover:bg-white hover:text-black"
           >
-            {loading ? "Loggar in..." : "Logga in"}
+            {loading ? "Logging in..." : "Log in"}
           </Button>
         </form>
         <div className="relative">
@@ -121,7 +120,7 @@ export default function LoginPage() {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground">
-              Eller fortsätt med
+              Or continue with
             </span>
           </div>
         </div>
@@ -150,9 +149,9 @@ export default function LoginPage() {
           Google
         </Button>
         <p className="text-center text-sm text-muted-foreground">
-          Har du inget konto?{" "}
+          Don’t have an account?{" "}
           <Link href="/signup" className="underline">
-            Registrera dig
+            Sign up
           </Link>
         </p>
       </div>

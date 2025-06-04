@@ -36,14 +36,14 @@ export function FriendsList() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Dina vänner</CardTitle>
+          <CardTitle>Your Friends</CardTitle>
           <Button variant="outline" size="sm">
             <UserPlus className="mr-2 h-4 w-4" />
-            Hitta vänner
+            Find Friends
           </Button>
         </div>
         <CardDescription>
-          Följ dina vänners progress i isbad-utmaningen
+          Track your friends’ progress in the ice bath challenge
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -51,7 +51,7 @@ export function FriendsList() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Sök bland dina vänner..."
+            placeholder="Search among your friends..."
             className="pl-8"
           />
         </div>
@@ -64,7 +64,7 @@ export function FriendsList() {
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <Image
-                    src="/placeholder.svg?height=40&width=40"
+                    src="/images/placeholder.png"
                     width={40}
                     height={40}
                     alt={friend.name}
@@ -81,18 +81,21 @@ export function FriendsList() {
                 <div>
                   <div className="font-medium">{friend.name}</div>
                   <div className="text-sm text-muted-foreground">
-                    {friend.progress} dagar avklarade
+                    {friend.progress} days completed
                   </div>
                 </div>
               </div>
-              <Button size="sm" className="bg-[#0B4F82] hover:bg-[#0A3F69]">
-                Utmana
+              <Button
+                size="sm"
+                className="border border-black bg-black hover:bg-white hover:text-black"
+              >
+                Challenge
               </Button>
             </div>
           ))}
         </div>
         <Button variant="outline" className="mt-4 w-full">
-          Visa alla
+          View All
         </Button>
       </CardContent>
     </Card>

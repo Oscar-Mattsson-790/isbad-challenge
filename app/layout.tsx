@@ -15,8 +15,9 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "ISBAD Challenge - 30 dagars utmaning",
-  description: "Utmana dig själv med 30 dagars isbad och följ din progress",
+  title: "ISBAD Challenge - 30-Day Challenge",
+  description:
+    "Challenge yourself with 30 days of ice baths and track your progress",
 };
 
 export default function RootLayout({
@@ -25,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="sv" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${poppins.variable} font-sans`}>
         <ThemeProvider
           attribute="class"
@@ -40,8 +41,8 @@ export default function RootLayout({
               <footer className="border-t py-6 bg-[#242422]">
                 <div className="container flex flex-col items-center justify-center gap-4 md:flex-row">
                   <p className="text-center text-sm text-white md:text-left">
-                    &copy; {new Date().getFullYear()} ISBAD Challenge. Alla
-                    rättigheter förbehållna –{" "}
+                    &copy; {new Date().getFullYear()} ISBAD Challenge. All
+                    rights reserved –{" "}
                     <Link href="https://www.isbad.se">www.isbad.se</Link>
                   </p>
                 </div>

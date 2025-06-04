@@ -37,7 +37,7 @@ export default function SignUpPage() {
       });
 
       if (error) {
-        toast.error("Registrering misslyckades: " + error.message);
+        toast.error("Sign up failed: " + error.message);
         return;
       }
 
@@ -55,13 +55,13 @@ export default function SignUpPage() {
           console.error("Error creating profile:", profileError);
         }
 
-        toast.success("Registrering lyckades! Kontrollera din e-post.");
+        toast.success("Sign up successful! Please check your email.");
 
         router.push("/login");
       }
     } catch (error) {
       console.error("Signup error:", error);
-      toast.error("Ett fel uppstod. Försök igen senare.");
+      toast.error("An error occurred. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -77,11 +77,11 @@ export default function SignUpPage() {
       });
 
       if (error) {
-        toast.error("Registrering med Google misslyckades: " + error.message);
+        toast.error("Google sign up failed: " + error.message);
       }
     } catch (error) {
       console.error("Google signup error:", error);
-      toast.error("Ett fel uppstod med Google. Försök igen senare.");
+      toast.error("An error occurred with Google. Please try again later.");
     }
   };
 
@@ -89,37 +89,36 @@ export default function SignUpPage() {
     <div className="container flex h-screen w-full flex-col items-center justify-center">
       <div className="mx-auto grid w-full max-w-[350px] gap-6">
         <div className="grid gap-2 text-center">
-          <div className="mx-auto text-3xl font-bold">ISBAD</div>
-          <h1 className="text-3xl font-bold">Skapa konto</h1>
+          <h1 className="text-3xl font-bold">Create Account</h1>
           <p className="text-sm text-muted-foreground">
-            Registrera dig för att starta din isbad challenge
+            Sign up to start your ice bath challenge
           </p>
         </div>
         <form onSubmit={handleEmailSignUp} className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="fullName">Namn</Label>
+            <Label htmlFor="fullName">Full name</Label>
             <Input
               id="fullName"
               type="text"
-              placeholder="Ditt namn"
+              placeholder="Your name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="email">E-postadress</Label>
+            <Label htmlFor="email">Email address</Label>
             <Input
               id="email"
               type="email"
-              placeholder="namn@exempel.se"
+              placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Lösenord</Label>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
@@ -131,9 +130,9 @@ export default function SignUpPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="bg-[#0B4F82] hover:bg-[#0A3F69]"
+            className="border border-black bg-black text-white hover:bg-white hover:text-black"
           >
-            {loading ? "Registrerar..." : "Registrera"}
+            {loading ? "Signing up..." : "Sign up"}
           </Button>
         </form>
         <div className="relative">
@@ -142,7 +141,7 @@ export default function SignUpPage() {
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-background px-2 text-muted-foreground">
-              Eller fortsätt med
+              Or continue with
             </span>
           </div>
         </div>
@@ -171,9 +170,9 @@ export default function SignUpPage() {
           Google
         </Button>
         <p className="text-center text-sm text-muted-foreground">
-          Har du redan ett konto?{" "}
+          Already have an account?{" "}
           <Link href="/login" className="underline">
-            Logga in
+            Log in
           </Link>
         </p>
       </div>

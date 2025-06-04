@@ -13,43 +13,43 @@ export default function FeaturesGrid() {
   const features = [
     {
       icon: <CalendarDays className="h-6 w-6 text-[#222831]" />,
-      title: "Kalender",
-      description: "Håll koll på alla dina isbad i en överskådlig kalender",
+      title: "Calendar",
+      description: "Keep track of all your ice baths in a clear calendar view",
     },
     {
       icon: <Clock className="h-6 w-6 text-[#222831]" />,
-      title: "Tid och Varaktighet",
-      description: "Registrera när och hur länge du badade",
+      title: "Time & Duration",
+      description: "Log when and how long you bathed",
     },
     {
       icon: <ThumbsUp className="h-6 w-6 text-[#222831]" />,
-      title: "Känsla",
-      description: "Beskriv din upplevelse med enkla emojis",
+      title: "Feeling",
+      description: "Describe your experience using simple emojis",
     },
     {
       icon: <ImageIcon className="h-6 w-6 text-[#222831]" />,
-      title: "Bildbevis",
-      description: "Ladda upp foton eller korta videos som bevis",
+      title: "Photo Proof",
+      description: "Upload photos or short videos as evidence",
     },
     {
       icon: <Users className="h-6 w-6 text-[#222831]" />,
-      title: "Socialt",
-      description: "Utmana vänner och se deras progress",
+      title: "Social",
+      description: "Challenge your friends and track their progress",
     },
     {
       icon: <LineChart className="h-6 w-6 text-[#222831]" />,
-      title: "Statistik",
-      description: "Följ din utveckling med detaljerad statistik",
+      title: "Statistics",
+      description: "Track your progress with detailed stats",
     },
     {
       icon: <Share2 className="h-6 w-6 text-[#222831]" />,
-      title: "Dela",
-      description: "Dela dina framgångar på sociala medier",
+      title: "Share",
+      description: "Share your achievements on social media",
     },
     {
       icon: <Trophy className="h-6 w-6 text-[#222831]" />,
-      title: "Utmaningar",
-      description: "Klara milstolpar och få belöningar",
+      title: "Challenges",
+      description: "Reach milestones and earn rewards",
     },
   ];
 

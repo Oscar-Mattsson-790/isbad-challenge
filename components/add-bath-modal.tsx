@@ -22,9 +22,10 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { sv } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { CalendarIcon, Clock, Upload } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface AddBathModalProps {
   open: boolean;
@@ -47,7 +48,6 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
       const file = e.target.files[0];
       setFile(file);
 
-      // Create a preview
       const reader = new FileReader();
       reader.onload = (event) => {
         setPhotoPreview(event.target?.result as string);
@@ -59,15 +59,13 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Simulate saving data
-    toast.success("Isbad registrerat!", {
-      description: `Ditt isbad den ${format(date, "PPP", {
-        locale: sv,
-      })} har sparats.`,
+    toast.success("Ice bath recorded!", {
+      description: `Your ice bath on ${format(date, "PPP", {
+        locale: enUS,
+      })} has been saved.`,
     });
 
     setOpen(false);
-    // Reset form
     setDate(new Date());
     setTime("08:00");
     setDuration("01:30");
@@ -80,16 +78,15 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Registrera ett nytt isbad</DialogTitle>
+          <DialogTitle>Log a new ice bath</DialogTitle>
           <DialogDescription>
-            Fyll i information om ditt isbad för att registrera det i din
-            utmaning.
+            Fill in the details of your ice bath to add it to your challenge.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="date">Datum</Label>
+              <Label htmlFor="date">Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -101,8 +98,8 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date
-                      ? format(date, "PPP", { locale: sv })
-                      : "Välj ett datum"}
+                      ? format(date, "PPP", { locale: enUS })
+                      : "Select a date"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
@@ -116,7 +113,7 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
               </Popover>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="time">Tidpunkt</Label>
+              <Label htmlFor="time">Time</Label>
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <Input
@@ -129,7 +126,7 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="duration">Varaktighet (mm:ss)</Label>
+              <Label htmlFor="duration">Duration (mm:ss)</Label>
               <Input
                 id="duration"
                 type="text"
@@ -139,7 +136,7 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
               />
             </div>
             <div className="grid gap-2">
-              <Label>Hur kändes det?</Label>
+              <Label>How did it feel?</Label>
               <div className="flex justify-between">
                 {emojis.map((emoji) => (
                   <Button
@@ -147,7 +144,7 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
                     type="button"
                     variant={selectedEmoji === emoji ? "default" : "outline"}
                     className={`text-xl ${
-                      selectedEmoji === emoji ? "bg-[#0B4F82]" : ""
+                      selectedEmoji === emoji ? "bg-[#1AA7EC]" : ""
                     }`}
                     onClick={() => setSelectedEmoji(emoji)}
                   >
@@ -157,7 +154,7 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="photo">Bevis (bild/video)</Label>
+              <Label htmlFor="photo">Proof (photo/video)</Label>
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="photo"
@@ -165,20 +162,22 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
                 >
                   {photoPreview ? (
                     <div className="relative h-full w-full">
-                      <img
+                      <Image
                         src={photoPreview || "/placeholder.svg"}
-                        alt="Förhandsvisning"
+                        alt="Preview"
                         className="h-full w-full object-contain"
+                        width={120}
+                        height={120}
                       />
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center gap-1 p-4 text-center">
                       <Upload className="h-6 w-6 text-muted-foreground" />
                       <p className="text-sm font-medium">
-                        Dra och släpp eller klicka för att ladda upp
+                        Drag and drop or click to upload
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Bild eller kort video (max 20MB)
+                        Photo or short video (max 20MB)
                       </p>
                     </div>
                   )}
@@ -194,8 +193,12 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" className="bg-[#0B4F82] hover:bg-[#0A3F69]">
-              Spara
+            <Button
+              type="submit"
+              variant="whiteShadow"
+              className="border border-black"
+            >
+              Save
             </Button>
           </DialogFooter>
         </form>

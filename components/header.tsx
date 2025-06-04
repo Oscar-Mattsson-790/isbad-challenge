@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, LogOut, User, Settings } from "lucide-react";
+import { LogOut, User, Settings } from "lucide-react";
 import Image from "next/image";
 
 export default function Header() {
@@ -24,7 +24,7 @@ export default function Header() {
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-      toast.error("Fel vid utloggning", {
+      toast.error("Sign out error", {
         description: error.message,
       });
       return;
@@ -47,33 +47,27 @@ export default function Header() {
           />
         </Link>
 
-        <nav className="hidden md:flex md:gap-6">
+        <nav className="flex gap-6">
           <Link
             href="/"
             className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
           >
-            Hem
+            Home
           </Link>
           <Link
-            href="/about"
+            href="https://www.isbad.se"
             className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
           >
-            Om ISBAD
+            About
           </Link>
-          <Link
-            href="/benefits"
-            className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
-          >
-            Fördelar
-          </Link>
-          {session ? (
+          {session && (
             <Link
               href="/dashboard"
               className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
             >
-              Min Utmaning
+              My Challenge
             </Link>
-          ) : null}
+          )}
         </nav>
 
         <div className="flex items-center gap-4">
@@ -101,16 +95,16 @@ export default function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push("/dashboard")}>
                   <User className="mr-2 h-4 w-4" />
-                  <span>Utmaning</span>
+                  <span>Challenge</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push("/profile")}>
                   <Settings className="mr-2 h-4 w-4" />
-                  <span>Inställningar</span>
+                  <span>Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logga ut</span>
+                  <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -121,20 +115,17 @@ export default function Header() {
                 size="sm"
                 className="border border-black bg-white text-black hover:bg-black hover:text-white"
               >
-                <Link href="/login">Logga in</Link>
+                <Link href="/login">Log in</Link>
               </Button>
               <Button
                 asChild
                 size="sm"
                 className="border border-black bg-[#242422] hover:bg-white hover:text-black"
               >
-                <Link href="/signup">Registrera dig</Link>
+                <Link href="/signup">Sign up</Link>
               </Button>
             </div>
           )}
-          <Button variant="ghost" size="sm" className="md:hidden">
-            <Menu className="h-5 w-5" />
-          </Button>
         </div>
       </div>
     </header>

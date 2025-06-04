@@ -24,8 +24,7 @@ export default function Dashboard() {
   const { supabase, session } = useSupabase();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
   useEffect(() => {
     async function checkSession() {
@@ -58,7 +57,7 @@ export default function Dashboard() {
   }, [session, supabase, router]);
 
   if (loading) {
-    return <div className="container py-10">Laddar...</div>;
+    return <div className="container py-10">Loading...</div>;
   }
 
   return (
@@ -67,75 +66,78 @@ export default function Dashboard() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Hej {profile?.full_name || "där"}!
+              Hi {profile?.full_name || "there"}!
             </h1>
             <p className="text-muted-foreground">
-              Håll koll på din 30-dagars isbad utmaning och följ din progress
+              Keep track of your 30-day ice bath challenge and follow your
+              progress.
             </p>
           </div>
           <Button
             onClick={() => setOpen(true)}
-            className="bg-[#0B4F82] hover:bg-[#0A3F69]"
+            className="border border-black bg-black hover:bg-white hover:text-black"
           >
-            Registrera nytt isbad
+            Log new ice bath
           </Button>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <BathStatsCard
-            title="Dagar avklarade"
+            title="Days completed"
             value="12"
-            description="av 30 dagar"
+            description="out of 30 days"
           />
           <BathStatsCard
-            title="Längsta badet"
+            title="Longest bath"
             value="2:45"
-            description="minuter"
+            description="minutes"
           />
           <BathStatsCard
-            title="Senaste badet"
-            value="Idag"
+            title="Latest bath"
+            value="Today"
             description="10:30"
           />
           <BathStatsCard
-            title="Medelvärde"
+            title="Average"
             value="1:30"
-            description="minuter per bad"
+            description="minutes per bath"
           />
         </div>
 
         <div className="grid gap-4 md:grid-cols-7 lg:grid-cols-3 lg:gap-8">
           <Card className="col-span-7 lg:col-span-2">
             <CardHeader>
-              <CardTitle>Din 30-dagars utmaning</CardTitle>
-              <CardDescription>
-                Följ din progress i kalendern nedan
+              <CardTitle className="text-center">
+                Your 30-day challenge
+              </CardTitle>
+              <CardDescription className="text-center">
+                Track your progress in the calendar below
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex justify-center">
               <BathCalendar />
             </CardContent>
           </Card>
           <Card className="col-span-7 md:col-span-3 lg:col-span-1">
             <CardHeader>
-              <CardTitle>Din progress</CardTitle>
+              <CardTitle>Your progress</CardTitle>
               <CardDescription>
-                Din progress mot målet på 30 dagar
+                Your progress towards the 30-day goal
               </CardDescription>
             </CardHeader>
             <CardContent>
               <UserProgress value={40} />
-              <h3 className="mt-4 text-lg font-medium">Nästa milstolpe</h3>
+              <h3 className="mt-4 text-lg font-medium">Next milestone</h3>
               <p className="text-sm text-muted-foreground">
-                15 dagar - Halvvägs!
+                15 days – Halfway there!
               </p>
             </CardContent>
           </Card>
           <Card className="col-span-7 md:col-span-4 lg:col-span-3">
             <CardHeader>
-              <CardTitle>Senaste aktivitet</CardTitle>
+              <CardTitle>Recent activity</CardTitle>
               <CardDescription>
-                De senaste registreringarna i din utmaning
+                Your latest entries in the challenge
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -146,8 +148,8 @@ export default function Dashboard() {
 
         <Tabs defaultValue="friends" className="w-full">
           <TabsList>
-            <TabsTrigger value="friends">Vänner</TabsTrigger>
-            <TabsTrigger value="challenges">Utmaningar</TabsTrigger>
+            <TabsTrigger value="friends">Friends</TabsTrigger>
+            <TabsTrigger value="challenges">Challenges</TabsTrigger>
           </TabsList>
           <TabsContent value="friends" className="border-none p-0 pt-4">
             <FriendsList />
@@ -155,17 +157,17 @@ export default function Dashboard() {
           <TabsContent value="challenges" className="border-none p-0 pt-4">
             <Card>
               <CardHeader>
-                <CardTitle>Aktiva utmaningar</CardTitle>
+                <CardTitle>Active challenges</CardTitle>
                 <CardDescription>
-                  Här ser du dina pågående utmaningar med vänner
+                  See your ongoing challenges with friends
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Du har inga aktiva utmaningar för tillfället.
+                  You have no active challenges at the moment.
                 </p>
-                <Button className="mt-4 bg-[#0B4F82] hover:bg-[#0A3F69]">
-                  Utmana en vän
+                <Button className="mt-4 border border-black bg-black hover:bg-white hover:text-black">
+                  Challenge a friend
                 </Button>
               </CardContent>
             </Card>

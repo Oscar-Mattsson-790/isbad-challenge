@@ -10,7 +10,7 @@ export function UserProgress({ value }: UserProgressProps) {
         <div className="font-medium">{value}%</div>
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-        <div className="h-full bg-[#0B4F82]" style={{ width: `${value}%` }} />
+        <div className="h-full bg-[#1AA7EC]" style={{ width: `${value}%` }} />
       </div>
     </div>
   );

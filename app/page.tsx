@@ -12,18 +12,18 @@ export default function Home() {
         <div className="container flex flex-col items-center gap-8 text-center md:gap-12">
           <div className="space-y-4">
             <h1 className="pt-8 text-4xl text-white font-bold tracking-tighter sm:text-5xl md:text-6xl">
-              30-dagars Isbad Challenge
+              30-Day ISBAD Challenge
             </h1>
             <p className="mx-auto max-w-[700px] text-lg text-white md:text-xl">
-              Utmana dig själv och dina vänner till 30 dagars isbad i rad. Följ
-              din progress, dokumentera dina upplevelser och känn fördelarna av
-              iskallt vatten.
+              Challenge yourself and your friends to 30 days of consecutive ice
+              baths. Track your progress, document your experiences, and feel
+              the benefits of cold water.
             </p>
           </div>
           <div className="flex flex-row gap-4 sm:flex-row">
             <Button asChild variant="whiteShadow" size="lg">
               <Link href="/signup">
-                Starta din utmaning <ChevronRight className="ml-1 h-4 w-4" />
+                Start your challenge <ChevronRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
             <Button
@@ -31,7 +31,9 @@ export default function Home() {
               size="lg"
               className="bg-white text-black hover:bg-black hover:text-white"
             >
-              <Link href="/about">Läs mer om fördelarna</Link>
+              <Link href="https://isbad.se/artiklar/">
+                Read more about the benefits
+              </Link>
             </Button>
           </div>
           <div className="relative w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 rounded-xl overflow-hidden shadow-lg">
@@ -58,11 +60,11 @@ export default function Home() {
         <div className="container space-y-12">
           <div className="space-y-4 text-center">
             <h2 className="pt-8 text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-              Hur fungerar det?
+              How does it work?
             </h2>
             <p className="mx-auto max-w-[700px] text-black">
-              Följ din 30-dagars isbad utmaning med våra smarta verktyg och
-              funktioner
+              Follow your 30-day ice bath challenge with our smart tools and
+              features.
             </p>
           </div>
           <FeaturesGrid />
@@ -74,7 +76,7 @@ export default function Home() {
         <div className="container space-y-8">
           <div className="space-y-4 text-center">
             <h2 className="pt-8 text-3xl font-bold tracking-tighter text-white sm:text-4xl pb-10">
-              Vad våra användare säger
+              What our users say
             </h2>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -99,14 +101,14 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <p className="text-muted-foreground">
-                      &quot;Jag har aldrig känt mig så pigg och fokuserad som
-                      efter att ha genomfört 30-dagars utmaningen. Min
-                      sömnkvalitet har förbättrats avsevärt!&quot;
+                      &quot;I&apos;ve never felt so energized and focused as
+                      after completing the 30-day challenge. My sleep quality
+                      has improved significantly!&quot;
                     </p>
                     <div>
                       <p className="font-medium">Anders Svensson</p>
                       <p className="text-sm text-muted-foreground">
-                        30 dagars deltagare
+                        30-day participant
                       </p>
                     </div>
                   </div>
@@ -122,11 +124,11 @@ export default function Home() {
         <div className="container flex flex-col items-center gap-8 text-center">
           <div className="space-y-4">
             <h2 className="pt-8 text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-              Redo att börja din utmaning?
+              Ready to start your challenge?
             </h2>
             <p className="mx-auto max-w-[600px] text-muted-foreground">
-              Gå med idag och börja din resa mot förbättrad hälsa och välmående
-              genom isbad.
+              Join today and begin your journey toward better health and
+              well-being through ice bathing.
             </p>
           </div>
           <Button
@@ -135,7 +137,7 @@ export default function Home() {
             variant="whiteShadow"
             className="bg-black text-white"
           >
-            <Link href="/signup">Börja nu</Link>
+            <Link href="/signup">Start now</Link>
           </Button>
         </div>
       </section>
