@@ -69,8 +69,7 @@ export default function Dashboard() {
               Hi {profile?.full_name || "there"}!
             </h1>
             <p className="text-muted-foreground">
-              Keep track of your 30-day ice bath challenge and follow your
-              progress.
+              Keep track of your ice bath challenge and follow your progress.
             </p>
           </div>
           <Button

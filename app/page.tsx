@@ -12,12 +12,12 @@ export default function Home() {
         <div className="container flex flex-col items-center gap-8 text-center md:gap-12">
           <div className="space-y-4">
             <h1 className="pt-8 text-4xl text-white font-bold tracking-tighter sm:text-5xl md:text-6xl">
-              30-Day ISBAD Challenge
+              ISBAD Challenge
             </h1>
             <p className="mx-auto max-w-[700px] text-lg text-white md:text-xl">
-              Challenge yourself and your friends to 30 days of consecutive ice
-              baths. Track your progress, document your experiences, and feel
-              the benefits of cold water.
+              Challenge yourself and your friends to a consistent ice bath.
+              Track your progress, document your experiences and feel the
+              benefits of cold water.
             </p>
           </div>
           <div className="flex flex-row gap-4 sm:flex-row">
@@ -63,8 +63,7 @@ export default function Home() {
               How does it work?
             </h2>
             <p className="mx-auto max-w-[700px] text-black">
-              Follow your 30-day ice bath challenge with our smart tools and
-              features.
+              Follow your ice bath challenge with our smart tools and features.
             </p>
           </div>
           <FeaturesGrid />
@@ -102,14 +101,12 @@ export default function Home() {
                   <div className="space-y-2">
                     <p className="text-muted-foreground">
                       &quot;I&apos;ve never felt so energized and focused as
-                      after completing the 30-day challenge. My sleep quality
-                      has improved significantly!&quot;
+                      after completing the ISBAD challenge. My sleep quality has
+                      improved significantly!&quot;
                     </p>
                     <div>
                       <p className="font-medium">Anders Svensson</p>
-                      <p className="text-sm text-muted-foreground">
-                        30-day participant
-                      </p>
+                      <p className="text-sm text-muted-foreground">Athlete</p>
                     </div>
                   </div>
                 </div>
