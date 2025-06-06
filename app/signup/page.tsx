@@ -45,6 +45,7 @@ export default function SignUpPage() {
         // Create a profile record
         const { error: profileError } = await supabase.from("profiles").insert([
           {
+            id: data.user.id,
             full_name: fullName,
             email: email,
           },
