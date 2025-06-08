@@ -18,6 +18,7 @@ import AddBathModal from "@/components/add-bath-modal";
 import { UserProgress } from "@/components/user-progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendsList } from "@/components/friends-list";
+import type { BathEntry } from "@/components/recent-activity";
 
 export default function Dashboard() {
   const [open, setOpen] = useState(false);
@@ -25,74 +26,57 @@ export default function Dashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const [activities, setActivities] = useState<BathEntry[]>([]);
+
+  const fetchBaths = async () => {
+    const { data, error } = await supabase
+      .from("baths")
+      .select("*")
+      .eq("user_id", session?.user.id)
+      .order("date", { ascending: false })
+      .order("time", { ascending: false });
+
+    if (!error && data) setActivities(data);
+  };
 
   useEffect(() => {
-    async function checkSession() {
+    async function init() {
       if (!session) {
         router.push("/login");
         return;
       }
 
-      try {
-        setLoading(true);
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
 
-        // Försök hämta profil
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
-
-        if (error && error.code !== "PGRST116") {
-          console.error("Error fetching profile:", error);
-          return;
-        }
-
-        // Om ingen profil finns – skapa
-        if (!data) {
-          const { error: insertError } = await supabase
-            .from("profiles")
-            .insert([
-              {
-                id: session.user.id,
-                full_name: session.user.user_metadata.full_name ?? "",
-                email: session.user.email ?? "",
-              },
-            ]);
-
-          if (insertError) {
-            console.error("Error inserting profile:", insertError);
-            return;
-          }
-
-          // Hämta igen efter insert
-          const { data: createdProfile, error: fetchError } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", session.user.id)
-            .single();
-
-          if (createdProfile) {
-            setProfile(createdProfile);
-          } else {
-            console.error("Error fetching newly inserted profile:", fetchError);
-          }
-        } else {
-          setProfile(data);
-        }
-      } catch (error) {
-        console.error("Unexpected error:", error);
-      } finally {
-        setLoading(false);
+      if (error && error.code !== "PGRST116") {
+        console.error("Error fetching profile:", error);
       }
+
+      if (!data) {
+        await supabase.from("profiles").insert([
+          {
+            id: session.user.id,
+            full_name: session.user.user_metadata.full_name ?? "",
+            email: session.user.email ?? "",
+          },
+        ]);
+      } else {
+        setProfile(data);
+      }
+
+      await fetchBaths();
+      setLoading(false);
     }
 
-    checkSession();
-  }, [session, supabase, router]);
+    init();
+  }, [session]);
 
-  if (loading) {
-    return <div className="container py-10">Loading...</div>;
-  }
+  if (loading) return <div className="container py-10">Loading...</div>;
 
   return (
     <div className="container py-10">
@@ -174,7 +158,7 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <RecentActivity />
+              <RecentActivity activities={activities} />
             </CardContent>
           </Card>
         </div>
@@ -207,10 +191,14 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </div>
+
       <AddBathModal
         open={open}
         setOpen={setOpen}
-        onBathAdded={() => setOpen(false)}
+        onBathAdded={() => {
+          fetchBaths();
+          setOpen(false);
+        }}
       />
     </div>
   );

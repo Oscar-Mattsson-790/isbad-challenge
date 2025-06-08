@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSupabase } from "@/components/supabase-provider";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
-interface BathEntry {
+export interface BathEntry {
   id: string;
   date: string;
   time: string;
@@ -14,36 +13,15 @@ interface BathEntry {
   proof_url: string | null;
 }
 
-export function RecentActivity() {
-  const { supabase, session } = useSupabase();
-  const [activities, setActivities] = useState<BathEntry[]>([]);
+export function RecentActivity({ activities }: { activities: BathEntry[] }) {
+  const [showAll, setShowAll] = useState(false);
 
-  useEffect(() => {
-    async function fetchBaths() {
-      if (!session) return;
-
-      const { data, error } = await supabase
-        .from("baths")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .order("date", { ascending: false })
-        .order("time", { ascending: false })
-        .limit(5);
-
-      if (error) {
-        console.error("Error loading baths:", error.message);
-      } else {
-        setActivities(data);
-      }
-    }
-
-    fetchBaths();
-  }, [supabase, session]);
+  const visibleActivities = showAll ? activities : activities.slice(0, 5);
 
   return (
     <div className="space-y-4">
       <div className="space-y-4">
-        {activities.map((activity) => (
+        {visibleActivities.map((activity) => (
           <div
             key={activity.id}
             className="flex items-center gap-4 rounded-lg border p-3"
@@ -60,7 +38,7 @@ export function RecentActivity() {
                 Duration: {activity.duration}
               </div>
             </div>
-            {activity.proof_url ? (
+            {activity.proof_url && (
               <div className="h-14 w-14 overflow-hidden rounded-md">
                 <Image
                   src={activity.proof_url}
@@ -70,12 +48,16 @@ export function RecentActivity() {
                   className="h-full w-full object-cover"
                 />
               </div>
-            ) : null}
+            )}
           </div>
         ))}
       </div>
-      <Button variant="outline" className="w-full">
-        View all
+      <Button
+        variant="outline"
+        className="w-full"
+        onClick={() => setShowAll(!showAll)}
+      >
+        {showAll ? "Show less" : "View All"}
       </Button>
     </div>
   );
