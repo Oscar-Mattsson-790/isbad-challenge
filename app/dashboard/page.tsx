@@ -18,7 +18,8 @@ import AddBathModal from "@/components/add-bath-modal";
 import { UserProgress } from "@/components/user-progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendsList } from "@/components/friends-list";
-import type { BathEntry } from "@/components/recent-activity";
+import type { BathStats } from "@/lib/get-bath-stats";
+import { getBathStats } from "@/lib/get-bath-stats";
 
 export default function Dashboard() {
   const [open, setOpen] = useState(false);
@@ -26,17 +27,12 @@ export default function Dashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
-  const [activities, setActivities] = useState<BathEntry[]>([]);
+  const [stats, setStats] = useState<BathStats | null>(null);
 
-  const fetchBaths = async () => {
-    const { data, error } = await supabase
-      .from("baths")
-      .select("*")
-      .eq("user_id", session?.user.id)
-      .order("date", { ascending: false })
-      .order("time", { ascending: false });
-
-    if (!error && data) setActivities(data);
+  const fetchBathData = async () => {
+    if (!session) return;
+    const bathStats = await getBathStats(supabase, session.user.id);
+    setStats(bathStats);
   };
 
   useEffect(() => {
@@ -47,6 +43,7 @@ export default function Dashboard() {
       }
 
       setLoading(true);
+
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -69,7 +66,7 @@ export default function Dashboard() {
         setProfile(data);
       }
 
-      await fetchBaths();
+      await fetchBathData();
       setLoading(false);
     }
 
@@ -98,28 +95,30 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <BathStatsCard
-            title="Days completed"
-            value="12"
-            description="out of 30 days"
-          />
-          <BathStatsCard
-            title="Longest bath"
-            value="2:45"
-            description="minutes"
-          />
-          <BathStatsCard
-            title="Latest bath"
-            value="Today"
-            description="10:30"
-          />
-          <BathStatsCard
-            title="Average"
-            value="1:30"
-            description="minutes per bath"
-          />
-        </div>
+        {stats && (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <BathStatsCard
+              title="Days completed"
+              value={stats.daysCompleted.toString()}
+              description="out of 30 days"
+            />
+            <BathStatsCard
+              title="Longest bath"
+              value={stats.longestBath}
+              description="minutes"
+            />
+            <BathStatsCard
+              title="Latest bath"
+              value={stats.latestBath}
+              description={stats.latestTime}
+            />
+            <BathStatsCard
+              title="Average"
+              value={stats.averageDuration}
+              description="minutes per bath"
+            />
+          </div>
+        )}
 
         <div className="grid gap-4 md:grid-cols-7 lg:grid-cols-3 lg:gap-8">
           <Card className="col-span-7 lg:col-span-2">
@@ -143,7 +142,9 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <UserProgress value={40} />
+              <UserProgress
+                value={Math.min(stats?.daysCompleted ?? 0, 30) * (100 / 30)}
+              />
               <h3 className="mt-4 text-lg font-medium">Next milestone</h3>
               <p className="text-sm text-muted-foreground">
                 15 days – Halfway there!
@@ -158,7 +159,7 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <RecentActivity activities={activities} />
+              <RecentActivity activities={stats?.activities ?? []} />
             </CardContent>
           </Card>
         </div>
@@ -196,7 +197,7 @@ export default function Dashboard() {
         open={open}
         setOpen={setOpen}
         onBathAdded={() => {
-          fetchBaths();
+          fetchBathData();
           setOpen(false);
         }}
       />
