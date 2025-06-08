@@ -6,63 +6,81 @@ export type Json =
   | { [key: string]: Json }
   | Json[];
 
+export type BathRow = {
+  id: string;
+  created_at: string;
+  user_id: string;
+  date: string;
+  time: string;
+  duration: string;
+  feeling: string;
+  proof_url: string | null;
+};
+
+export type BathInsert = {
+  id: string;
+  created_at?: string;
+  user_id: string;
+  date: string;
+  time: string;
+  duration: string;
+  feeling: string;
+  proof_url?: string | null;
+};
+
+export type BathUpdate = Partial<BathInsert>;
+
+export type FriendRow = {
+  id: string;
+  created_at: string;
+  user_id: string;
+  friend_id: string;
+  status: string;
+};
+
+export type FriendInsert = {
+  id: string;
+  created_at?: string;
+  user_id: string;
+  friend_id: string;
+  status: string;
+};
+
+export type FriendUpdate = Partial<FriendInsert>;
+
+export type ProfileRow = {
+  id: string;
+  created_at: string;
+  full_name: string;
+  email: string;
+};
+
+export type ProfileInsert = {
+  id: string;
+  created_at?: string;
+  full_name: string;
+  email: string;
+};
+
+export type ProfileUpdate = Partial<ProfileInsert>;
+
 export type Database = {
   public: {
     Tables: {
       baths: {
-        Row: {
-          id: string;
-          created_at: string;
-          user_id: string;
-          date: string;
-          time: string;
-          duration: string;
-          feeling: string;
-          proof_url: string | null;
-        };
-        Insert: {
-          id?: string;
-          created_at?: string;
-          user_id: string;
-          date: string;
-          time: string;
-          duration: string;
-          feeling: string;
-          proof_url?: string | null;
-        };
-        Update: Partial<Database["public"]["Tables"]["baths"]["Insert"]>;
+        Row: BathRow;
+        Insert: BathInsert;
+        Update: BathUpdate;
       };
       friends: {
-        Row: {
-          id: string;
-          created_at: string;
-          user_id: string;
-          friend_id: string;
-          status: string;
-        };
-        Insert: {
-          id?: string;
-          created_at?: string;
-          user_id: string;
-          friend_id: string;
-          status: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["friends"]["Insert"]>;
+        Row: FriendRow;
+        Insert: FriendInsert;
+        Update: FriendUpdate;
       };
       profiles: {
-        Row: {
-          id: string;
-          created_at: string;
-          full_name: string;
-          email: string;
-        };
-        Insert: {
-          id?: string;
-          created_at?: string;
-          full_name: string;
-          email: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
+        Row: ProfileRow;
+        Insert: ProfileInsert;
+        Update: ProfileUpdate;
       };
     };
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
