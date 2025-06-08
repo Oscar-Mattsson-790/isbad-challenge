@@ -46,8 +46,10 @@ export async function getBathStats(
   const format = (s: number) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
+  const uniqueDays = new Set(data.map((b) => b.date.split("T")[0])).size;
+
   return {
-    daysCompleted: total,
+    daysCompleted: uniqueDays,
     longestBath: format(longest),
     averageDuration: format(Math.round(average)),
     latestBath: data[0]?.date ?? "",

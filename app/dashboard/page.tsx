@@ -15,11 +15,11 @@ import { BathCalendar } from "@/components/bath-calendar";
 import { BathStatsCard } from "@/components/bath-stats-card";
 import { RecentActivity } from "@/components/recent-activity";
 import AddBathModal from "@/components/add-bath-modal";
-import { UserProgress } from "@/components/user-progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendsList } from "@/components/friends-list";
 import type { BathStats } from "@/lib/get-bath-stats";
 import { getBathStats } from "@/lib/get-bath-stats";
+import { ProgressCard } from "@/components/progress-card";
 
 export default function Dashboard() {
   const [open, setOpen] = useState(false);
@@ -134,23 +134,7 @@ export default function Dashboard() {
               <BathCalendar />
             </CardContent>
           </Card>
-          <Card className="col-span-7 md:col-span-3 lg:col-span-1">
-            <CardHeader>
-              <CardTitle>Your progress</CardTitle>
-              <CardDescription>
-                Your progress towards the 30-day goal
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <UserProgress
-                value={Math.min(stats?.daysCompleted ?? 0, 30) * (100 / 30)}
-              />
-              <h3 className="mt-4 text-lg font-medium">Next milestone</h3>
-              <p className="text-sm text-muted-foreground">
-                15 days – Halfway there!
-              </p>
-            </CardContent>
-          </Card>
+          <ProgressCard progress={Math.min(stats?.daysCompleted ?? 0, 30)} />
           <Card className="col-span-7 md:col-span-4 lg:col-span-3">
             <CardHeader>
               <CardTitle>Recent activity</CardTitle>
