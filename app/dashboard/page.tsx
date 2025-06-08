@@ -35,19 +35,53 @@ export default function Dashboard() {
 
       try {
         setLoading(true);
+
+        // Försök hämta profil
         const { data, error } = await supabase
           .from("profiles")
           .select("*")
           .eq("id", session.user.id)
           .single();
 
-        if (error) {
+        if (error && error.code !== "PGRST116") {
           console.error("Error fetching profile:", error);
+          return;
+        }
+
+        // Om ingen profil finns – skapa
+        if (!data) {
+          const { error: insertError } = await supabase
+            .from("profiles")
+            .insert([
+              {
+                id: session.user.id,
+                full_name: session.user.user_metadata.full_name ?? "",
+                email: session.user.email ?? "",
+              },
+            ]);
+
+          if (insertError) {
+            console.error("Error inserting profile:", insertError);
+            return;
+          }
+
+          // Hämta igen efter insert
+          const { data: createdProfile, error: fetchError } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", session.user.id)
+            .single();
+
+          if (createdProfile) {
+            setProfile(createdProfile);
+          } else {
+            console.error("Error fetching newly inserted profile:", fetchError);
+          }
         } else {
           setProfile(data);
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Unexpected error:", error);
       } finally {
         setLoading(false);
       }
@@ -173,7 +207,11 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </div>
-      <AddBathModal open={open} setOpen={setOpen} />
+      <AddBathModal
+        open={open}
+        setOpen={setOpen}
+        onBathAdded={() => setOpen(false)}
+      />
     </div>
   );
 }

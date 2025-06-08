@@ -1,8 +1,9 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
+import { useSupabase } from "@/components/supabase-provider";
+import { v4 as uuidv4 } from "uuid";
 import {
   Dialog,
   DialogContent,
@@ -30,18 +31,23 @@ import Image from "next/image";
 interface AddBathModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
+  onBathAdded: () => void;
 }
 
 const emojis = ["😊", "😎", "🥶", "💪", "🔥", "😁", "😌"];
 
-export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
+export default function AddBathModal({
+  open,
+  setOpen,
+  onBathAdded,
+}: AddBathModalProps) {
   const [date, setDate] = useState<Date>(new Date());
   const [time, setTime] = useState("08:00");
   const [duration, setDuration] = useState("01:30");
   const [selectedEmoji, setSelectedEmoji] = useState("😊");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [file, setFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const { supabase, session } = useSupabase();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -58,6 +64,40 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!session) return;
+
+    let proof_url: string | null = null;
+    if (file) {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
+      const filePath = `${session.user.id}/${fileName}`;
+      const { error: uploadError } = await supabase.storage
+        .from("bathproofs")
+        .upload(filePath, file);
+      if (uploadError) {
+        toast.error("Failed to upload image", {
+          description: uploadError.message,
+        });
+        return;
+      }
+      const { data: publicUrl } = supabase.storage
+        .from("bathproofs")
+        .getPublicUrl(filePath);
+      proof_url = publicUrl?.publicUrl ?? null;
+    }
+
+    const { error } = await supabase.from("baths").insert({
+      user_id: session.user.id,
+      date: date.toISOString().split("T")[0],
+      time,
+      duration,
+      feeling: selectedEmoji,
+      proof_url,
+    });
+    if (error) {
+      toast.error("Failed to save bath", { description: error.message });
+      return;
+    }
 
     toast.success("Ice bath recorded!", {
       description: `Your ice bath on ${format(date, "PPP", {
@@ -72,6 +112,7 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
     setSelectedEmoji("😊");
     setFile(null);
     setPhotoPreview(null);
+    onBathAdded?.();
   };
 
   return (
@@ -96,7 +137,8 @@ export default function AddBathModal({ open, setOpen }: AddBathModalProps) {
                       !date && "text-muted-foreground"
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {" "}
+                    <CalendarIcon className="mr-2 h-4 w-4" />{" "}
                     {date
                       ? format(date, "PPP", { locale: enUS })
                       : "Select a date"}
