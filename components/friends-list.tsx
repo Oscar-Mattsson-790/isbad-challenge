@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,8 +12,11 @@ import {
 import { Search, UserPlus, X } from "lucide-react";
 import { useSupabase } from "@/components/supabase-provider";
 import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
+import { sendInvite } from "@/lib/send-invite";
+import { fetchFriends } from "@/lib/friends/fetch-friends";
+import { addFriend } from "@/lib/friends/add-friend";
+import { removeFriend } from "@/lib/friends/remove-friend";
 
 export function FriendsList() {
   const { supabase, session } = useSupabase();
@@ -22,92 +24,111 @@ export function FriendsList() {
   const [searchName, setSearchName] = useState("");
   const [searchResult, setSearchResult] = useState<any | null>(null);
 
-  const fetchFriends = async () => {
+  const loadFriends = async () => {
     if (!session) return;
-
-    const { data, error } = await supabase
-      .from("friends")
-      .select("id, friend_id, profiles:friend_id (full_name)")
-      .eq("user_id", session.user.id);
-
-    if (error) {
-      console.error("Failed to load friends", error);
-    } else {
+    try {
+      const data = await fetchFriends(supabase, session.user.id);
       setFriends(data);
+    } catch (err) {
+      console.error("Failed to load friends", err);
     }
   };
 
   const handleSearch = async () => {
     if (!session || !searchName.trim()) return;
 
-    const trimmedName = searchName.trim();
+    const trimmed = searchName.trim();
+    let foundProfiles: any[] = [];
 
-    const { data, error } = await supabase
+    // 1. Försök hitta via namn
+    const { data: nameMatches, error: nameError } = await supabase
       .from("profiles")
       .select("*")
-      .ilike("full_name", `%${trimmedName}%`);
+      .ilike("full_name", `%${trimmed}%`);
 
-    if (error) {
-      console.error("Search error:", error);
+    if (nameError) {
+      toast.error("Search failed", { description: nameError.message });
       return;
     }
 
-    const filtered = (data ?? []).filter(
-      (person) =>
-        person.id !== session.user.id &&
-        !friends.some((f) => f.friend_id === person.id)
-    );
-
-    setSearchResult(filtered.length > 0 ? filtered[0] : null);
-  };
-
-  const addFriend = async () => {
-    if (!session || !searchResult) return;
-
-    const { error } = await supabase.from("friends").insert({
-      id: uuidv4(),
-      user_id: session.user.id,
-      friend_id: searchResult.id,
-      status: "pending",
-    });
-
-    if (error) {
-      toast.error("Failed to add friend", { description: error.message });
+    if (nameMatches && nameMatches.length > 0) {
+      foundProfiles = nameMatches;
     } else {
-      toast.success("Friend added!");
+      // 2. Om inget matchar på namn, försök hitta via email exakt
+      const { data: emailMatch, error: emailError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("email", trimmed);
+
+      if (emailError) {
+        toast.error("Email search failed", { description: emailError.message });
+        return;
+      }
+
+      if (emailMatch && emailMatch.length > 0) {
+        foundProfiles = emailMatch;
+      }
+    }
+
+    if (foundProfiles.length > 0) {
+      const filtered = foundProfiles.filter(
+        (person) =>
+          person.id !== session.user.id &&
+          !friends.some((f) => f.friend_id === person.id)
+      );
+
+      setSearchResult(filtered.length > 0 ? filtered[0] : null);
+    } else {
+      // 3. Skicka invite endast om det verkligen inte finns någon användare alls
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (emailRegex.test(trimmed)) {
+        await sendInvite(trimmed); // 📨 Skicka inbjudan
+      } else {
+        toast.error("No match", {
+          description: "No match found and input is not an email address.",
+        });
+      }
+
       setSearchResult(null);
-      setSearchName("");
-      fetchFriends();
     }
   };
 
-  const removeFriend = async (friendId: string) => {
-    const { error } = await supabase
-      .from("friends")
-      .delete()
-      .eq("user_id", session!.user.id)
-      .eq("friend_id", friendId);
+  const handleAddFriend = async () => {
+    if (!session || !searchResult) return;
+    try {
+      await addFriend(supabase, session.user.id, searchResult.id);
+      toast.success("Friend added!");
+      setSearchResult(null);
+      setSearchName("");
+      loadFriends();
+    } catch (err: any) {
+      toast.error("Failed to add friend", { description: err.message });
+    }
+  };
 
-    if (error) {
-      toast.error("Failed to remove friend", { description: error.message });
-    } else {
+  const handleRemoveFriend = async (friendId: string) => {
+    if (!session) return;
+    try {
+      await removeFriend(supabase, session.user.id, friendId);
       toast.success("Friend removed");
-      fetchFriends();
+      loadFriends();
+    } catch (err: any) {
+      toast.error("Failed to remove friend", { description: err.message });
     }
   };
 
   useEffect(() => {
-    fetchFriends();
+    loadFriends();
   }, [session]);
 
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Your Friends</CardTitle>
+          <CardTitle>Find Your Friends</CardTitle>
         </div>
         <CardDescription>
-          Track your friends’ progress in the challenge
+          Track your friends progress in the challenge
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -115,7 +136,7 @@ export function FriendsList() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search by name..."
+            placeholder="Search by name or email..."
             className="pl-8"
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
@@ -131,7 +152,7 @@ export function FriendsList() {
             <div>
               <div className="font-medium">{searchResult.full_name}</div>
             </div>
-            <Button onClick={addFriend} size="sm" variant="outline">
+            <Button onClick={handleAddFriend} size="sm" variant="outline">
               Add Friend
             </Button>
           </div>
@@ -149,7 +170,7 @@ export function FriendsList() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => removeFriend(friend.friend_id)}
+                onClick={() => handleRemoveFriend(friend.friend_id)}
                 title="Remove friend"
               >
                 <X className="h-4 w-4 text-red-500" />
