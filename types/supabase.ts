@@ -18,7 +18,7 @@ export type BathRow = {
 };
 
 export type BathInsert = {
-  id: string;
+  id?: string;
   created_at?: string;
   user_id: string;
   date: string;
@@ -36,10 +36,11 @@ export type FriendRow = {
   user_id: string;
   friend_id: string;
   status: string;
+  profiles?: ProfileRow | null;
 };
 
 export type FriendInsert = {
-  id: string;
+  id?: string;
   created_at?: string;
   user_id: string;
   friend_id: string;
@@ -71,16 +72,39 @@ export type Database = {
         Row: BathRow;
         Insert: BathInsert;
         Update: BathUpdate;
+        Relationships: [
+          {
+            foreignKeyName: "baths_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       friends: {
         Row: FriendRow;
         Insert: FriendInsert;
         Update: FriendUpdate;
+        Relationships: [
+          {
+            foreignKeyName: "friends_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "friends_friend_id_fkey";
+            columns: ["friend_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       profiles: {
         Row: ProfileRow;
         Insert: ProfileInsert;
         Update: ProfileUpdate;
+        Relationships: [];
       };
     };
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
