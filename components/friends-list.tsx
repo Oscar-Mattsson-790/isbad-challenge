@@ -19,7 +19,7 @@ import { toast } from "sonner";
 export function FriendsList() {
   const { supabase, session } = useSupabase();
   const [friends, setFriends] = useState<any[]>([]);
-  const [searchEmail, setSearchEmail] = useState("");
+  const [searchName, setSearchName] = useState("");
   const [searchResult, setSearchResult] = useState<any | null>(null);
 
   const fetchFriends = async () => {
@@ -27,38 +27,38 @@ export function FriendsList() {
 
     const { data, error } = await supabase
       .from("friends")
-      .select("id, friend_id, profiles:friend_id (full_name, email)")
+      .select("id, friend_id, profiles:friend_id (full_name)")
       .eq("user_id", session.user.id);
 
-    if (!error) {
-      setFriends(data);
-    } else {
+    if (error) {
       console.error("Failed to load friends", error);
+    } else {
+      setFriends(data);
     }
   };
 
   const handleSearch = async () => {
-    if (!session || !searchEmail.trim()) return;
+    if (!session || !searchName.trim()) return;
 
-    const trimmedEmail = searchEmail.trim();
+    const trimmedName = searchName.trim();
 
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
-      .ilike("email", `%${trimmedEmail}%`);
+      .ilike("full_name", `%${trimmedName}%`);
 
-    console.log("Search result:", data, "Error:", error);
-
-    if (!error && data && data.length > 0) {
-      const alreadyFriend = friends.some((f) => f.friend_id === data[0].id);
-      if (data[0].id === session.user.id || alreadyFriend) {
-        setSearchResult(null);
-      } else {
-        setSearchResult(data[0]);
-      }
-    } else {
-      setSearchResult(null);
+    if (error) {
+      console.error("Search error:", error);
+      return;
     }
+
+    const filtered = (data ?? []).filter(
+      (person) =>
+        person.id !== session.user.id &&
+        !friends.some((f) => f.friend_id === person.id)
+    );
+
+    setSearchResult(filtered.length > 0 ? filtered[0] : null);
   };
 
   const addFriend = async () => {
@@ -71,12 +71,13 @@ export function FriendsList() {
       status: "pending",
     });
 
-    if (!error) {
-      setSearchResult(null);
-      setSearchEmail("");
-      fetchFriends();
+    if (error) {
+      toast.error("Failed to add friend", { description: error.message });
     } else {
-      console.error("Failed to add friend", error);
+      toast.success("Friend added!");
+      setSearchResult(null);
+      setSearchName("");
+      fetchFriends();
     }
   };
 
@@ -114,10 +115,10 @@ export function FriendsList() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search by email..."
+            placeholder="Search by name..."
             className="pl-8"
-            value={searchEmail}
-            onChange={(e) => setSearchEmail(e.target.value)}
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
           />
           <Button size="sm" onClick={handleSearch}>
             <UserPlus className="mr-1 h-4 w-4" />
@@ -129,9 +130,6 @@ export function FriendsList() {
           <div className="mb-4 flex items-center justify-between rounded border p-2">
             <div>
               <div className="font-medium">{searchResult.full_name}</div>
-              <div className="text-sm text-muted-foreground">
-                {searchResult.email}
-              </div>
             </div>
             <Button onClick={addFriend} size="sm" variant="outline">
               Add Friend
@@ -147,9 +145,6 @@ export function FriendsList() {
             >
               <div>
                 <div className="font-medium">{friend.profiles.full_name}</div>
-                <div className="text-sm text-muted-foreground">
-                  {friend.profiles.email}
-                </div>
               </div>
               <Button
                 variant="ghost"
