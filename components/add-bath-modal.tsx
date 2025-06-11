@@ -43,7 +43,8 @@ export default function AddBathModal({
 }: AddBathModalProps) {
   const [date, setDate] = useState<Date>(new Date());
   const [time, setTime] = useState("08:00");
-  const [duration, setDuration] = useState("01:30");
+  const [durationMinutes, setDurationMinutes] = useState("1");
+  const [durationSeconds, setDurationSeconds] = useState("30");
   const [selectedEmoji, setSelectedEmoji] = useState("😊");
   const [file, setFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -65,6 +66,11 @@ export default function AddBathModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session) return;
+
+    const duration = `${durationMinutes.padStart(
+      2,
+      "0"
+    )}:${durationSeconds.padStart(2, "0")}`;
 
     let proof_url: string | null = null;
     if (file) {
@@ -108,7 +114,8 @@ export default function AddBathModal({
     setOpen(false);
     setDate(new Date());
     setTime("08:00");
-    setDuration("01:30");
+    setDurationMinutes("1");
+    setDurationSeconds("30");
     setSelectedEmoji("😊");
     setFile(null);
     setPhotoPreview(null);
@@ -137,8 +144,7 @@ export default function AddBathModal({
                       !date && "text-muted-foreground"
                     )}
                   >
-                    {" "}
-                    <CalendarIcon className="mr-2 h-4 w-4" />{" "}
+                    <CalendarIcon className="mr-2 h-4 w-4" />
                     {date
                       ? format(date, "PPP", { locale: enUS })
                       : "Select a date"}
@@ -154,6 +160,7 @@ export default function AddBathModal({
                 </PopoverContent>
               </Popover>
             </div>
+
             <div className="grid gap-2">
               <Label htmlFor="time">Time</Label>
               <div className="flex items-center gap-2">
@@ -167,16 +174,41 @@ export default function AddBathModal({
                 />
               </div>
             </div>
+
             <div className="grid gap-2">
-              <Label htmlFor="duration">Duration (mm:ss)</Label>
-              <Input
-                id="duration"
-                type="text"
-                placeholder="01:30"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-              />
+              <Label>Duration</Label>
+              <div className="flex gap-2">
+                <div className="flex flex-col">
+                  <span className="text-sm">Minutes</span>
+                  <select
+                    value={durationMinutes}
+                    onChange={(e) => setDurationMinutes(e.target.value)}
+                    className="border rounded px-2 py-1 bg-white text-black"
+                  >
+                    {[...Array(31).keys()].map((min) => (
+                      <option key={min} value={min.toString()}>
+                        {min.toString().padStart(2, "0")}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm">Seconds</span>
+                  <select
+                    value={durationSeconds}
+                    onChange={(e) => setDurationSeconds(e.target.value)}
+                    className="border rounded px-2 py-1 bg-white text-black"
+                  >
+                    {[...Array(60).keys()].map((sec) => (
+                      <option key={sec} value={sec.toString()}>
+                        {sec.toString().padStart(2, "0")}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
+
             <div className="grid gap-2">
               <Label>How did it feel?</Label>
               <div className="flex justify-between">
@@ -195,6 +227,7 @@ export default function AddBathModal({
                 ))}
               </div>
             </div>
+
             <div className="grid gap-2">
               <Label htmlFor="photo">Proof (photo/video)</Label>
               <div className="flex flex-col gap-2">
