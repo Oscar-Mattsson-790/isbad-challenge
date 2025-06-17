@@ -17,9 +17,9 @@ import { RecentActivity } from "@/components/recent-activity";
 import AddBathModal from "@/components/add-bath-modal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendsList } from "@/components/friends-list";
-import type { BathStats } from "@/lib/get-bath-stats";
-import { getBathStats } from "@/lib/get-bath-stats";
 import { ProgressCard } from "@/components/progress-card";
+import { loadOrCreateUserProfile } from "@/lib/profile/load-or-create-profile";
+import { useBathStats } from "@/lib/hooks/use-bath-stats";
 
 export default function Dashboard() {
   const [open, setOpen] = useState(false);
@@ -27,13 +27,8 @@ export default function Dashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
-  const [stats, setStats] = useState<BathStats | null>(null);
 
-  const fetchBathData = async () => {
-    if (!session) return;
-    const bathStats = await getBathStats(supabase, session.user.id);
-    setStats(bathStats);
-  };
+  const { stats, fetchBathData } = useBathStats(supabase, session?.user.id);
 
   useEffect(() => {
     async function init() {
@@ -43,35 +38,14 @@ export default function Dashboard() {
       }
 
       setLoading(true);
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .single();
-
-      if (error && error.code !== "PGRST116") {
-        console.error("Error fetching profile:", error);
-      }
-
-      if (!data) {
-        await supabase.from("profiles").insert([
-          {
-            id: session.user.id,
-            full_name: session.user.user_metadata.full_name ?? "",
-            email: session.user.email ?? "",
-          },
-        ]);
-      } else {
-        setProfile(data);
-      }
-
+      const profile = await loadOrCreateUserProfile(supabase, session.user);
+      setProfile(profile);
       await fetchBathData();
       setLoading(false);
     }
 
     init();
-  }, [session]);
+  }, [session, router, supabase, fetchBathData]);
 
   if (loading) return <div className="container py-10">Loading...</div>;
 
@@ -131,10 +105,12 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center">
-              <BathCalendar />
+              <BathCalendar activities={stats?.activities ?? []} />
             </CardContent>
           </Card>
+
           <ProgressCard progress={Math.min(stats?.daysCompleted ?? 0, 30)} />
+
           <Card className="col-span-7 md:col-span-4 lg:col-span-3">
             <CardHeader>
               <CardTitle>Recent activity</CardTitle>

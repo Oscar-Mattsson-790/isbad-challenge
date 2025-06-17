@@ -2,38 +2,25 @@
 
 import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
+import type { BathRow } from "@/types/supabase";
 
-// Simulated bath data
-const bathData = [
-  { date: new Date(2024, 2, 1), duration: "02:15", emoji: "😊" },
-  { date: new Date(2024, 2, 2), duration: "01:45", emoji: "🥶" },
-  { date: new Date(2024, 2, 3), duration: "02:00", emoji: "💪" },
-  { date: new Date(2024, 2, 5), duration: "01:30", emoji: "😎" },
-  { date: new Date(2024, 2, 6), duration: "02:30", emoji: "🔥" },
-  { date: new Date(2024, 2, 8), duration: "01:15", emoji: "😌" },
-  { date: new Date(2024, 2, 9), duration: "01:45", emoji: "🥶" },
-  { date: new Date(2024, 2, 10), duration: "02:15", emoji: "😁" },
-  { date: new Date(2024, 2, 11), duration: "01:30", emoji: "💪" },
-  { date: new Date(2024, 2, 12), duration: "02:00", emoji: "😊" },
-  { date: new Date(), duration: "01:45", emoji: "🔥" },
-];
+interface BathCalendarProps {
+  activities: BathRow[];
+}
 
-export function BathCalendar() {
+export function BathCalendar({ activities }: BathCalendarProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [selectedBath, setSelectedBath] = useState<any>(null);
+  const [selectedBath, setSelectedBath] = useState<BathRow | null>(null);
 
   const handleDayClick = (day: Date | undefined) => {
     if (!day) return;
-
     setDate(day);
 
-    // Find bath data for the selected day
-    const bath = bathData.find(
-      (b) => b.date.toDateString() === day.toDateString()
+    const match = activities.find(
+      (b) => new Date(b.date).toDateString() === day.toDateString()
     );
 
-    setSelectedBath(bath);
+    setSelectedBath(match ?? null);
   };
 
   return (
@@ -45,8 +32,9 @@ export function BathCalendar() {
         className="rounded-md border"
         modifiers={{
           completed: (date) =>
-            bathData.some(
-              (bath) => bath.date.toDateString() === date.toDateString()
+            activities.some(
+              (bath) =>
+                new Date(bath.date).toDateString() === date.toDateString()
             ),
         }}
         modifiersClassNames={{
@@ -54,8 +42,8 @@ export function BathCalendar() {
         }}
         components={{
           DayContent: ({ date }) => {
-            const bath = bathData.find(
-              (b) => b.date.toDateString() === date.toDateString()
+            const bath = activities.find(
+              (b) => new Date(b.date).toDateString() === date.toDateString()
             );
 
             return (
@@ -63,7 +51,9 @@ export function BathCalendar() {
                 <div className="flex flex-col items-center">
                   <span>{date.getDate()}</span>
                   {bath && (
-                    <span className="mt-[-4px] text-[10px]">{bath.emoji}</span>
+                    <span className="mt-[-4px] text-[10px]">
+                      {bath.feeling}
+                    </span>
                   )}
                 </div>
               </div>
@@ -75,7 +65,7 @@ export function BathCalendar() {
       {selectedBath && (
         <div className="mt-4 rounded-md border p-4">
           <h3 className="font-medium">
-            {selectedBath.date.toLocaleDateString("sv-SE", {
+            {new Date(selectedBath.date).toLocaleDateString("sv-SE", {
               weekday: "long",
               year: "numeric",
               month: "long",
@@ -85,7 +75,7 @@ export function BathCalendar() {
           <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
             <div>
               <p className="text-muted-foreground">Tidpunkt</p>
-              <p>10:30</p>
+              <p>{selectedBath.time}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Varaktighet</p>
@@ -93,13 +83,22 @@ export function BathCalendar() {
             </div>
             <div>
               <p className="text-muted-foreground">Känsla</p>
-              <p className="text-xl">{selectedBath.emoji}</p>
+              <p className="text-xl">{selectedBath.feeling}</p>
             </div>
             <div>
               <p className="text-muted-foreground">Bevis</p>
-              <p className="text-sm text-blue-600 hover:underline cursor-pointer">
-                Visa bild
-              </p>
+              {selectedBath.proof_url ? (
+                <a
+                  href={selectedBath.proof_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Visa bild
+                </a>
+              ) : (
+                <p className="text-sm text-muted-foreground">Ingen bild</p>
+              )}
             </div>
           </div>
         </div>

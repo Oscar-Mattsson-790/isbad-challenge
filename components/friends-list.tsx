@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Search, UserPlus, X } from "lucide-react";
 import { useSupabase } from "@/components/supabase-provider";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { sendInvite } from "@/lib/send-invite";
 import { fetchFriends } from "@/lib/friends/fetch-friends";
@@ -24,7 +24,7 @@ export function FriendsList() {
   const [searchName, setSearchName] = useState("");
   const [searchResult, setSearchResult] = useState<any | null>(null);
 
-  const loadFriends = async () => {
+  const loadFriends = useCallback(async () => {
     if (!session) return;
     try {
       const data = await fetchFriends(supabase, session.user.id);
@@ -32,7 +32,11 @@ export function FriendsList() {
     } catch (err) {
       console.error("Failed to load friends", err);
     }
-  };
+  }, [supabase, session]);
+
+  useEffect(() => {
+    loadFriends();
+  }, [loadFriends]);
 
   const handleSearch = async () => {
     if (!session || !searchName.trim()) return;
@@ -40,7 +44,6 @@ export function FriendsList() {
     const trimmed = searchName.trim();
     let foundProfiles: any[] = [];
 
-    // 1. Försök hitta via namn
     const { data: nameMatches, error: nameError } = await supabase
       .from("profiles")
       .select("*")
@@ -54,7 +57,6 @@ export function FriendsList() {
     if (nameMatches && nameMatches.length > 0) {
       foundProfiles = nameMatches;
     } else {
-      // 2. Om inget matchar på namn, försök hitta via email exakt
       const { data: emailMatch, error: emailError } = await supabase
         .from("profiles")
         .select("*")
@@ -79,10 +81,9 @@ export function FriendsList() {
 
       setSearchResult(filtered.length > 0 ? filtered[0] : null);
     } else {
-      // 3. Skicka invite endast om det verkligen inte finns någon användare alls
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (emailRegex.test(trimmed)) {
-        await sendInvite(trimmed); // 📨 Skicka inbjudan
+        await sendInvite(trimmed);
       } else {
         toast.error("No match", {
           description: "No match found and input is not an email address.",
@@ -116,10 +117,6 @@ export function FriendsList() {
       toast.error("Failed to remove friend", { description: err.message });
     }
   };
-
-  useEffect(() => {
-    loadFriends();
-  }, [session]);
 
   return (
     <Card>

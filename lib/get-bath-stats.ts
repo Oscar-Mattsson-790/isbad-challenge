@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { BathEntry } from "@/components/recent-activity";
+import type { BathRow } from "@/types/supabase";
 import type { Database } from "@/types/supabase";
 
 export interface BathStats {
@@ -8,7 +8,7 @@ export interface BathStats {
   averageDuration: string;
   latestBath: string;
   latestTime: string;
-  activities: BathEntry[];
+  activities: BathRow[];
 }
 
 export async function getBathStats(
