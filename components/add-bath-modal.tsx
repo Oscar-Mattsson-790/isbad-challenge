@@ -124,7 +124,7 @@ export default function AddBathModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="mx-auto mt-2 w-[95%] sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Log a new ice bath</DialogTitle>
           <DialogDescription>
@@ -163,16 +163,78 @@ export default function AddBathModal({
 
             <div className="grid gap-2">
               <Label htmlFor="time">Time</Label>
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="time"
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="flex-1"
-                />
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <Clock className="mr-2 h-4 w-4" />
+                    {time}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  side="bottom"
+                  align="start"
+                  className="w-auto p-2 flex flex-col gap-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={time.split(":")[0]}
+                      onChange={(e) =>
+                        setTime(
+                          `${e.target.value.padStart(2, "0")}:${time.split(":")[1]}`
+                        )
+                      }
+                      className="border rounded px-2 py-1 bg-white text-black"
+                    >
+                      {[...Array(24).keys()].map((h) => {
+                        const val = h.toString().padStart(2, "0");
+                        return (
+                          <option
+                            key={val}
+                            value={val}
+                            className={
+                              time.split(":")[0] === val
+                                ? "font-semibold text-blue-600 bg-blue-100"
+                                : ""
+                            }
+                          >
+                            {val}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <span className="text-lg font-medium">:</span>
+                    <select
+                      value={time.split(":")[1]}
+                      onChange={(e) =>
+                        setTime(
+                          `${time.split(":")[0]}:${e.target.value.padStart(2, "0")}`
+                        )
+                      }
+                      className="border rounded px-2 py-1 bg-white text-black"
+                    >
+                      {[...Array(60).keys()].map((m) => {
+                        const val = m.toString().padStart(2, "0");
+                        return (
+                          <option
+                            key={val}
+                            value={val}
+                            className={
+                              time.split(":")[1] === val
+                                ? "font-semibold text-blue-600 bg-blue-100"
+                                : ""
+                            }
+                          >
+                            {val}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="grid gap-2">
@@ -211,7 +273,7 @@ export default function AddBathModal({
 
             <div className="grid gap-2">
               <Label>How did it feel?</Label>
-              <div className="flex justify-between">
+              <div className="grid grid-cols-7 gap-2 justify-center">
                 {emojis.map((emoji) => (
                   <Button
                     key={emoji}
@@ -233,20 +295,20 @@ export default function AddBathModal({
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="photo"
-                  className="flex h-32 cursor-pointer flex-col items-center justify-center rounded-md border border-dashed"
+                  className="flex h-32 cursor-pointer flex-col items-center justify-center rounded-md border border-dashed p-2 text-center"
                 >
                   {photoPreview ? (
                     <div className="relative h-full w-full">
                       <Image
                         src={photoPreview || "/placeholder.svg"}
                         alt="Preview"
-                        className="h-full w-full object-contain"
-                        width={120}
-                        height={120}
+                        className="h-auto max-h-[300px] w-full object-cover rounded"
+                        width={300}
+                        height={300}
                       />
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center gap-1 p-4 text-center">
+                    <div className="flex flex-col items-center justify-center gap-1 p-2 sm:p-4">
                       <Upload className="h-6 w-6 text-muted-foreground" />
                       <p className="text-sm font-medium">
                         Drag and drop or click to upload
@@ -271,7 +333,7 @@ export default function AddBathModal({
             <Button
               type="submit"
               variant="whiteShadow"
-              className="border border-black"
+              className="border border-black w-full"
             >
               Save
             </Button>

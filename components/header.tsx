@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings } from "lucide-react";
+import { LogOut, User, Settings, Menu } from "lucide-react";
 import Image from "next/image";
 
 export default function Header() {
@@ -22,7 +22,6 @@ export default function Header() {
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
-
     if (error) {
       toast.error("Sign out error", {
         description: error.message,
@@ -36,7 +35,8 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
-      <div className="container px-6 flex h-16 items-center justify-between">
+      <div className="container px-4 sm:px-6 flex h-16 items-center justify-between">
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/images/isbad_logo_black.png"
@@ -47,7 +47,8 @@ export default function Header() {
           />
         </Link>
 
-        <nav className="flex gap-6">
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex gap-6">
           <Link
             href="/"
             className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
@@ -70,7 +71,33 @@ export default function Header() {
           )}
         </nav>
 
-        <div className="flex items-center gap-4">
+        {/* User area (desktop & mobile) */}
+        <div className="flex items-center gap-2">
+          {/* Mobile menu */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/">Home</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="https://www.isbad.se">About</Link>
+                </DropdownMenuItem>
+                {session && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard">My Challenge</Link>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Session-specific buttons */}
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -81,7 +108,7 @@ export default function Header() {
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
@@ -109,7 +136,7 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <Button
                 asChild
                 size="sm"
