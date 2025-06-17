@@ -29,7 +29,7 @@ export function RecentActivity({ activities }: { activities: BathEntry[] }) {
             <div className="flex-1">
               <div className="flex justify-between">
                 <div className="font-medium">
-                  {new Date(activity.date).toLocaleDateString()}{" "}
+                  {new Date(activity.date).toLocaleDateString("sv-SE")}{" "}
                   {activity.time.slice(0, 5)}
                 </div>
                 <div className="text-2xl">{activity.feeling}</div>

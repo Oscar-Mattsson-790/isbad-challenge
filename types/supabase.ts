@@ -54,6 +54,9 @@ export type ProfileRow = {
   created_at: string;
   full_name: string;
   email: string;
+  challenge_length?: number | null;
+  challenge_started_at?: string | null;
+  challenge_active?: boolean | null;
 };
 
 export type ProfileInsert = {
@@ -61,6 +64,9 @@ export type ProfileInsert = {
   created_at?: string;
   full_name: string;
   email: string;
+  challenge_length?: number | null;
+  challenge_started_at?: string | null;
+  challenge_active?: boolean | null;
 };
 
 export type ProfileUpdate = Partial<ProfileInsert>;
@@ -78,7 +84,7 @@ export type Database = {
             columns: ["user_id"];
             referencedRelation: "profiles";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       friends: {
@@ -97,7 +103,7 @@ export type Database = {
             columns: ["friend_id"];
             referencedRelation: "profiles";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       profiles: {

@@ -46,10 +46,27 @@ export async function getBathStats(
   const format = (s: number) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
-  const uniqueDays = new Set(data.map((b) => b.date.split("T")[0])).size;
+  // 🧠 Streak-logik: räkna hur många dagar i rad man har loggat
+  const today = new Date();
+  const sortedDates = data
+    .map((b) => new Date(b.date.split("T")[0]))
+    .sort((a, b) => b.getTime() - a.getTime());
+
+  let streak = 0;
+  for (let i = 0; i < sortedDates.length; i++) {
+    const expectedDate = new Date();
+    expectedDate.setDate(today.getDate() - i);
+    expectedDate.setHours(0, 0, 0, 0);
+
+    if (sortedDates[i].toDateString() === expectedDate.toDateString()) {
+      streak++;
+    } else {
+      break;
+    }
+  }
 
   return {
-    daysCompleted: uniqueDays,
+    daysCompleted: streak,
     longestBath: format(longest),
     averageDuration: format(Math.round(average)),
     latestBath: data[0]?.date ?? "",

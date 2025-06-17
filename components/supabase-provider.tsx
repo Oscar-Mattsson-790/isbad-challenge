@@ -14,6 +14,7 @@ import type { Database } from "@/types/supabase";
 type SupabaseContextType = {
   supabase: SupabaseClient<Database>;
   session: Session | null;
+  initialLoading: boolean;
 };
 
 const Context = createContext<SupabaseContextType | undefined>(undefined);
@@ -27,12 +28,19 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   );
 
   const [session, setSession] = useState<Session | null>(null);
+  const [initialLoading, setInitialLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const getSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setSession(session);
-    });
+      setInitialLoading(false);
+    };
+
+    getSession();
 
     const {
       data: { subscription },
@@ -48,7 +56,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   return (
-    <Context.Provider value={{ supabase, session }}>
+    <Context.Provider value={{ supabase, session, initialLoading }}>
       {children}
     </Context.Provider>
   );

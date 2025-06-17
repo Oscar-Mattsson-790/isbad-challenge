@@ -22,8 +22,13 @@ import { loadOrCreateUserProfile } from "@/lib/profile/load-or-create-profile";
 import { useBathStats } from "@/lib/hooks/use-bath-stats";
 
 export default function Dashboard() {
+  const [challengeLength, setChallengeLength] = useState(30);
+  const [challengeStartedAt, setChallengeStartedAt] = useState<string | null>(
+    null
+  );
+  const [challengeActive, setChallengeActive] = useState(false);
   const [open, setOpen] = useState(false);
-  const { supabase, session } = useSupabase();
+  const { supabase, session, initialLoading } = useSupabase();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -31,7 +36,9 @@ export default function Dashboard() {
   const { stats, fetchBathData } = useBathStats(supabase, session?.user.id);
 
   useEffect(() => {
-    async function init() {
+    const init = async () => {
+      if (initialLoading) return;
+
       if (!session) {
         router.push("/login");
         return;
@@ -40,14 +47,68 @@ export default function Dashboard() {
       setLoading(true);
       const profile = await loadOrCreateUserProfile(supabase, session.user);
       setProfile(profile);
+      setChallengeLength(profile.challenge_length ?? 30);
+      setChallengeStartedAt(profile.challenge_started_at ?? null);
+      setChallengeActive(profile.challenge_active ?? false);
       await fetchBathData();
       setLoading(false);
-    }
+    };
 
     init();
-  }, [session, router, supabase, fetchBathData]);
+  }, [initialLoading, session, router, supabase, fetchBathData]);
 
-  if (loading) return <div className="container py-10">Loading...</div>;
+  const startChallenge = async (days: number) => {
+    if (!session) return;
+    const today = new Date().toISOString().split("T")[0];
+
+    setChallengeLength(days);
+    setChallengeStartedAt(today);
+    setChallengeActive(true);
+
+    await supabase
+      .from("profiles")
+      .update({
+        challenge_length: days,
+        challenge_started_at: today,
+        challenge_active: true,
+      })
+      .eq("id", session.user.id);
+  };
+
+  const cancelChallenge = async () => {
+    if (!session) return;
+
+    setChallengeActive(false);
+    setChallengeStartedAt(null);
+
+    await supabase
+      .from("profiles")
+      .update({
+        challenge_active: false,
+        challenge_started_at: null,
+      })
+      .eq("id", session.user.id);
+  };
+
+  const resetChallenge = async () => {
+    if (!session) return;
+
+    setChallengeActive(false);
+    setChallengeStartedAt(null);
+    setChallengeLength(30); // default
+
+    await supabase
+      .from("profiles")
+      .update({
+        challenge_active: false,
+        challenge_started_at: null,
+        challenge_length: 30,
+      })
+      .eq("id", session.user.id);
+  };
+
+  if (loading || initialLoading)
+    return <div className="container py-10">Loading...</div>;
 
   return (
     <div className="container py-10">
@@ -69,12 +130,29 @@ export default function Dashboard() {
           </Button>
         </div>
 
+        {!challengeActive && (
+          <div>
+            <p>Start a new challenge, choose a duration:</p>
+            <div className="grid grid-cols-3 gap-1 max-w-sm">
+              {[10, 15, 30, 50, 100, 365].map((days) => (
+                <Button
+                  className="bg-[#1AA7EC] hover:bg-[#1AA7EC]/90"
+                  key={days}
+                  onClick={() => startChallenge(days)}
+                >
+                  {days}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {stats && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <BathStatsCard
               title="Days completed"
               value={stats.daysCompleted.toString()}
-              description="out of 30 days"
+              description={`out of ${challengeLength} days`}
             />
             <BathStatsCard
               title="Longest bath"
@@ -98,10 +176,14 @@ export default function Dashboard() {
           <Card className="col-span-7 lg:col-span-2">
             <CardHeader>
               <CardTitle className="text-center">
-                Your 30-day challenge
+                {challengeActive
+                  ? `Your ${challengeLength}-day challenge`
+                  : "Choose your challenge"}
               </CardTitle>
               <CardDescription className="text-center">
-                Track your progress in the calendar below
+                {challengeStartedAt
+                  ? `Started on ${new Date(challengeStartedAt).toLocaleDateString("sv-SE")}`
+                  : "Track your progress in the calendar below"}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center">
@@ -109,7 +191,20 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          <ProgressCard progress={Math.min(stats?.daysCompleted ?? 0, 30)} />
+          <ProgressCard
+            progress={Math.min(stats?.daysCompleted ?? 0, challengeLength)}
+            challengeLength={challengeLength}
+            onCancel={
+              challengeActive && (stats?.daysCompleted ?? 0) < challengeLength
+                ? cancelChallenge
+                : undefined
+            }
+            onCompleteReset={
+              challengeActive && (stats?.daysCompleted ?? 0) >= challengeLength
+                ? resetChallenge
+                : undefined
+            }
+          />
 
           <Card className="col-span-7 md:col-span-4 lg:col-span-3">
             <CardHeader>

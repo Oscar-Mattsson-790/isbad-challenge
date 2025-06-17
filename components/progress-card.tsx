@@ -1,4 +1,3 @@
-// components/progress-card.tsx
 import {
   Card,
   CardHeader,
@@ -6,17 +5,34 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
-export function ProgressCard({ progress }: { progress: number }) {
-  const percentage = progress * (100 / 30);
+type Props = {
+  progress: number;
+  challengeLength: number;
+  onCancel?: () => void;
+  onCompleteReset?: () => void;
+};
+
+export function ProgressCard({
+  progress,
+  challengeLength,
+  onCancel,
+  onCompleteReset,
+}: Props) {
+  const percentage = Math.min((progress / challengeLength) * 100, 100);
   const nextMilestone =
-    progress >= 15 ? "30 days – Almost done!" : "15 days – Halfway there!";
+    progress >= challengeLength
+      ? "Challenge complete! 🎉"
+      : `${challengeLength} days – Keep going!`;
 
   return (
     <Card className="col-span-7 md:col-span-3 lg:col-span-1">
       <CardHeader>
         <CardTitle>Your progress</CardTitle>
-        <CardDescription>Your progress towards the 30-day goal</CardDescription>
+        <CardDescription>
+          Progress towards your {challengeLength}-day goal
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
@@ -31,8 +47,26 @@ export function ProgressCard({ progress }: { progress: number }) {
             />
           </div>
         </div>
+
         <h3 className="mt-4 text-lg font-medium">Next milestone</h3>
-        <p className="text-sm text-muted-foreground">{nextMilestone}</p>
+        <p className="text-sm text-muted-foreground mb-4">{nextMilestone}</p>
+
+        {onCancel && (
+          <Button variant="outline" className="w-full" onClick={onCancel}>
+            Cancel Challenge
+          </Button>
+        )}
+
+        {onCompleteReset && (
+          <div className="space-y-2 mt-4">
+            <p className="text-sm text-center font-medium">
+              🎉 Congratulations!
+            </p>
+            <Button className="w-full bg-[#1AA7EC]" onClick={onCompleteReset}>
+              Start a new challenge
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

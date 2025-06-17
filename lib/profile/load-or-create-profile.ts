@@ -21,9 +21,17 @@ export async function loadOrCreateUserProfile(
       id: user.id,
       full_name: user.user_metadata.full_name ?? "",
       email: user.email ?? "",
+      challenge_length: 30,
+      challenge_active: false,
+      challenge_started_at: null,
     };
-    await supabase.from("profiles").insert([newProfile]);
-    return newProfile;
+    const { data: insertedProfile } = await supabase
+      .from("profiles")
+      .insert([newProfile])
+      .select()
+      .single();
+
+    return insertedProfile;
   }
 
   return data;
