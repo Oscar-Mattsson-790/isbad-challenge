@@ -1,7 +1,5 @@
 "use client";
 
-import type React from "react";
-
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { FcGoogle } from "react-icons/fc";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,16 +29,13 @@ export default function LoginPage() {
       });
 
       if (error) {
-        toast.error("Login failed", {
-          description: error.message,
-        });
+        toast.error("Login failed", { description: error.message });
         return;
       }
 
       router.push("/dashboard");
-      router.refresh();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Login error:", error);
       toast.error("An error occurred", {
         description: "Could not log in. Please try again later.",
       });
@@ -49,24 +45,19 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
+    const redirectTo =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000/auth/callback"
+        : `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`;
 
-      if (error) {
-        toast.error("Login failed", {
-          description: error.message,
-        });
-      }
-    } catch (error) {
-      console.error("Google login error:", error);
-      toast.error("An error occurred", {
-        description: "Could not log in with Google. Please try again later.",
-      });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+      },
+    });
+    if (error) {
+      toast.error("Google login failed: " + error.message);
     }
   };
 
@@ -92,12 +83,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="grid gap-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              <Link href="/forgot-password" className="text-sm underline">
-                Forgot password?
-              </Link>
-            </div>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
@@ -130,22 +116,7 @@ export default function LoginPage() {
           onClick={handleGoogleLogin}
           disabled={loading}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="mr-2 h-4 w-4"
-          >
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M8 12h8"></path>
-            <path d="M12 8v8"></path>
-          </svg>
+          <FcGoogle size={20} />
           Google
         </Button>
         <p className="text-center text-sm text-muted-foreground">
