@@ -90,6 +90,18 @@ export default function Header() {
                 <DropdownMenuItem asChild>
                   <Link href="https://www.isbad.se">About</Link>
                 </DropdownMenuItem>
+
+                {!session && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/login">Log in</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/signup">Sign up</Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 {session && (
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard">My Challenge</Link>

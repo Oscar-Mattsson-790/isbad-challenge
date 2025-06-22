@@ -31,7 +31,7 @@ export default function SignUpPage() {
           data: {
             full_name: fullName,
           },
-          emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`,
         },
       });
 
@@ -67,8 +67,8 @@ export default function SignUpPage() {
   const handleGoogleSignUp = async () => {
     const redirectTo =
       process.env.NODE_ENV === "development"
-        ? "http://localhost:3000/auth/callback"
-        : `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`;
+        ? "http://localhost:3000/dashboard"
+        : `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
