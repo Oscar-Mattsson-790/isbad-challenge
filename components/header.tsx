@@ -15,10 +15,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User, Settings, Menu } from "lucide-react";
 import Image from "next/image";
+import { useUserProfile } from "@/lib/hooks/use-user-profile";
 
 export default function Header() {
   const { supabase, session } = useSupabase();
   const router = useRouter();
+  const { profile } = useUserProfile();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -97,7 +99,7 @@ export default function Header() {
             </DropdownMenu>
           </div>
 
-          {/* Session-specific buttons */}
+          {/* Session-specific dropdown */}
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -108,11 +110,11 @@ export default function Header() {
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
+              <DropdownMenuContent className="w-70" align="end">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {session.user.email}
+                      {profile?.full_name ?? session.user.email}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {session.user.email}

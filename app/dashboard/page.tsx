@@ -95,7 +95,7 @@ export default function Dashboard() {
 
     setChallengeActive(false);
     setChallengeStartedAt(null);
-    setChallengeLength(30); // default
+    setChallengeLength(30);
 
     await supabase
       .from("profiles")
