@@ -65,10 +65,7 @@ export default function SignUpPage() {
   };
 
   const handleGoogleSignUp = async () => {
-    const redirectTo =
-      process.env.NODE_ENV === "development"
-        ? "http://localhost:3000/dashboard"
-        : `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`;
+    const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
