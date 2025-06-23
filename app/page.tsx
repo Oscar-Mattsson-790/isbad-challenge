@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import FeaturesGrid from "@/components/features-grid";
-import { ChevronRight } from "lucide-react";
 import { useSupabase } from "@/components/supabase-provider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -29,7 +28,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section with background video */}
-      <section className="relative overflow-hidden min-h-[90vh] flex items-center px-4 sm:px-6">
+      <section className="relative overflow-hidden min-h-[87vh] flex items-center px-4 sm:px-6">
         <video
           src="/videos/hero-video.mp4"
           autoPlay
@@ -49,10 +48,8 @@ export default function Home() {
               ISBAD Challenge
             </h1>
             <div>
-              <p className="max-w-[700px] text-white text-base sm:text-lg md:text-xl">
+              <p className="max-w-[700px] text-white text-sm sm:text-base">
                 Challenge yourself and your friends to a consistent ice bath.
-              </p>
-              <p className="max-w-[700px] text-white text-base sm:text-lg md:text-xl">
                 Track your progress, document your experiences and feel the
                 benefits of cold water.
               </p>
@@ -61,20 +58,24 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
               onClick={handleStartChallenge}
-              variant="whiteShadow"
+              className="bg-[#1AA7EC] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
               size="lg"
               disabled={isLoading}
             >
-              Start your challenge <ChevronRight className="ml-1 h-4 w-4" />
+              Start your challenge
             </Button>
             <Button
               asChild
               size="lg"
               className="bg-white text-black hover:bg-black hover:text-white"
             >
-              <Link href="https://isbad.se/artiklar/">
+              <a
+                href="https://isbad.se/artiklar/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Read more about the benefits
-              </Link>
+              </a>
             </Button>
           </div>
         </div>
@@ -107,7 +108,7 @@ export default function Home() {
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-white p-6 rounded-lg shadow-md">
                 <div className="flex items-start gap-4">
-                  <div className="rounded-full bg-[#242422] p-2">
+                  <div className="rounded-full bg-[#1AA7EC] p-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="20"

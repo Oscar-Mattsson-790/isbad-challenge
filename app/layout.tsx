@@ -41,8 +41,9 @@ export default function RootLayout({
               <footer className="border-t py-6 bg-[#242422]">
                 <div className="container flex flex-col items-center justify-center gap-4 md:flex-row">
                   <p className="text-center text-sm text-white md:text-left">
-                    &copy; {new Date().getFullYear()} ISBAD Challenge. All
-                    rights reserved –{" "}
+                    &copy; {new Date().getFullYear()} All rights reserved
+                    <br />
+                    ISBAD Challenge –{" "}
                     <Link href="https://www.isbad.se">www.isbad.se</Link>
                   </p>
                 </div>

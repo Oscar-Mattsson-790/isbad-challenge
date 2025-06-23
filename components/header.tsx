@@ -43,7 +43,7 @@ export default function Header() {
           <Image
             src="/images/isbad_logo_black.png"
             alt="ISBAD Logo"
-            width={150}
+            width={100}
             height={40}
             priority
           />
