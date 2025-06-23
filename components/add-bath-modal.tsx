@@ -67,6 +67,11 @@ export default function AddBathModal({
     e.preventDefault();
     if (!session) return;
 
+    if (!file) {
+      toast.error("Please upload a photo or video");
+      return;
+    }
+
     const duration = `${durationMinutes.padStart(
       2,
       "0"
@@ -105,7 +110,7 @@ export default function AddBathModal({
       return;
     }
 
-    toast.success("Ice bath recorded!", {
+    toast.success("Ice bath recorded🧊", {
       description: `Your ice bath on ${format(date, "PPP", {
         locale: enUS,
       })} has been saved.`,
@@ -124,7 +129,7 @@ export default function AddBathModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="mx-auto mt-2 w-[95%] sm:max-w-[425px]">
+      <DialogContent className="mx-auto w-[95%] sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Log a new ice bath</DialogTitle>
           <DialogDescription>
@@ -292,7 +297,7 @@ export default function AddBathModal({
 
             <div className="grid gap-2">
               <Label htmlFor="photo">Proof (photo/video)</Label>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 max-h-[220px] overflow-auto">
                 <Label
                   htmlFor="photo"
                   className="flex h-32 cursor-pointer flex-col items-center justify-center rounded-md border border-dashed p-2 text-center"
@@ -302,7 +307,7 @@ export default function AddBathModal({
                       <Image
                         src={photoPreview || "/placeholder.svg"}
                         alt="Preview"
-                        className="h-auto max-h-[300px] w-full object-cover rounded"
+                        className="h-auto max-h-[200px] w-full object-cover rounded"
                         width={300}
                         height={300}
                       />
