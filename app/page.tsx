@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import FeaturesGrid from "@/components/features-grid";
 import { useSupabase } from "@/components/supabase-provider";
