@@ -1,9 +1,31 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import FeaturesGrid from "@/components/features-grid";
 import { ChevronRight } from "lucide-react";
+import { useSupabase } from "@/components/supabase-provider";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Home() {
+  const { supabase } = useSupabase();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleStartChallenge = async () => {
+    setIsLoading(true);
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (session?.user) {
+      router.push("/dashboard");
+    } else {
+      router.push("/signup"); // eller "/login" om du föredrar det
+    }
+  };
+
   return (
     <div className="flex flex-col">
       {/* Hero Section with background video */}
@@ -37,10 +59,13 @@ export default function Home() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button asChild variant="whiteShadow" size="lg">
-              <Link href="/signup">
-                Start your challenge <ChevronRight className="ml-1 h-4 w-4" />
-              </Link>
+            <Button
+              onClick={handleStartChallenge}
+              variant="whiteShadow"
+              size="lg"
+              disabled={isLoading}
+            >
+              Start your challenge <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
             <Button
               asChild
@@ -129,12 +154,13 @@ export default function Home() {
             </p>
           </div>
           <Button
-            asChild
+            onClick={handleStartChallenge}
             size="lg"
             variant="whiteShadow"
             className="bg-black text-white"
+            disabled={isLoading}
           >
-            <Link href="/signup">Start now</Link>
+            Start now
           </Button>
         </div>
       </section>
