@@ -103,19 +103,18 @@ export default function Home() {
       <section className="py-16 md:py-24 px-4">
         <div className="container flex flex-col items-center gap-8 text-center">
           <div className="space-y-4">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
               Ready to start your challenge?
             </h2>
-            <p className="mx-auto max-w-[600px] text-muted-foreground">
+            <p className="mx-auto max-w-[600px] text-white">
               Join today and begin your journey toward better health and
               well-being through ice bathing.
             </p>
           </div>
           <Button
             onClick={handleStartChallenge}
+            className="bg-[#1AA7EC] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
             size="lg"
-            variant="whiteShadow"
-            className="bg-black text-white"
             disabled={isLoading}
           >
             Start now
