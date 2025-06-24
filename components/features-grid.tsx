@@ -58,11 +58,11 @@ export default function FeaturesGrid() {
       {features.map((feature, index) => (
         <div
           key={index}
-          className="flex flex-col rounded-xl border border-gray-200 border-t-[2px] border-t-[#1AA7EC] p-4 transition-all hover:shadow-[0_4px_20px_0_#1AA7EC]"
+          className="flex flex-col rounded-xl border border-white p-4 transition-all hover:shadow-[0_4px_20px_0_#1AA7EC]"
         >
           <div className="mb-2">{feature.icon}</div>
-          <h3 className="mb-1 font-medium">{feature.title}</h3>
-          <p className="text-sm text-muted-foreground">{feature.description}</p>
+          <h3 className="mb-1 font-medium text-[#1AA7EC]">{feature.title}</h3>
+          <p className="text-sm text-white">{feature.description}</p>
         </div>
       ))}
     </div>

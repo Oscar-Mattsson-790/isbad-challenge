@@ -39,8 +39,8 @@ export default function RootLayout({
               <Header />
               <main className="flex-1">{children}</main>
               <footer className="border-t py-6 bg-[#242422]">
-                <div className="container flex flex-col items-center justify-center gap-4 md:flex-row">
-                  <p className="text-center text-sm text-white md:text-left">
+                <div className="container flex flex-col items-center justify-center gap-4">
+                  <p className="text-center text-sm text-white">
                     &copy; {new Date().getFullYear()} All rights reserved
                     <br />
                     ISBAD Challenge –{" "}

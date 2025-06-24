@@ -5,6 +5,7 @@ import FeaturesGrid from "@/components/features-grid";
 import { useSupabase } from "@/components/supabase-provider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Testimonials from "@/components/testimonials";
 
 export default function Home() {
   const { supabase } = useSupabase();
@@ -81,13 +82,13 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 md:py-24 px-4">
+      <section className="py-16 md:py-24 px-4 bg-[#242422]">
         <div className="container space-y-12">
           <div className="space-y-4 text-center">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
               How does it work?
             </h2>
-            <p className="mx-auto max-w-[700px] text-black">
+            <p className="mx-auto max-w-[700px] text-white">
               Follow your ice bath challenge with our smart tools and features.
             </p>
           </div>
@@ -96,50 +97,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="bg-[#242422] py-16 md:py-24 px-4">
-        <div className="container space-y-8">
-          <div className="text-center space-y-4">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-              What our users say
-            </h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white p-6 rounded-lg shadow-md">
-                <div className="flex items-start gap-4">
-                  <div className="rounded-full bg-[#1AA7EC] p-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
-                      <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
-                    </svg>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-muted-foreground text-sm sm:text-base">
-                      &quot;I&apos;ve never felt so energized and focused as
-                      after completing the ISBAD challenge. My sleep quality has
-                      improved significantly!&quot;
-                    </p>
-                    <div>
-                      <p className="font-medium">Anders Svensson</p>
-                      <p className="text-sm text-muted-foreground">Athlete</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Testimonials />
 
       {/* CTA Section */}
       <section className="py-16 md:py-24 px-4">
