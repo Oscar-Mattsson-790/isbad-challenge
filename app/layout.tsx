@@ -38,7 +38,7 @@ export default function RootLayout({
             <div className="flex min-h-screen flex-col">
               <Header />
               <main className="flex-1 bg-[#242422]">{children}</main>
-              <footer className="border-t py-6 bg-[#242422]">
+              <footer className="py-6 bg-[#242422]">
                 <div className="container flex flex-col items-center justify-center gap-4">
                   <p className="text-center text-sm text-white">
                     &copy; {new Date().getFullYear()} All rights reserved

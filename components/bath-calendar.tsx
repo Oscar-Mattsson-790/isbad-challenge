@@ -29,7 +29,7 @@ export function BathCalendar({ activities }: BathCalendarProps) {
         mode="single"
         selected={date}
         onSelect={handleDayClick}
-        className="rounded-md"
+        className="rounded-md w-full"
         modifiers={{
           completed: (date) =>
             activities.some(
@@ -47,7 +47,7 @@ export function BathCalendar({ activities }: BathCalendarProps) {
             );
 
             return (
-              <div className="flex h-9 w-9 items-center justify-center p-0">
+              <div className="flex h-10 w-10 items-center justify-center p-0">
                 <div className="flex flex-col items-center">
                   <span>{date.getDate()}</span>
                   {bath && (
@@ -64,7 +64,7 @@ export function BathCalendar({ activities }: BathCalendarProps) {
 
       {selectedBath && (
         <div className="mt-4 rounded-md border p-4">
-          <h3 className="font-medium">
+          <h3 className="font-medium text-white">
             {new Date(selectedBath.date).toLocaleDateString("en-US", {
               weekday: "long",
               year: "numeric",
@@ -74,25 +74,25 @@ export function BathCalendar({ activities }: BathCalendarProps) {
           </h3>
           <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
             <div>
-              <p className="text-muted-foreground">Time</p>
-              <p>{selectedBath.time}</p>
+              <p className="text-white">Time</p>
+              <p className="text-[#1AA7EC]">{selectedBath.time?.slice(0, 5)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Duration</p>
-              <p>{selectedBath.duration}</p>
+              <p className="text-white">Duration</p>
+              <p className="text-[#1AA7EC]">{selectedBath.duration}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Feeling</p>
+              <p className="text-white">Feeling</p>
               <p className="text-xl">{selectedBath.feeling}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Proof</p>
+              <p className="text-white">Proof</p>
               {selectedBath.proof_url ? (
                 <a
                   href={selectedBath.proof_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-bold text-[#1AA7EC] hover:underline"
+                  className="text-sm text-[#1AA7EC] hover:underline"
                 >
                   Show image
                 </a>

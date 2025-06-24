@@ -16,39 +16,38 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3 bg-[#242422] text-white", className)}
+      className={cn("p-3 bg-[#242422] text-white w-full", className)}
       classNames={{
-        months: "flex flex-col sm:flex-row gap-2",
-        month: "flex flex-col gap-4",
+        months: "w-full",
+        month: "w-full",
         caption: "flex justify-center pt-1 relative items-center w-full",
-        caption_label: "text-sm font-medium",
+        caption_label: "text-l font-semibold",
         nav: "flex items-center gap-1",
         nav_button: cn(
-          "w-7 h-7 bg-[#1AA7EC] text-white rounded-md flex items-center justify-center p-0"
+          "w-8 h-8 bg-[#1AA7EC] text-white rounded-md flex items-center justify-center p-0"
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-x-1",
-        head_row: "flex",
-        head_cell:
-          "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
-        row: "flex w-full mt-2",
+        table: "w-full table-fixed border-collapse text-sm",
+        head_row: "w-full",
+        head_cell: "text-white font-medium w-10 h-10 text-center",
+        row: "w-full",
         cell: cn(
-          "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
+          "w-10 h-10 p-1 text-center text-sm relative focus-within:z-20",
           props.mode === "range"
             ? "[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
             : "[&:has([aria-selected])]:rounded-md"
         ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "size-8 p-0 font-normal aria-selected:opacity-100"
+          "w-10 h-10 p-0 font-normal aria-selected:text-black"
         ),
         day_range_start:
           "day-range-start aria-selected:bg-[#1AA7EC] aria-selected:text-white",
         day_range_end:
           "day-range-end aria-selected:bg-[#1AA7EC] aria-selected:text-white",
-        day_selected: "bg-black text-white",
-        day_today: "bg-green-500 text-white",
+        day_selected: "bg-white text-black",
+        day_today: "bg-white !text-black",
         day_outside:
           "day-outside text-muted-foreground aria-selected:text-muted-foreground",
         day_disabled: "text-muted-foreground opacity-50",

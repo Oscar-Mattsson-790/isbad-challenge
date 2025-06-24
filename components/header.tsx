@@ -10,7 +10,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User, Settings, Menu } from "lucide-react";
@@ -36,12 +35,12 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background">
+    <header className="sticky top-0 z-50 w-full bg-[#242422]">
       <div className="container px-4 sm:px-6 flex h-16 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/images/isbad_logo_black.png"
+            src="/images/isbad_logo_white.png"
             alt="ISBAD Logo"
             width={100}
             height={40}
@@ -53,20 +52,20 @@ export default function Header() {
         <nav className="hidden md:flex gap-6">
           <Link
             href="/"
-            className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
+            className="text-sm font-medium text-white transition-colors hover:text-[#1AA7EC]"
           >
             Home
           </Link>
           <Link
             href="https://www.isbad.se"
-            className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
+            className="text-sm font-medium text-white transition-colors hover:text-[#1AA7EC]"
           >
             About
           </Link>
           {session && (
             <Link
               href="/dashboard"
-              className="text-sm font-medium text-black transition-colors hover:text-[#1AA7EC]"
+              className="text-sm font-medium text-white transition-colors hover:text-[#1AA7EC]"
             >
               My Challenge
             </Link>
@@ -80,20 +79,34 @@ export default function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <Menu className="h-6 w-6" />
+                  <Menu className="h-6 w-6 text-white" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
+              <DropdownMenuContent
+                align="end"
+                className="bg-[#242422] text-white border-none shadow-md"
+              >
+                <DropdownMenuItem
+                  asChild
+                  className="hover:bg-white hover:text-black"
+                >
                   <Link href="/">Home</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="https://www.isbad.se">About</Link>
+                <DropdownMenuItem
+                  asChild
+                  className="hover:bg-white hover:text-black"
+                >
+                  <Link
+                    href="https://www.isbad.se"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    About
+                  </Link>
                 </DropdownMenuItem>
 
                 {!session && (
                   <>
-                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link href="/login">Log in</Link>
                     </DropdownMenuItem>
@@ -103,7 +116,10 @@ export default function Header() {
                   </>
                 )}
                 {session && (
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem
+                    asChild
+                    className="hover:bg-white hover:text-black"
+                  >
                     <Link href="/dashboard">My Challenge</Link>
                   </DropdownMenuItem>
                 )}
@@ -119,32 +135,44 @@ export default function Header() {
                   variant="ghost"
                   className="relative h-8 w-8 rounded-full"
                 >
-                  <User className="h-5 w-5" />
+                  <User className="h-5 w-5 text-white" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-70" align="end">
+              <DropdownMenuContent
+                className="w-70 bg-[#242422] text-white border-none shadow-md"
+                align="end"
+              >
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
                       {profile?.full_name ?? session.user.email}
                     </p>
-                    <p className="text-xs leading-none text-muted-foreground">
+                    <p className="text-xs leading-none text-[#1AA7EC]">
                       {session.user.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-                  <User className="mr-2 h-4 w-4" />
+
+                <DropdownMenuItem
+                  onClick={() => router.push("/dashboard")}
+                  className="hover:bg-white hover:text-black"
+                >
+                  <User className="mr-2 h-4 w-4 text-[#1AA7EC] hover:text-black" />
                   <span>Challenge</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/profile")}>
-                  <Settings className="mr-2 h-4 w-4" />
+                <DropdownMenuItem
+                  onClick={() => router.push("/profile")}
+                  className="hover:bg-white hover:text-black"
+                >
+                  <Settings className="mr-2 h-4 w-4 text-[#1AA7EC] hover:text-black" />
                   <span>Settings</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
+
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="hover:bg-white hover:text-black"
+                >
+                  <LogOut className="mr-2 h-4 w-4 text-[#1AA7EC] hover:text-black" />
                   <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -112,13 +112,13 @@ export default function Dashboard() {
 
   return (
     <div className="container py-10 bg-[#242422] text-white">
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-xl font-bold tracking-tight">
               Hi {profile?.full_name || "there"}!
             </h1>
-            <p className="text-white tex-sm">
+            <p className="text-white text-sm">
               Keep track of your ice bath challenge and follow your progress.
             </p>
           </div>
@@ -176,7 +176,7 @@ export default function Dashboard() {
         <div className="grid gap-4 md:grid-cols-7 lg:grid-cols-3 lg:gap-8">
           <Card className="col-span-7 lg:col-span-2 bg-[#242422] border-none">
             <CardHeader>
-              <CardTitle className="text-center text-white">
+              <CardTitle className="text-center text-white text-xl">
                 {challengeActive
                   ? `Your ${challengeLength}-day challenge`
                   : "Choose your challenge"}
@@ -187,8 +187,10 @@ export default function Dashboard() {
                   : "Track your progress in the calendar below"}
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex justify-center">
-              <BathCalendar activities={stats?.activities ?? []} />
+            <CardContent className="px-0">
+              <div className="w-full">
+                <BathCalendar activities={stats?.activities ?? []} />
+              </div>
             </CardContent>
           </Card>
 
