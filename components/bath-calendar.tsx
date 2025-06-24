@@ -29,7 +29,7 @@ export function BathCalendar({ activities }: BathCalendarProps) {
         mode="single"
         selected={date}
         onSelect={handleDayClick}
-        className="rounded-md border"
+        className="rounded-md"
         modifiers={{
           completed: (date) =>
             activities.some(
@@ -38,7 +38,7 @@ export function BathCalendar({ activities }: BathCalendarProps) {
             ),
         }}
         modifiersClassNames={{
-          completed: "bg-[#D0E7F8] text-[#0B4F82] font-bold",
+          completed: "bg-[#1AA7EC] text-white font-bold",
         }}
         components={{
           DayContent: ({ date }) => {
@@ -65,7 +65,7 @@ export function BathCalendar({ activities }: BathCalendarProps) {
       {selectedBath && (
         <div className="mt-4 rounded-md border p-4">
           <h3 className="font-medium">
-            {new Date(selectedBath.date).toLocaleDateString("sv-SE", {
+            {new Date(selectedBath.date).toLocaleDateString("en-US", {
               weekday: "long",
               year: "numeric",
               month: "long",
@@ -74,30 +74,30 @@ export function BathCalendar({ activities }: BathCalendarProps) {
           </h3>
           <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
             <div>
-              <p className="text-muted-foreground">Tidpunkt</p>
+              <p className="text-muted-foreground">Time</p>
               <p>{selectedBath.time}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Varaktighet</p>
+              <p className="text-muted-foreground">Duration</p>
               <p>{selectedBath.duration}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Känsla</p>
+              <p className="text-muted-foreground">Feeling</p>
               <p className="text-xl">{selectedBath.feeling}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Bevis</p>
+              <p className="text-muted-foreground">Proof</p>
               {selectedBath.proof_url ? (
                 <a
                   href={selectedBath.proof_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline"
+                  className="text-sm font-bold text-[#1AA7EC] hover:underline"
                 >
-                  Visa bild
+                  Show image
                 </a>
               ) : (
-                <p className="text-sm text-muted-foreground">Ingen bild</p>
+                <p className="text-sm text-muted-foreground">No image</p>
               )}
             </div>
           </div>

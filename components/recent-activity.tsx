@@ -34,7 +34,7 @@ export function RecentActivity({ activities }: { activities: BathEntry[] }) {
                 </div>
                 <div className="text-2xl">{activity.feeling}</div>
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-[#1AA7EC]">
                 Duration: {activity.duration}
               </div>
             </div>
@@ -53,8 +53,8 @@ export function RecentActivity({ activities }: { activities: BathEntry[] }) {
         ))}
       </div>
       <Button
-        variant="outline"
-        className="w-full"
+        className="bg-[#1AA7EC] border-[1px] w-full border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+        size="lg"
         onClick={() => setShowAll(!showAll)}
       >
         {showAll ? "Show less" : "View All"}

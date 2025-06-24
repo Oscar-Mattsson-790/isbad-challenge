@@ -12,13 +12,17 @@ export function BathStatsCard({
   description,
 }: BathStatsCardProps) {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+    <Card className="rounded-sm bg-[#242422] text-white border border-white shadow-none p-0">
+      <CardHeader className="p-2 pb-0">
+        <CardTitle className="text-md font-bold text-[#1AA7EC] leading-tight mb-[2px]">
+          {title}
+        </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground">{description}</p>
+      <CardContent className="p-2 pt-0">
+        <div className="text-base font-bold leading-none">{value}</div>
+        <p className="text-[11px] text-white leading-tight mt-[2px]">
+          {description}
+        </p>
       </CardContent>
     </Card>
   );

@@ -27,10 +27,10 @@ export function ProgressCard({
       : `${challengeLength} days – Keep going!`;
 
   return (
-    <Card className="col-span-7 md:col-span-3 lg:col-span-1">
+    <Card className="col-span-7 md:col-span-3 lg:col-span-1 bg-[#242422] text-white border-none">
       <CardHeader>
-        <CardTitle>Your progress</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-[#1AA7EC]">Your progress</CardTitle>
+        <CardDescription className="text-white">
           Progress towards your {challengeLength}-day goal
         </CardDescription>
       </CardHeader>
@@ -48,11 +48,15 @@ export function ProgressCard({
           </div>
         </div>
 
-        <h3 className="mt-4 text-lg font-medium">Next milestone</h3>
-        <p className="text-sm text-muted-foreground mb-4">{nextMilestone}</p>
+        <h3 className="mt-4 font-medium text-[#1AA7EC]">Next milestone</h3>
+        <p className="text-sm text-white mb-4">{nextMilestone}</p>
 
         {onCancel && (
-          <Button variant="outline" className="w-full" onClick={onCancel}>
+          <Button
+            className="bg-[#1AA7EC] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+            size="lg"
+            onClick={onCancel}
+          >
             Cancel Challenge
           </Button>
         )}
@@ -62,7 +66,11 @@ export function ProgressCard({
             <p className="text-sm text-center font-medium">
               🎉 Congratulations!
             </p>
-            <Button className="w-full bg-[#1AA7EC]" onClick={onCompleteReset}>
+            <Button
+              className="bg-[#1AA7EC] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+              size="lg"
+              onClick={onCompleteReset}
+            >
               Start a new challenge
             </Button>
           </div>

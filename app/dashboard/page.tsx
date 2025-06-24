@@ -111,20 +111,21 @@ export default function Dashboard() {
     return <div className="container py-10">Loading...</div>;
 
   return (
-    <div className="container py-10">
+    <div className="container py-10 bg-[#242422] text-white">
       <div className="flex flex-col gap-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
               Hi {profile?.full_name || "there"}!
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-white tex-sm">
               Keep track of your ice bath challenge and follow your progress.
             </p>
           </div>
           <Button
             onClick={() => setOpen(true)}
-            className="border border-black bg-black hover:bg-white hover:text-black"
+            className="bg-[#1AA7EC] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+            size="lg"
           >
             Log new ice bath
           </Button>
@@ -148,7 +149,7 @@ export default function Dashboard() {
         )}
 
         {stats && (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-2 lg:grid-cols-4">
             <BathStatsCard
               title="Days completed"
               value={stats.daysCompleted.toString()}
@@ -173,14 +174,14 @@ export default function Dashboard() {
         )}
 
         <div className="grid gap-4 md:grid-cols-7 lg:grid-cols-3 lg:gap-8">
-          <Card className="col-span-7 lg:col-span-2">
+          <Card className="col-span-7 lg:col-span-2 bg-[#242422] border-none">
             <CardHeader>
-              <CardTitle className="text-center">
+              <CardTitle className="text-center text-white">
                 {challengeActive
                   ? `Your ${challengeLength}-day challenge`
                   : "Choose your challenge"}
               </CardTitle>
-              <CardDescription className="text-center">
+              <CardDescription className="text-center text-white">
                 {challengeStartedAt
                   ? `Started on ${new Date(challengeStartedAt).toLocaleDateString("sv-SE")}`
                   : "Track your progress in the calendar below"}
@@ -206,10 +207,10 @@ export default function Dashboard() {
             }
           />
 
-          <Card className="col-span-7 md:col-span-4 lg:col-span-3">
+          <Card className="col-span-7 md:col-span-4 lg:col-span-3 bg-[#242422] border-none text-white">
             <CardHeader>
-              <CardTitle>Recent activity</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-white">Recent activity</CardTitle>
+              <CardDescription className="text-white">
                 Your latest entries in the challenge
               </CardDescription>
             </CardHeader>
