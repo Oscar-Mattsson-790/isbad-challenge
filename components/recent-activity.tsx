@@ -24,7 +24,7 @@ export function RecentActivity({ activities }: { activities: BathEntry[] }) {
         {visibleActivities.map((activity) => (
           <div
             key={activity.id}
-            className="flex items-center gap-4 rounded-sm bg-[#2B2B29] text-white p-4 hover:shadow-[0_4px_20px_0_#1AA7EC]"
+            className="flex items-center gap-4 rounded-sm bg-[#2B2B29] text-white p-4 hover:shadow-[0_4px_20px_0_#157FBF]"
           >
             <div className="flex-1">
               <div className="flex justify-between">
@@ -34,7 +34,7 @@ export function RecentActivity({ activities }: { activities: BathEntry[] }) {
                 </div>
                 <div className="text-2xl">{activity.feeling}</div>
               </div>
-              <div className="text-sm text-[#1AA7EC]">
+              <div className="text-sm text-[#157FBF]">
                 Duration: {activity.duration}
               </div>
             </div>
@@ -53,7 +53,7 @@ export function RecentActivity({ activities }: { activities: BathEntry[] }) {
         ))}
       </div>
       <Button
-        className="bg-[#116FA1] border-[1px] w-full border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+        className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
         size="lg"
         onClick={() => setShowAll(!showAll)}
       >

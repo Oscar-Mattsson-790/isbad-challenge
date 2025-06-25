@@ -32,7 +32,7 @@ export function ProgressCard({
   return (
     <Card className={`bg-[#242422] text-white border-none ${className}`}>
       <CardHeader className="px-0">
-        <CardTitle className="text-[#1AA7EC]">Your progress</CardTitle>
+        <CardTitle className="text-[#157FBF]">Your progress</CardTitle>
         <CardDescription className="text-white">
           Progress towards your {challengeLength}-day goal
         </CardDescription>
@@ -45,18 +45,18 @@ export function ProgressCard({
           </div>
           <div className="h-4 w-full overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full bg-[#1AA7EC]"
+              className="h-full bg-[#157FBF]"
               style={{ width: `${percentage}%` }}
             />
           </div>
         </div>
 
-        <h3 className="mt-4 font-medium text-[#1AA7EC]">Next milestone</h3>
+        <h3 className="mt-4 font-medium text-[#157FBF]">Next milestone</h3>
         <p className="text-sm text-white mb-4">{nextMilestone}</p>
 
         {onCancel && (
           <Button
-            className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+            className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
             size="lg"
             onClick={onCancel}
           >
@@ -70,7 +70,7 @@ export function ProgressCard({
               🎉 Congratulations!
             </p>
             <Button
-              className="bg-[#1AA7EC] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+              className="bg-[#157FBF] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
               size="lg"
               onClick={onCompleteReset}
             >

@@ -285,7 +285,7 @@ export default function AddBathModal({
                     type="button"
                     variant={selectedEmoji === emoji ? "default" : "outline"}
                     className={`text-xl ${
-                      selectedEmoji === emoji ? "bg-[#1AA7EC]" : ""
+                      selectedEmoji === emoji ? "bg-[#157FBF]" : ""
                     }`}
                     onClick={() => setSelectedEmoji(emoji)}
                   >

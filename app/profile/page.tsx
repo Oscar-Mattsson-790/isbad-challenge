@@ -100,7 +100,7 @@ export default function ProfilePage() {
 
         <Button
           onClick={handleUpdate}
-          className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+          className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
           size="lg"
         >
           Update Profile
@@ -116,7 +116,7 @@ export default function ProfilePage() {
           placeholder="Write your message to ISBAD..."
         />
         <Button
-          className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+          className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
           size="lg"
           onClick={handleSendMessage}
         >

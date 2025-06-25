@@ -139,7 +139,7 @@ export function FriendsList() {
             onChange={(e) => setSearchName(e.target.value)}
           />
           <Button
-            className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+            className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
             size="sm"
             onClick={handleSearch}
           >
@@ -156,7 +156,7 @@ export function FriendsList() {
             <Button
               onClick={handleAddFriend}
               size="sm"
-              className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+              className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
             >
               Add Friend
             </Button>
@@ -178,7 +178,7 @@ export function FriendsList() {
                 onClick={() => handleRemoveFriend(friend.friend_id)}
                 title="Remove friend"
               >
-                <X className="h-4 w-4 text-[#1AA7EC]" />
+                <X className="h-4 w-4 text-[#157FBF]" />
               </Button>
             </div>
           ))}

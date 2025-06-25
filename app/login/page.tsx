@@ -59,7 +59,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container flex h-screen w-full flex-col items-center justify-center text-white">
+    <div className="container flex h-[700px] w-full flex-col items-center justify-center text-white">
       <div className="mx-auto grid w-full max-w-[350px] gap-6">
         <div className="grid gap-2 text-center">
           <h1 className="text-3xl font-bold">Log in</h1>
@@ -92,7 +92,7 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="border border-black bg-black text-white hover:bg-white hover:text-black"
+            className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
           >
             {loading ? "Logging in..." : "Log in"}
           </Button>
@@ -108,7 +108,7 @@ export default function LoginPage() {
           </div>
         </div>
         <Button
-          className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+          className="bg-white border-none text-black hover:bg-black hover:text-white"
           size="lg"
           type="button"
           onClick={handleGoogleLogin}
@@ -119,7 +119,7 @@ export default function LoginPage() {
         </Button>
         <p className="text-center text-sm text-white">
           Don’t have an account?{" "}
-          <Link href="/signup" className="underline text-[#1AA7EC] font-bold">
+          <Link href="/signup" className="underline text-[#157FBF] font-bold">
             Sign up
           </Link>
         </p>

@@ -52,7 +52,7 @@ export default function Header() {
         <nav className="hidden md:flex gap-6">
           <Link
             href="/"
-            className="text-sm font-medium text-white transition-colors hover:text-[#1AA7EC]"
+            className="text-sm font-medium text-white transition-colors hover:text-[#157FBF]"
           >
             Home
           </Link>
@@ -60,14 +60,14 @@ export default function Header() {
             href="https://www.isbad.se"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-medium text-white transition-colors hover:text-[#1AA7EC]"
+            className="text-sm font-medium text-white transition-colors hover:text-[#157FBF]"
           >
             About
           </Link>
           {session && (
             <Link
               href="/dashboard"
-              className="text-sm font-medium text-white transition-colors hover:text-[#1AA7EC]"
+              className="text-sm font-medium text-white transition-colors hover:text-[#157FBF]"
             >
               My Challenge
             </Link>
@@ -149,7 +149,7 @@ export default function Header() {
                     <p className="text-sm font-medium leading-none">
                       {profile?.full_name ?? session.user.email}
                     </p>
-                    <p className="text-xs leading-none text-[#1AA7EC]">
+                    <p className="text-xs leading-none text-[#157FBF]">
                       {session.user.email}
                     </p>
                   </div>
@@ -159,14 +159,14 @@ export default function Header() {
                   onClick={() => router.push("/dashboard")}
                   className="hover:bg-white hover:text-black"
                 >
-                  <User className="mr-2 h-4 w-4 text-[#1AA7EC] hover:text-black" />
+                  <User className="mr-2 h-4 w-4 text-[#157FBF] hover:text-black" />
                   <span>Challenge</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => router.push("/profile")}
                   className="hover:bg-white hover:text-black"
                 >
-                  <Settings className="mr-2 h-4 w-4 text-[#1AA7EC] hover:text-black" />
+                  <Settings className="mr-2 h-4 w-4 text-[#157FBF] hover:text-black" />
                   <span>Settings</span>
                 </DropdownMenuItem>
 
@@ -174,7 +174,7 @@ export default function Header() {
                   onClick={handleSignOut}
                   className="hover:bg-white hover:text-black"
                 >
-                  <LogOut className="mr-2 h-4 w-4 text-[#1AA7EC] hover:text-black" />
+                  <LogOut className="mr-2 h-4 w-4 text-[#157FBF] hover:text-black" />
                   <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

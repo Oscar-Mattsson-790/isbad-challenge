@@ -12,42 +12,42 @@ import {
 export default function FeaturesGrid() {
   const features = [
     {
-      icon: <CalendarDays className="h-6 w-6 text-[#1AA7EC]" />,
+      icon: <CalendarDays className="h-6 w-6 text-[#157FBF]" />,
       title: "Calendar",
       description: "Keep track of all your ice baths in a clear calendar view",
     },
     {
-      icon: <Clock className="h-6 w-6 text-[#1AA7EC]" />,
+      icon: <Clock className="h-6 w-6 text-[#157FBF]" />,
       title: "Time & Duration",
       description: "Log when and how long you bathed",
     },
     {
-      icon: <ThumbsUp className="h-6 w-6 text-[#1AA7EC]" />,
+      icon: <ThumbsUp className="h-6 w-6 text-[#157FBF]" />,
       title: "Feeling",
       description: "Describe your experience using simple emojis",
     },
     {
-      icon: <ImageIcon className="h-6 w-6 text-[#1AA7EC]" />,
+      icon: <ImageIcon className="h-6 w-6 text-[#157FBF]" />,
       title: "Photo Proof",
       description: "Upload photos or short videos as evidence",
     },
     {
-      icon: <Users className="h-6 w-6 text-[#1AA7EC]" />,
+      icon: <Users className="h-6 w-6 text-[#157FBF]" />,
       title: "Social",
       description: "Challenge your friends and track their progress",
     },
     {
-      icon: <LineChart className="h-6 w-6 text-[#1AA7EC]" />,
+      icon: <LineChart className="h-6 w-6 text-[#157FBF]" />,
       title: "Statistics",
       description: "Track your progress with detailed stats",
     },
     {
-      icon: <Share2 className="h-6 w-6 text-[#1AA7EC]" />,
+      icon: <Share2 className="h-6 w-6 text-[#157FBF]" />,
       title: "Share",
       description: "Share your achievements on social media",
     },
     {
-      icon: <Trophy className="h-6 w-6 text-[#1AA7EC]" />,
+      icon: <Trophy className="h-6 w-6 text-[#157FBF]" />,
       title: "Challenges",
       description: "Reach milestones and earn rewards",
     },
@@ -58,10 +58,10 @@ export default function FeaturesGrid() {
       {features.map((feature, index) => (
         <div
           key={index}
-          className="flex flex-col rounded-xl bg-[#2B2B29] p-4 transition-all hover:shadow-[0_4px_20px_0_#1AA7EC]"
+          className="flex flex-col rounded-xl bg-[#2B2B29] p-4 transition-all hover:shadow-[0_4px_20px_0_#157FBF]"
         >
           <div className="mb-2">{feature.icon}</div>
-          <h3 className="mb-1 font-medium text-[#1AA7EC]">{feature.title}</h3>
+          <h3 className="mb-1 font-medium text-[#157FBF]">{feature.title}</h3>
           <p className="text-sm text-white">{feature.description}</p>
         </div>
       ))}

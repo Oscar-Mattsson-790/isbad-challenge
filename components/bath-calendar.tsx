@@ -38,7 +38,7 @@ export function BathCalendar({ activities }: BathCalendarProps) {
             ),
         }}
         modifiersClassNames={{
-          completed: "bg-[#1AA7EC] text-white font-bold",
+          completed: "bg-[#157FBF] text-white font-bold",
         }}
         components={{
           DayContent: ({ date }) => {
@@ -75,11 +75,11 @@ export function BathCalendar({ activities }: BathCalendarProps) {
           <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
             <div>
               <p className="text-white">Time</p>
-              <p className="text-[#1AA7EC]">{selectedBath.time?.slice(0, 5)}</p>
+              <p className="text-[#157FBF]">{selectedBath.time?.slice(0, 5)}</p>
             </div>
             <div>
               <p className="text-white">Duration</p>
-              <p className="text-[#1AA7EC]">{selectedBath.duration}</p>
+              <p className="text-[#157FBF]">{selectedBath.duration}</p>
             </div>
             <div>
               <p className="text-white">Feeling</p>
@@ -92,7 +92,7 @@ export function BathCalendar({ activities }: BathCalendarProps) {
                   href={selectedBath.proof_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-[#1AA7EC] hover:underline"
+                  className="text-sm text-[#157FBF] hover:underline"
                 >
                   Show image
                 </a>

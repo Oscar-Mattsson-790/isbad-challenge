@@ -115,7 +115,7 @@ export default function Dashboard() {
           </div>
           <Button
             onClick={() => setOpen(true)}
-            className="bg-[#116FA1] border border-white hover:bg-black hover:text-white"
+            className="bg-[#157FBF] hover:bg-black hover:text-white"
             size="lg"
           >
             Log new ice bath
@@ -129,7 +129,7 @@ export default function Dashboard() {
               {[10, 15, 30, 50, 100, 365].map((days) => (
                 <Button
                   key={days}
-                  className="bg-[#1AA7EC] hover:bg-[#1AA7EC]/90"
+                  className="bg-[#157FBF] hover:bg-[#157FBF]/90"
                   onClick={() => startChallenge(days)}
                 >
                   {days}
@@ -232,7 +232,7 @@ export default function Dashboard() {
                 <p className="text-sm">
                   You have no active challenges at the moment.
                 </p>
-                <Button className="mt-4 border border-black bg-black hover:bg-white hover:text-black">
+                <Button className="mt-4 border bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white">
                   Challenge a friend
                 </Button>
               </CardContent>
