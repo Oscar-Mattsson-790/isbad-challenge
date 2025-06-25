@@ -30,7 +30,7 @@ export default function Home() {
       {/* Hero Section with background video */}
       <section className="relative overflow-hidden min-h-[87vh] flex items-center px-4 sm:px-6">
         <video
-          src="/videos/hero-video.mp4"
+          src="/videos/ISBAD Challenge app Monika Amazon bakgrundsvideo.mp4"
           autoPlay
           loop
           muted
@@ -100,7 +100,7 @@ export default function Home() {
       <Testimonials />
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 px-4">
+      <section className="py-8 md:py-8 px-4">
         <div className="container flex flex-col items-center gap-8 text-center">
           <div className="space-y-4">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
@@ -113,7 +113,7 @@ export default function Home() {
           </div>
           <Button
             onClick={handleStartChallenge}
-            className="bg-[#157FBF] border-[1px] border-none hover:bg-[#115F93] hover:text-white"
+            className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
             size="lg"
             disabled={isLoading}
           >
