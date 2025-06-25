@@ -134,7 +134,7 @@ export function FriendsList() {
           <Input
             type="search"
             placeholder="Search by name or email..."
-            className="pl-8"
+            className="pl-8 placeholder:text-sm"
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
           />
