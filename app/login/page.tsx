@@ -59,7 +59,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container flex h-[700px] w-full flex-col items-center justify-center text-white">
+    <div className="container flex h-[600px] w-full flex-col items-center justify-center text-white">
       <div className="mx-auto grid w-full max-w-[350px] gap-6">
         <div className="grid gap-2 text-center">
           <h1 className="text-3xl font-bold">Log in</h1>
