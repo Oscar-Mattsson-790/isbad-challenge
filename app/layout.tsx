@@ -44,7 +44,13 @@ export default function RootLayout({
                     &copy; {new Date().getFullYear()} All rights reserved
                     <br />
                     ISBAD Challenge –{" "}
-                    <Link href="https://www.isbad.se">www.isbad.se</Link>
+                    <Link
+                      href="https://www.isbad.se"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      www.isbad.se
+                    </Link>
                   </p>
                 </div>
               </footer>

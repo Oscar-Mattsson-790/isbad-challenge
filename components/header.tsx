@@ -58,6 +58,8 @@ export default function Header() {
           </Link>
           <Link
             href="https://www.isbad.se"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-sm font-medium text-white transition-colors hover:text-[#1AA7EC]"
           >
             About
