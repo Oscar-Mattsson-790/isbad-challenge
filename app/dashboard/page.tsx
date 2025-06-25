@@ -213,7 +213,7 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="friends" className="w-full">
-          <TabsList>
+          <TabsList className="bg-[#2B2B29]">
             <TabsTrigger value="friends">Friends</TabsTrigger>
             <TabsTrigger value="challenges">Challenges</TabsTrigger>
           </TabsList>
@@ -221,15 +221,15 @@ export default function Dashboard() {
             <FriendsList />
           </TabsContent>
           <TabsContent value="challenges" className="border-none p-0 pt-4">
-            <Card>
+            <Card className="bg-[#2B2B29] text-white border-none">
               <CardHeader>
                 <CardTitle>Active challenges</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-white">
                   See your ongoing challenges with friends
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm">
                   You have no active challenges at the moment.
                 </p>
                 <Button className="mt-4 border border-black bg-black hover:bg-white hover:text-black">

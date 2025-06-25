@@ -24,7 +24,7 @@ export function RecentActivity({ activities }: { activities: BathEntry[] }) {
         {visibleActivities.map((activity) => (
           <div
             key={activity.id}
-            className="flex items-center gap-4 rounded-lg border p-3"
+            className="flex items-center gap-4 rounded-sm bg-[#2B2B29] text-white p-4 hover:shadow-[0_4px_20px_0_#1AA7EC]"
           >
             <div className="flex-1">
               <div className="flex justify-between">

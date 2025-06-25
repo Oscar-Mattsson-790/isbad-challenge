@@ -119,13 +119,12 @@ export function FriendsList() {
   };
 
   return (
-    // 🔁 ÄNDRING: Lagt till w-full för konsekvent bredd
-    <Card className="w-full">
+    <Card className="w-full bg-[#2B2B29] text-white border-none">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Find Your Friends</CardTitle>
         </div>
-        <CardDescription>
+        <CardDescription className="text-white">
           Track your friends progress in the challenge
         </CardDescription>
       </CardHeader>
@@ -139,7 +138,11 @@ export function FriendsList() {
             value={searchName}
             onChange={(e) => setSearchName(e.target.value)}
           />
-          <Button size="sm" onClick={handleSearch}>
+          <Button
+            className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+            size="sm"
+            onClick={handleSearch}
+          >
             <UserPlus className="mr-1 h-4 w-4" />
             Find
           </Button>
@@ -150,7 +153,11 @@ export function FriendsList() {
             <div>
               <div className="font-medium">{searchResult.full_name}</div>
             </div>
-            <Button onClick={handleAddFriend} size="sm" variant="outline">
+            <Button
+              onClick={handleAddFriend}
+              size="sm"
+              className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+            >
               Add Friend
             </Button>
           </div>
@@ -160,7 +167,7 @@ export function FriendsList() {
           {friends.map((friend) => (
             <div
               key={friend.friend_id}
-              className="flex items-center justify-between gap-4 border rounded p-2"
+              className="flex items-center justify-between gap-4 rounded p-2"
             >
               <div>
                 <div className="font-medium">{friend.profiles.full_name}</div>
@@ -171,7 +178,7 @@ export function FriendsList() {
                 onClick={() => handleRemoveFriend(friend.friend_id)}
                 title="Remove friend"
               >
-                <X className="h-4 w-4 text-red-500" />
+                <X className="h-4 w-4 text-[#1AA7EC]" />
               </Button>
             </div>
           ))}

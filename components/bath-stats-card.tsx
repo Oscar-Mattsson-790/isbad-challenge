@@ -12,7 +12,7 @@ export function BathStatsCard({
   description,
 }: BathStatsCardProps) {
   return (
-    <Card className="rounded-sm bg-[#242422] text-white border border-white shadow-none p-0">
+    <Card className="rounded-sm bg-[#2B2B29] text-white p-0 hover:shadow-[0_4px_20px_0_#1AA7EC] border-none">
       <CardHeader className="p-2 pb-0">
         <CardTitle className="text-md font-bold text-[#1AA7EC] leading-tight mb-[2px]">
           {title}
