@@ -38,12 +38,10 @@ export default function Dashboard() {
   useEffect(() => {
     const init = async () => {
       if (initialLoading) return;
-
       if (!session) {
         router.push("/login");
         return;
       }
-
       setLoading(true);
       const profile = await loadOrCreateUserProfile(supabase, session.user);
       setProfile(profile);
@@ -53,18 +51,15 @@ export default function Dashboard() {
       await fetchBathData();
       setLoading(false);
     };
-
     init();
   }, [initialLoading, session, router, supabase, fetchBathData]);
 
   const startChallenge = async (days: number) => {
     if (!session) return;
     const today = new Date().toISOString().split("T")[0];
-
     setChallengeLength(days);
     setChallengeStartedAt(today);
     setChallengeActive(true);
-
     await supabase
       .from("profiles")
       .update({
@@ -77,10 +72,8 @@ export default function Dashboard() {
 
   const cancelChallenge = async () => {
     if (!session) return;
-
     setChallengeActive(false);
     setChallengeStartedAt(null);
-
     await supabase
       .from("profiles")
       .update({
@@ -92,11 +85,9 @@ export default function Dashboard() {
 
   const resetChallenge = async () => {
     if (!session) return;
-
     setChallengeActive(false);
     setChallengeStartedAt(null);
     setChallengeLength(30);
-
     await supabase
       .from("profiles")
       .update({
@@ -111,8 +102,8 @@ export default function Dashboard() {
     return <div className="container py-10">Loading...</div>;
 
   return (
-    <div className="container py-10 bg-[#242422] text-white">
-      <div className="flex flex-col gap-4">
+    <div className="w-full bg-[#242422] text-white px-4 md:px-8 lg:px-16 xl:px-32 py-10">
+      <div className="max-w-screen-2xl mx-auto flex flex-col gap-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-xl font-bold tracking-tight">
@@ -124,7 +115,7 @@ export default function Dashboard() {
           </div>
           <Button
             onClick={() => setOpen(true)}
-            className="bg-[#1AA7EC] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+            className="bg-[#116FA1] border border-white hover:bg-black hover:text-white"
             size="lg"
           >
             Log new ice bath
@@ -137,8 +128,8 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-1 max-w-sm">
               {[10, 15, 30, 50, 100, 365].map((days) => (
                 <Button
-                  className="bg-[#1AA7EC] hover:bg-[#1AA7EC]/90"
                   key={days}
+                  className="bg-[#1AA7EC] hover:bg-[#1AA7EC]/90"
                   onClick={() => startChallenge(days)}
                 >
                   {days}
@@ -149,7 +140,7 @@ export default function Dashboard() {
         )}
 
         {stats && (
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <BathStatsCard
               title="Days completed"
               value={stats.daysCompleted.toString()}
@@ -173,8 +164,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="grid gap-4 md:grid-cols-7 lg:grid-cols-3 lg:gap-8">
-          <Card className="col-span-7 lg:col-span-2 bg-[#242422] border-none">
+        <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-8">
+          <Card className="bg-[#242422] border-none w-full">
             <CardHeader>
               <CardTitle className="text-center text-white text-xl">
                 {challengeActive
@@ -188,13 +179,12 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent className="px-0">
-              <div className="w-full">
-                <BathCalendar activities={stats?.activities ?? []} />
-              </div>
+              <BathCalendar activities={stats?.activities ?? []} />
             </CardContent>
           </Card>
 
           <ProgressCard
+            className="w-full"
             progress={Math.min(stats?.daysCompleted ?? 0, challengeLength)}
             challengeLength={challengeLength}
             onCancel={
@@ -209,14 +199,14 @@ export default function Dashboard() {
             }
           />
 
-          <Card className="col-span-7 md:col-span-4 lg:col-span-3 bg-[#242422] border-none text-white">
-            <CardHeader>
+          <Card className="bg-[#242422] border-none text-white w-full lg:col-span-2">
+            <CardHeader className="px-0">
               <CardTitle className="text-white">Recent activity</CardTitle>
               <CardDescription className="text-white">
                 Your latest entries in the challenge
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-0">
               <RecentActivity activities={stats?.activities ?? []} />
             </CardContent>
           </Card>
@@ -249,16 +239,16 @@ export default function Dashboard() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
 
-      <AddBathModal
-        open={open}
-        setOpen={setOpen}
-        onBathAdded={() => {
-          fetchBathData();
-          setOpen(false);
-        }}
-      />
+        <AddBathModal
+          open={open}
+          setOpen={setOpen}
+          onBathAdded={() => {
+            fetchBathData();
+            setOpen(false);
+          }}
+        />
+      </div>
     </div>
   );
 }

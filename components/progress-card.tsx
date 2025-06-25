@@ -7,11 +7,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
+// 🔁 ÄNDRING 1: Lägg till className som prop
 type Props = {
   progress: number;
   challengeLength: number;
   onCancel?: () => void;
   onCompleteReset?: () => void;
+  className?: string;
 };
 
 export function ProgressCard({
@@ -19,6 +21,7 @@ export function ProgressCard({
   challengeLength,
   onCancel,
   onCompleteReset,
+  className,
 }: Props) {
   const percentage = Math.min((progress / challengeLength) * 100, 100);
   const nextMilestone =
@@ -27,20 +30,20 @@ export function ProgressCard({
       : `${challengeLength} days – Keep going!`;
 
   return (
-    <Card className="col-span-7 md:col-span-3 lg:col-span-1 bg-[#242422] text-white border-none">
-      <CardHeader>
+    <Card className={`bg-[#242422] text-white border-none ${className}`}>
+      <CardHeader className="px-0">
         <CardTitle className="text-[#1AA7EC]">Your progress</CardTitle>
         <CardDescription className="text-white">
           Progress towards your {challengeLength}-day goal
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0">
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <div>Progress</div>
             <div className="font-medium">{Math.round(percentage)}%</div>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+          <div className="h-4 w-full overflow-hidden rounded-full bg-muted">
             <div
               className="h-full bg-[#1AA7EC]"
               style={{ width: `${percentage}%` }}
@@ -53,7 +56,7 @@ export function ProgressCard({
 
         {onCancel && (
           <Button
-            className="bg-[#1AA7EC] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+            className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
             size="lg"
             onClick={onCancel}
           >

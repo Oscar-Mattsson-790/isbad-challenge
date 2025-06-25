@@ -59,11 +59,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container flex h-screen w-full flex-col items-center justify-center">
+    <div className="container flex h-screen w-full flex-col items-center justify-center text-white">
       <div className="mx-auto grid w-full max-w-[350px] gap-6">
         <div className="grid gap-2 text-center">
           <h1 className="text-3xl font-bold">Log in</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white">
             Log in to continue your ice bath challenge
           </p>
         </div>
@@ -108,7 +108,8 @@ export default function LoginPage() {
           </div>
         </div>
         <Button
-          variant="outline"
+          className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+          size="lg"
           type="button"
           onClick={handleGoogleLogin}
           disabled={loading}
@@ -116,9 +117,9 @@ export default function LoginPage() {
           <FcGoogle size={20} />
           Google
         </Button>
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-white">
           Don’t have an account?{" "}
-          <Link href="/signup" className="underline">
+          <Link href="/signup" className="underline text-[#1AA7EC] font-bold">
             Sign up
           </Link>
         </p>

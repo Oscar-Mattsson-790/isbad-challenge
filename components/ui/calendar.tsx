@@ -16,7 +16,7 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3 bg-[#242422] text-white w-full", className)}
+      className={cn("px-0 bg-[#242422] text-white w-full", className)}
       classNames={{
         months: "w-full",
         month: "w-full",

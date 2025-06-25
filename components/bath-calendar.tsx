@@ -24,7 +24,7 @@ export function BathCalendar({ activities }: BathCalendarProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-0">
       <Calendar
         mode="single"
         selected={date}

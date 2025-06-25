@@ -80,11 +80,11 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="container py-10 max-w-xl mx-auto">
+    <div className="container py-10 max-w-xl mx-auto text-white">
       <h1 className="text-3xl font-bold mb-6">Profile Settings</h1>
 
       <div className="space-y-4">
-        <div>
+        <div className="space-y-1">
           <Label htmlFor="name">Full Name</Label>
           <Input
             id="name"
@@ -93,21 +93,21 @@ export default function ProfilePage() {
           />
         </div>
 
-        <div>
+        <div className="space-y-1">
           <Label htmlFor="email">Email (readonly)</Label>
           <Input id="email" value={email} disabled />
         </div>
 
         <Button
           onClick={handleUpdate}
-          variant="whiteShadow"
-          className="bg-black text-white"
+          className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+          size="lg"
         >
           Update Profile
         </Button>
       </div>
 
-      <div className="mt-10 space-y-4">
+      <div className="mt-10 space-y-2">
         <Label htmlFor="message">Contact ISBAD.se</Label>
         <Textarea
           id="message"
@@ -115,7 +115,13 @@ export default function ProfilePage() {
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Write your message to ISBAD..."
         />
-        <Button onClick={handleSendMessage}>Send Message</Button>
+        <Button
+          className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+          size="lg"
+          onClick={handleSendMessage}
+        >
+          Send Message
+        </Button>
       </div>
     </div>
   );

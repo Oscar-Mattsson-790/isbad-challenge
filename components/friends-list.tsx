@@ -119,7 +119,8 @@ export function FriendsList() {
   };
 
   return (
-    <Card>
+    // 🔁 ÄNDRING: Lagt till w-full för konsekvent bredd
+    <Card className="w-full">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Find Your Friends</CardTitle>

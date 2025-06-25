@@ -29,7 +29,7 @@ const testimonials: Testimonial[] = [
 
 export default function Testimonials() {
   return (
-    <section className="bg-[#242422] py-16 md:py-24 px-4">
+    <section className="py-16 md:py-24">
       <div className="container space-y-8">
         <div className="text-center space-y-4">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
@@ -38,10 +38,7 @@ export default function Testimonials() {
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((t, i) => (
-            <div
-              key={i}
-              className="p-6 rounded-lg shadow-md bg-[#242422] border border-white"
-            >
+            <div key={i} className="p-6 rounded-lg shadow-md bg-[#2B2B29]">
               <div className="flex items-start gap-4">
                 <div className="rounded-full bg-[#1AA7EC] p-2">
                   <svg
@@ -65,9 +62,7 @@ export default function Testimonials() {
                   </p>
                   <div>
                     <p className="font-medium text-[#1AA7EC]">{t.name}</p>
-                    <p className="text-sm text-muted-foreground text-[#1AA7EC]">
-                      {t.title}
-                    </p>
+                    <p className="text-sm text-[#1AA7EC]">{t.title}</p>
                   </div>
                 </div>
               </div>

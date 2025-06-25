@@ -58,7 +58,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
               onClick={handleStartChallenge}
-              className="bg-[#1AA7EC] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+              className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
               size="lg"
               disabled={isLoading}
             >
@@ -82,7 +82,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 md:py-24 px-4 bg-[#242422]">
+      <section className="py-16 md:py-24 bg-[#242422]">
         <div className="container space-y-12">
           <div className="space-y-4 text-center">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
@@ -113,7 +113,7 @@ export default function Home() {
           </div>
           <Button
             onClick={handleStartChallenge}
-            className="bg-[#1AA7EC] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+            className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
             size="lg"
             disabled={isLoading}
           >

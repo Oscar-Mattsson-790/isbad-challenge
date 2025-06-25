@@ -53,7 +53,7 @@ export function RecentActivity({ activities }: { activities: BathEntry[] }) {
         ))}
       </div>
       <Button
-        className="bg-[#1AA7EC] border-[1px] w-full border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+        className="bg-[#116FA1] border-[1px] w-full border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
         size="lg"
         onClick={() => setShowAll(!showAll)}
       >

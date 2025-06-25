@@ -80,11 +80,11 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="container flex h-screen w-full flex-col items-center justify-center">
+    <div className="container flex h-screen w-full flex-col items-center justify-center text-white">
       <div className="mx-auto grid w-full max-w-[350px] gap-6">
         <div className="grid gap-2 text-center">
           <h1 className="text-3xl font-bold">Create Account</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-white">
             Sign up to start your ice bath challenge
           </p>
         </div>
@@ -140,7 +140,8 @@ export default function SignUpPage() {
           </div>
         </div>
         <Button
-          variant="outline"
+          className="bg-[#116FA1] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+          size="lg"
           type="button"
           onClick={handleGoogleSignUp}
           disabled={loading}
@@ -148,9 +149,9 @@ export default function SignUpPage() {
           <FcGoogle size={20} />
           Google
         </Button>
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-white">
           Already have an account?{" "}
-          <Link href="/login" className="underline">
+          <Link href="/login" className="underline text-[#1AA7EC] font-bold">
             Log in
           </Link>
         </p>
