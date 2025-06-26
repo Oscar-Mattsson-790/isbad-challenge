@@ -21,10 +21,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
-import { CalendarIcon, Clock, Upload } from "lucide-react";
+import { Clock, Upload } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -129,32 +128,23 @@ export default function AddBathModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="mx-auto w-[95%] sm:max-w-[425px]">
+      <DialogContent className="mx-auto w-[95%] sm:max-w-[425px bg-[#242422] text-white border-none">
         <DialogHeader>
           <DialogTitle>Log a new ice bath</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-white">
             Fill in the details of your ice bath to add it to your challenge.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date">
+                Date:{" "}
+                {date
+                  ? format(date, "MMMM do, yyyy", { locale: enUS })
+                  : "Select a date"}
+              </Label>
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date
-                      ? format(date, "PPP", { locale: enUS })
-                      : "Select a date"}
-                  </Button>
-                </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
@@ -167,13 +157,12 @@ export default function AddBathModal({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="time">Time</Label>
+              <Label htmlFor="time">
+                Select the time you took your ice bath
+              </Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
+                  <Button className="w-full justify-start text-left font-normal bg-white text-black hover:bg-white">
                     <Clock className="mr-2 h-4 w-4" />
                     {time}
                   </Button>
@@ -243,14 +232,14 @@ export default function AddBathModal({
             </div>
 
             <div className="grid gap-2">
-              <Label>Duration</Label>
+              <Label>How long did you stay in the water?</Label>
               <div className="flex gap-2">
                 <div className="flex flex-col">
                   <span className="text-sm">Minutes</span>
                   <select
                     value={durationMinutes}
                     onChange={(e) => setDurationMinutes(e.target.value)}
-                    className="border rounded px-2 py-1 bg-white text-black"
+                    className="border rounded px-2 py-1 bg-white text-black cursor-pointer"
                   >
                     {[...Array(31).keys()].map((min) => (
                       <option key={min} value={min.toString()}>
@@ -264,7 +253,7 @@ export default function AddBathModal({
                   <select
                     value={durationSeconds}
                     onChange={(e) => setDurationSeconds(e.target.value)}
-                    className="border rounded px-2 py-1 bg-white text-black"
+                    className="border rounded px-2 py-1 bg-white text-black cursor-pointer"
                   >
                     {[...Array(60).keys()].map((sec) => (
                       <option key={sec} value={sec.toString()}>
@@ -283,8 +272,7 @@ export default function AddBathModal({
                   <Button
                     key={emoji}
                     type="button"
-                    variant={selectedEmoji === emoji ? "default" : "outline"}
-                    className={`text-xl ${
+                    className={`text-xl bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white ${
                       selectedEmoji === emoji ? "bg-[#157FBF]" : ""
                     }`}
                     onClick={() => setSelectedEmoji(emoji)}
@@ -300,7 +288,7 @@ export default function AddBathModal({
               <div className="flex flex-col gap-2 max-h-[220px] overflow-auto">
                 <Label
                   htmlFor="photo"
-                  className="flex h-32 cursor-pointer flex-col items-center justify-center rounded-md border border-dashed p-2 text-center"
+                  className="flex h-32 cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-white p-2 text-center"
                 >
                   {photoPreview ? (
                     <div className="relative h-full w-full">
@@ -314,11 +302,11 @@ export default function AddBathModal({
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center gap-1 p-2 sm:p-4">
-                      <Upload className="h-6 w-6 text-muted-foreground" />
+                      <Upload className="h-6 w-6 text-white" />
                       <p className="text-sm font-medium">
                         Drag and drop or click to upload
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-white">
                         Photo or short video (max 20MB)
                       </p>
                     </div>
@@ -337,8 +325,7 @@ export default function AddBathModal({
           <DialogFooter>
             <Button
               type="submit"
-              variant="whiteShadow"
-              className="border border-black w-full"
+              className="bg-[#157FBF] w-full border-none hover:bg-[#115F93] hover:text-white"
             >
               Save
             </Button>

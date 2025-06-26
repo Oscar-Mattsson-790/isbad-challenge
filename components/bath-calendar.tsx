@@ -63,7 +63,7 @@ export function BathCalendar({ activities }: BathCalendarProps) {
       />
 
       {selectedBath && (
-        <div className="mt-4 rounded-md border p-4">
+        <div className="mt-4 rounded-md bg-[#2B2B29] text-white p-4 hover:shadow-[0_4px_20px_0_#157FBF]">
           <h3 className="font-medium text-white">
             {new Date(selectedBath.date).toLocaleDateString("en-US", {
               weekday: "long",

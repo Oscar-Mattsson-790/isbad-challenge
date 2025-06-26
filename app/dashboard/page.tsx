@@ -115,7 +115,7 @@ export default function Dashboard() {
           </div>
           <Button
             onClick={() => setOpen(true)}
-            className="bg-[#157FBF] hover:bg-black hover:text-white"
+            className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
             size="lg"
           >
             Log new ice bath
