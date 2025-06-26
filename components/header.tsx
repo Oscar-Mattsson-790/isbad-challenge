@@ -57,9 +57,7 @@ export default function Header() {
             Home
           </Link>
           <Link
-            href="https://www.isbad.se"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/about"
             className="text-sm font-medium text-white transition-colors hover:text-[#157FBF]"
           >
             About
@@ -98,13 +96,7 @@ export default function Header() {
                   asChild
                   className="hover:bg-white hover:text-black"
                 >
-                  <Link
-                    href="https://www.isbad.se"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    About
-                  </Link>
+                  <Link href="/about">About</Link>
                 </DropdownMenuItem>
 
                 {!session && (
