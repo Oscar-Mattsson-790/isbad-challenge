@@ -24,9 +24,7 @@ export default function Header() {
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      toast.error("Sign out error", {
-        description: error.message,
-      });
+      toast.error("Sign out error", { description: error.message });
       return;
     }
 
@@ -78,9 +76,9 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* User area (desktop & mobile) */}
+        {/* Mobile Menu + User */}
         <div className="flex items-center gap-2">
-          {/* Mobile menu */}
+          {/* Mobile Dropdown */}
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -88,10 +86,7 @@ export default function Header() {
                   <Menu className="h-6 w-6 text-white" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="bg-[#242422] text-white border-none shadow-md"
-              >
+              <DropdownMenuContent className="bg-[#242422] text-white border-none shadow-md overflow-y-auto max-h-[80vh]">
                 <DropdownMenuItem
                   asChild
                   className="hover:bg-white hover:text-black"
@@ -103,6 +98,12 @@ export default function Header() {
                   className="hover:bg-white hover:text-black"
                 >
                   <Link href="/about">About</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  asChild
+                  className="hover:bg-white hover:text-black"
+                >
+                  <Link href="/contact">Contact</Link>
                 </DropdownMenuItem>
 
                 {!session && (
@@ -127,7 +128,7 @@ export default function Header() {
             </DropdownMenu>
           </div>
 
-          {/* Session-specific dropdown */}
+          {/* User dropdown */}
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -157,32 +158,28 @@ export default function Header() {
                   onClick={() => router.push("/dashboard")}
                   className="hover:bg-white hover:text-black"
                 >
-                  <User className="mr-2 h-4 w-4 text-[#157FBF] hover:text-black" />
+                  <User className="mr-2 h-4 w-4 text-[#157FBF]" />
                   <span>Challenge</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  asChild
+                  onClick={() => router.push("/contact")}
                   className="hover:bg-white hover:text-black"
                 >
-                  <Link href="/contact" className="flex items-center gap-2">
-                    <Mail className="mr-2 h-4 w-4 text-[#157FBF] hover:text-black" />
-                    <span>Contact</span>
-                  </Link>
+                  <Mail className="mr-2 h-4 w-4 text-[#157FBF]" />
+                  <span>Contact</span>
                 </DropdownMenuItem>
-
                 <DropdownMenuItem
                   onClick={() => router.push("/profile")}
                   className="hover:bg-white hover:text-black"
                 >
-                  <Settings className="mr-2 h-4 w-4 text-[#157FBF] hover:text-black" />
+                  <Settings className="mr-2 h-4 w-4 text-[#157FBF]" />
                   <span>Settings</span>
                 </DropdownMenuItem>
-
                 <DropdownMenuItem
                   onClick={handleSignOut}
                   className="hover:bg-white hover:text-black"
                 >
-                  <LogOut className="mr-2 h-4 w-4 text-[#157FBF] hover:text-black" />
+                  <LogOut className="mr-2 h-4 w-4 text-[#157FBF]" />
                   <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

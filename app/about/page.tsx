@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useSupabase } from "@/components/supabase-provider";
 import HowItWorks from "@/components/how-it-works";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function AboutPage() {
   const { supabase } = useSupabase();
@@ -52,6 +53,15 @@ export default function AboutPage() {
       </div>
 
       <HowItWorks />
+
+      <div className="text-center text-sm text-gray-400 mt-12">
+        <Link href="/privacy" className="hover:underline mr-4">
+          Privacy Policy
+        </Link>
+        <Link href="/terms" className="hover:underline">
+          Terms of Service
+        </Link>
+      </div>
     </div>
   );
 }
