@@ -1,8 +1,9 @@
 "use client";
 
-import { User, Calendar, Plus, Activity } from "lucide-react";
-import { useSupabase } from "@/components/supabase-provider";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ShoppingCart, Calendar, Plus, Activity, MailPlus } from "lucide-react";
+import { useSupabase } from "@/components/supabase-provider";
 
 export default function StickyActionBar({
   onAddBathClick,
@@ -11,32 +12,53 @@ export default function StickyActionBar({
 }) {
   const { session } = useSupabase();
   const router = useRouter();
+  const [active, setActive] = useState<string>("");
 
   if (!session) return null;
 
+  const iconClass = (name: string) =>
+    `flex flex-col items-center text-xs transition-colors ${
+      active === name ? "text-[#157FBF]" : "text-white"
+    }`;
+
+  const goToRecentActivity = () => {
+    setActive("activity");
+    router.push("/dashboard#recent-activity");
+  };
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#242422] text-white flex justify-evenly items-center py-2">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#242422] flex justify-evenly items-center py-2">
       <button
-        onClick={() => router.push("/profile")}
-        className="flex flex-col items-center text-xs transition-colors hover:text-[#157FBF]"
-      >
-        <User className="h-6 w-6" />
-        Profile
-      </button>
-      <button
-        onClick={onAddBathClick}
-        className="flex flex-col items-center text-xs transition-colors hover:text-[#157FBF]"
+        onClick={() => {
+          onAddBathClick?.();
+          setActive("add");
+        }}
+        className={iconClass("add")}
       >
         <Plus className="h-6 w-6" />
         Add bath
       </button>
-      <button className="flex flex-col items-center text-xs transition-colors hover:text-[#157FBF]">
+      <button
+        onClick={() => setActive("calendar")}
+        className={iconClass("calendar")}
+      >
         <Calendar className="h-6 w-6" />
         Calendar
       </button>
-      <button className="flex flex-col items-center text-xs transition-colors hover:text-[#157FBF]">
+      <button onClick={goToRecentActivity} className={iconClass("activity")}>
         <Activity className="h-6 w-6" />
-        Recents activity
+        Activity
+      </button>
+      <button onClick={() => setActive("order")} className={iconClass("order")}>
+        <ShoppingCart className="h-6 w-6" />
+        Order bath
+      </button>
+      <button
+        onClick={() => setActive("invite")}
+        className={iconClass("invite")}
+      >
+        <MailPlus className="h-6 w-6" />
+        Invite
       </button>
     </div>
   );

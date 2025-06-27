@@ -50,7 +50,18 @@ export default function Dashboard() {
       setChallengeActive(profile.challenge_active ?? false);
       await fetchBathData();
       setLoading(false);
+
+      // ⬇ scrolla till "recent-activity" om hash finns
+      if (window.location.hash === "#recent-activity") {
+        const el = document.getElementById("recent-activity");
+        if (el) {
+          setTimeout(() => {
+            el.scrollIntoView({ behavior: "smooth" });
+          }, 200);
+        }
+      }
     };
+
     init();
   }, [initialLoading, session, router, supabase, fetchBathData]);
 
@@ -182,7 +193,6 @@ export default function Dashboard() {
               <BathCalendar activities={stats?.activities ?? []} />
             </CardContent>
           </Card>
-
           <ProgressCard
             className="w-full"
             progress={Math.min(stats?.daysCompleted ?? 0, challengeLength)}
@@ -198,9 +208,8 @@ export default function Dashboard() {
                 : undefined
             }
           />
-
           <Card className="bg-[#242422] border-none text-white w-full lg:col-span-2">
-            <CardHeader className="px-0">
+            <CardHeader id="recent-activity" className="px-0 scroll-mt-20">
               <CardTitle className="text-white">Recent activity</CardTitle>
               <CardDescription className="text-white">
                 Your latest entries in the challenge
