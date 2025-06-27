@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import Header from "@/components/header";
 import { SupabaseProvider } from "@/components/supabase-provider";
+import StickyWrapper from "@/components/sticky-wrapper";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -37,7 +38,7 @@ export default function RootLayout({
           <SupabaseProvider>
             <div className="flex min-h-screen flex-col">
               <Header />
-              <main className="flex-1 bg-[#242422]">{children}</main>
+              <main className="flex-1 bg-[#242422] pb-[64px]">{children}</main>
               <footer className="py-6 bg-[#242422]">
                 <div className="container flex flex-col items-center justify-center gap-4">
                   <p className="text-center text-sm text-white">
@@ -54,6 +55,7 @@ export default function RootLayout({
                   </p>
                 </div>
               </footer>
+              <StickyWrapper />
             </div>
             <Toaster />
           </SupabaseProvider>
