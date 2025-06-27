@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 interface UserProfile {
@@ -19,7 +18,6 @@ export default function ProfilePage() {
   const router = useRouter();
   const [fullName, setFullName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
     if (!session) {
@@ -64,24 +62,9 @@ export default function ProfilePage() {
     }
   };
 
-  const handleSendMessage = async () => {
-    const res = await fetch("/api/contact", {
-      method: "POST",
-      body: JSON.stringify({ email, message }),
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (res.ok) {
-      toast.success("Message sent!");
-      setMessage("");
-    } else {
-      toast.error("Failed to send message");
-    }
-  };
-
   return (
-    <div className="container py-10 max-w-xl mx-auto text-white">
-      <h1 className="text-3xl font-bold mb-6">Profile Settings</h1>
+    <div className="container pt-20 py-10 max-w-xl mx-auto text-white">
+      <h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
 
       <div className="space-y-4">
         <div className="space-y-1">
@@ -104,23 +87,6 @@ export default function ProfilePage() {
           size="lg"
         >
           Update Profile
-        </Button>
-      </div>
-
-      <div className="mt-10 space-y-2">
-        <Label htmlFor="message">Contact ISBAD.se</Label>
-        <Textarea
-          id="message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Write your message to ISBAD..."
-        />
-        <Button
-          className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-          size="lg"
-          onClick={handleSendMessage}
-        >
-          Send Message
         </Button>
       </div>
     </div>

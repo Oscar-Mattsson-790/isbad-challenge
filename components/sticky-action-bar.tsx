@@ -27,7 +27,7 @@ export default function StickyActionBar({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#242422] flex justify-evenly items-center py-2">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#242422] flex justify-evenly items-center py-4 pb-4">
       <button
         onClick={() => {
           onAddBathClick?.();
@@ -39,17 +39,29 @@ export default function StickyActionBar({
         Add bath
       </button>
       <button
-        onClick={() => setActive("calendar")}
+        onClick={() => {
+          setActive("calendar");
+          router.push("/dashboard#calendar-section");
+        }}
         className={iconClass("calendar")}
       >
         <Calendar className="h-6 w-6" />
-        Calendar
+        Challenge
       </button>
       <button onClick={goToRecentActivity} className={iconClass("activity")}>
         <Activity className="h-6 w-6" />
         Activity
       </button>
-      <button onClick={() => setActive("order")} className={iconClass("order")}>
+      <button
+        onClick={() => {
+          setActive("order");
+          window.open(
+            "https://isbad.se/product/isbad-premium-plus-black-edition/",
+            "_blank"
+          );
+        }}
+        className={iconClass("order")}
+      >
         <ShoppingCart className="h-6 w-6" />
         Order bath
       </button>

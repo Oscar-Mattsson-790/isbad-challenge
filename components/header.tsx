@@ -12,7 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings, Menu } from "lucide-react";
+import { LogOut, User, Settings, Menu, Mail } from "lucide-react";
 import Image from "next/image";
 import { useUserProfile } from "@/lib/hooks/use-user-profile";
 
@@ -70,6 +70,12 @@ export default function Header() {
               My Challenge
             </Link>
           )}
+          <Link
+            href="/contact"
+            className="text-sm font-medium text-white transition-colors hover:text-[#157FBF]"
+          >
+            Contact
+          </Link>
         </nav>
 
         {/* User area (desktop & mobile) */}
@@ -154,6 +160,16 @@ export default function Header() {
                   <User className="mr-2 h-4 w-4 text-[#157FBF] hover:text-black" />
                   <span>Challenge</span>
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  asChild
+                  className="hover:bg-white hover:text-black"
+                >
+                  <Link href="/contact" className="flex items-center gap-2">
+                    <Mail className="mr-2 h-4 w-4 text-[#157FBF] hover:text-black" />
+                    <span>Contact</span>
+                  </Link>
+                </DropdownMenuItem>
+
                 <DropdownMenuItem
                   onClick={() => router.push("/profile")}
                   className="hover:bg-white hover:text-black"

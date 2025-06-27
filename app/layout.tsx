@@ -39,18 +39,18 @@ export default function RootLayout({
             <div className="flex min-h-screen flex-col">
               <Header />
               <main className="flex-1 bg-[#242422] pb-[64px]">{children}</main>
-              <footer className="pb-[70px] bg-[#242422] border-none">
+              <footer className="pb-[75px] bg-[#242422] border-none">
                 <div className="container flex flex-col items-center justify-center gap-4">
                   <p className="text-center text-sm text-white">
                     &copy; {new Date().getFullYear()} All rights reserved
                     <br />
-                    ISBAD Challenge –{" "}
+                    ISBAD Challenge – isbad.com <br />{" "}
                     <Link
                       href="https://www.isbad.se"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      www.isbad.se
+                      Powered by ISBAD.se
                     </Link>
                   </p>
                 </div>

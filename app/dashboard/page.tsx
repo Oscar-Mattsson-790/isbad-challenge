@@ -51,9 +51,17 @@ export default function Dashboard() {
       await fetchBathData();
       setLoading(false);
 
-      // ⬇ scrolla till "recent-activity" om hash finns
       if (window.location.hash === "#recent-activity") {
         const el = document.getElementById("recent-activity");
+        if (el) {
+          setTimeout(() => {
+            el.scrollIntoView({ behavior: "smooth" });
+          }, 200);
+        }
+      }
+
+      if (window.location.hash === "#calendar-section") {
+        const el = document.getElementById("calendar-section");
         if (el) {
           setTimeout(() => {
             el.scrollIntoView({ behavior: "smooth" });
@@ -117,11 +125,13 @@ export default function Dashboard() {
       <div className="max-w-screen-2xl mx-auto flex flex-col gap-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-xl font-bold tracking-tight">
+            <h1 className="text-lg font-bold tracking-tight">
               Hi {profile?.full_name || "there"}!
             </h1>
-            <p className="text-white text-sm">
-              Keep track of your ice bath challenge and follow your progress.
+            <p className="text-white text-sm pb-2">
+              Keep track of your ice bath challenge
+              <br />
+              and follow your progress.
             </p>
           </div>
           <Button
@@ -132,23 +142,6 @@ export default function Dashboard() {
             Log new ice bath
           </Button>
         </div>
-
-        {!challengeActive && (
-          <div>
-            <p>Start a new challenge, choose a duration:</p>
-            <div className="grid grid-cols-3 gap-1 max-w-sm">
-              {[10, 15, 30, 50, 100, 365].map((days) => (
-                <Button
-                  key={days}
-                  className="bg-[#157FBF] hover:bg-[#157FBF]/90"
-                  onClick={() => startChallenge(days)}
-                >
-                  {days}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {stats && (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -176,18 +169,39 @@ export default function Dashboard() {
         )}
 
         <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-8">
-          <Card className="bg-[#242422] border-none w-full">
+          <Card
+            id="calendar-section"
+            className="scroll-mt-[60px] bg-[#242422] border-none w-full"
+          >
             <CardHeader>
               <CardTitle className="text-center text-white text-xl">
                 {challengeActive
                   ? `Your ${challengeLength}-day challenge`
                   : "Choose your challenge"}
               </CardTitle>
-              <CardDescription className="text-center text-white">
+              <CardDescription className="text-center text-white pb-2">
                 {challengeStartedAt
                   ? `Started on ${new Date(challengeStartedAt).toLocaleDateString("sv-SE")}`
                   : "Track your progress in the calendar below"}
               </CardDescription>
+              {!challengeActive && (
+                <div className="rounded-sm bg-[#2B2B29] text-white p-5 hover:shadow-[0_4px_20px_0_#157FBF]">
+                  <p className="text-white text-[13px] text-center pb-2">
+                    Start a new challenge, choose a duration
+                  </p>
+                  <div className="grid grid-cols-3 gap-1 max-w-sm">
+                    {[10, 15, 30, 50, 100, 365].map((days) => (
+                      <Button
+                        key={days}
+                        className="bg-[#157FBF] hover:bg-[#157FBF]/90"
+                        onClick={() => startChallenge(days)}
+                      >
+                        {days}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardHeader>
             <CardContent className="px-0">
               <BathCalendar activities={stats?.activities ?? []} />
