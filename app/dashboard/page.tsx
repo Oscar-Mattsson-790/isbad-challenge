@@ -118,7 +118,7 @@ export default function Dashboard() {
   };
 
   if (loading || initialLoading)
-    return <div className="container py-10">Loading...</div>;
+    return <div className="container py-10 text-white">Loading...</div>;
 
   return (
     <div className="w-full bg-[#242422] text-white px-4 md:px-8 lg:px-16 xl:px-32 py-10">

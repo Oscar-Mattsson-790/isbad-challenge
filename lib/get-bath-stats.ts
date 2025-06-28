@@ -40,8 +40,8 @@ export async function getBathStats(
   });
 
   const total = durations.length;
-  const longest = Math.max(...durations);
-  const average = durations.reduce((a, b) => a + b, 0) / total;
+  const longest = total > 0 ? Math.max(...durations) : 0;
+  const average = total > 0 ? durations.reduce((a, b) => a + b, 0) / total : 0;
 
   const format = (s: number) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
@@ -69,8 +69,8 @@ export async function getBathStats(
     daysCompleted: streak,
     longestBath: format(longest),
     averageDuration: format(Math.round(average)),
-    latestBath: data[0]?.date ?? "",
-    latestTime: data[0]?.time?.slice(0, 5) ?? "",
+    latestBath: data[0]?.date ?? "No bath yet",
+    latestTime: data[0]?.time?.slice(0, 5) ?? "-",
     activities: data,
   };
 }
