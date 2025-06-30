@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSupabase } from "@/components/supabase-provider";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,22 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { BathCalendar } from "@/components/bath-calendar";
-import { BathStatsCard } from "@/components/bath-stats-card";
-import { RecentActivity } from "@/components/recent-activity";
-import AddBathModal from "@/components/add-bath-modal";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FriendsList } from "@/components/friends-list";
-import { ProgressCard } from "@/components/progress-card";
 import { loadOrCreateUserProfile } from "@/lib/profile/load-or-create-profile";
 import { useBathStats } from "@/lib/hooks/use-bath-stats";
-import Image from "next/image";
+import AddBathModal from "@/components/add-bath-modal";
+import { RecentActivity } from "@/components/recent-activity";
+import { HeaderSection } from "@/components/dashboard/headerSection";
+import { StatsGrid } from "@/components/dashboard/statsGrid";
+import { ChallengeSection } from "@/components/dashboard/challengeSection";
+import { TabsSection } from "@/components/dashboard/tabsSection";
+import { FailedChallengeModal } from "@/components/dashboard/failedChallengeModal";
 
 export default function Dashboard() {
   const [challengeLength, setChallengeLength] = useState(30);
@@ -39,7 +31,7 @@ export default function Dashboard() {
   const { supabase, session, initialLoading } = useSupabase();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [profile, setProfile] = useState<any>(null);
 
   const { stats, fetchBathData } = useBathStats(supabase, session?.user.id);
@@ -63,19 +55,16 @@ export default function Dashboard() {
 
       if (window.location.hash === "#recent-activity") {
         const el = document.getElementById("recent-activity");
-        if (el) {
+        if (el)
           setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
-        }
       }
 
       if (window.location.hash === "#calendar-section") {
         const el = document.getElementById("calendar-section");
-        if (el) {
+        if (el)
           setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
-        }
       }
 
-      // Kontroll för misslyckad utmaning
       if (profile.challenge_active && profile.challenge_started_at) {
         if (!stats) return;
 
@@ -90,7 +79,7 @@ export default function Dashboard() {
           today.toDateString() !== started.toDateString()
         ) {
           setChallengeFailed(true);
-          await resetChallenge(); // nollställ progress
+          await resetChallenge();
         }
       }
     };
@@ -148,126 +137,20 @@ export default function Dashboard() {
   return (
     <div className="w-full bg-[#242422] text-white px-4 md:px-8 lg:px-16 xl:px-32 py-6">
       <div className="max-w-screen-2xl mx-auto flex flex-col gap-8">
-        {/* Header */}
-        <div className="flex flex-col gap-4 md:flex-row">
-          <div className="flex gap-5 items-center md:w-3/4">
-            <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full bg-[#2B2B29] overflow-hidden hover:shadow-[0_4px_20px_0_#157FBF] transition-shadow duration-300">
-              {profile?.avatar_url && (
-                <Image
-                  src={profile.avatar_url}
-                  alt="Avatar"
-                  fill
-                  className="object-cover"
-                />
-              )}
-            </div>
-            <div className="flex flex-col justify-center">
-              <h1 className="text-base md:text-lg font-bold tracking-tight">
-                Hi {profile?.full_name || "there"}!
-              </h1>
-              <p className="text-white text-xs md:text-sm pb-2">
-                Keep track of your ice bath <br />
-                challenge and follow your progress.
-              </p>
-            </div>
-          </div>
+        <HeaderSection profile={profile} setOpen={setOpen} />
 
-          <div className="md:w-1/4 w-full flex items-center">
-            <Button
-              onClick={() => setOpen(true)}
-              className="w-full h-12 bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-            >
-              Log new ice bath
-            </Button>
-          </div>
-        </div>
+        {stats && <StatsGrid stats={stats} challengeLength={challengeLength} />}
 
-        {/* Stats Cards */}
-        {stats && (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <BathStatsCard
-              title="Days completed"
-              value={stats.daysCompleted.toString()}
-              description={`out of ${challengeLength} days`}
-            />
-            <BathStatsCard
-              title="Longest bath"
-              value={stats.longestBath}
-              description="minutes"
-            />
-            <BathStatsCard
-              title="Latest bath"
-              value={stats.latestBath}
-              description={stats.latestTime}
-            />
-            <BathStatsCard
-              title="Average"
-              value={stats.averageDuration}
-              description="minutes per bath"
-            />
-          </div>
-        )}
+        <ChallengeSection
+          stats={stats}
+          challengeLength={challengeLength}
+          challengeActive={challengeActive}
+          challengeStartedAt={challengeStartedAt}
+          startChallenge={startChallenge}
+          cancelChallenge={cancelChallenge}
+          resetChallenge={resetChallenge}
+        />
 
-        {/* Calendar and Progress */}
-        <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-8">
-          <Card
-            id="calendar-section"
-            className="scroll-mt-[60px] bg-[#242422] border-none w-full"
-          >
-            <CardHeader className="p-0">
-              <CardTitle className="text-center text-white text-xl">
-                {challengeActive
-                  ? `Your ${challengeLength}-day challenge`
-                  : "Choose your challenge"}
-              </CardTitle>
-              <CardDescription className="text-center text-white pb-2">
-                {challengeStartedAt
-                  ? `Started on ${new Date(challengeStartedAt).toLocaleDateString("sv-SE")}`
-                  : "Track your progress in the calendar below"}
-              </CardDescription>
-
-              {!challengeActive && (
-                <div className="w-full rounded-sm bg-[#2B2B29] text-white p-5 hover:shadow-[0_4px_20px_0_#157FBF]">
-                  <p className="text-white text-[13px] text-center pb-2">
-                    Start a new challenge, choose a duration
-                  </p>
-                  <div className="grid grid-cols-3 gap-2 w-full">
-                    {[10, 15, 30, 50, 100, 365].map((days) => (
-                      <Button
-                        key={days}
-                        className="w-full bg-[#157FBF] hover:bg-[#157FBF]/90 h-12"
-                        onClick={() => startChallenge(days)}
-                      >
-                        {days}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardHeader>
-            <CardContent className="px-0">
-              <BathCalendar activities={stats?.activities ?? []} />
-            </CardContent>
-          </Card>
-
-          <ProgressCard
-            className="w-full"
-            progress={Math.min(stats?.daysCompleted ?? 0, challengeLength)}
-            challengeLength={challengeLength}
-            onCancel={
-              challengeActive && (stats?.daysCompleted ?? 0) < challengeLength
-                ? cancelChallenge
-                : undefined
-            }
-            onCompleteReset={
-              challengeActive && (stats?.daysCompleted ?? 0) >= challengeLength
-                ? resetChallenge
-                : undefined
-            }
-          />
-        </div>
-
-        {/* Recent Activity */}
         <Card className="bg-[#242422] border-none text-white w-full lg:col-span-2">
           <CardHeader id="recent-activity" className="px-0 scroll-mt-20">
             <CardTitle className="text-white">Recent activity</CardTitle>
@@ -280,36 +163,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Tabs */}
-        <Tabs defaultValue="friends" className="w-full">
-          <TabsList className="bg-[#2B2B29]">
-            <TabsTrigger value="friends">Friends</TabsTrigger>
-            <TabsTrigger value="challenges">Challenges</TabsTrigger>
-          </TabsList>
-          <TabsContent value="friends" className="border-none p-0 pt-4">
-            <FriendsList />
-          </TabsContent>
-          <TabsContent value="challenges" className="border-none p-0 pt-4">
-            <Card className="bg-[#2B2B29] text-white border-none">
-              <CardHeader>
-                <CardTitle>Active challenges</CardTitle>
-                <CardDescription className="text-white">
-                  See your ongoing challenges with friends
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm">
-                  You have no active challenges at the moment.
-                </p>
-                <Button className="mt-4 border bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white">
-                  Challenge a friend
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        <TabsSection />
 
-        {/* Modal */}
         <AddBathModal
           open={open}
           setOpen={setOpen}
@@ -319,19 +174,10 @@ export default function Dashboard() {
           }}
         />
 
-        {/* 🔴 Failed Modal */}
-        <Dialog open={challengeFailed} onOpenChange={setChallengeFailed}>
-          <DialogContent className="bg-red-700 text-white border-none">
-            <DialogHeader>
-              <DialogTitle className="text-center text-xl">
-                Failed challenge, try again
-              </DialogTitle>
-            </DialogHeader>
-            <p className="text-center text-sm">
-              You missed a day. Please start a new challenge.
-            </p>
-          </DialogContent>
-        </Dialog>
+        <FailedChallengeModal
+          challengeFailed={challengeFailed}
+          setChallengeFailed={setChallengeFailed}
+        />
       </div>
     </div>
   );
