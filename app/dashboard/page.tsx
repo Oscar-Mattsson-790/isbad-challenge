@@ -151,15 +151,16 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col gap-4 md:flex-row">
           <div className="flex gap-5 items-center md:w-3/4">
-            {profile?.avatar_url && (
-              <Image
-                src={profile.avatar_url}
-                alt="Avatar"
-                width={128}
-                height={128}
-                className="relative cursor-pointer rounded-full bg-[#2B2B29] w-32 h-32 flex items-center justify-center hover:shadow-[0_4px_20px_0_#157FBF] overflow-hidden"
-              />
-            )}
+            <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full bg-[#2B2B29] text-white p-0 hover:shadow-[0_4px_20px_0_#157FBF] border-none">
+              {profile?.avatar_url && (
+                <Image
+                  src={profile.avatar_url}
+                  alt="Avatar"
+                  fill
+                  className="object-cover"
+                />
+              )}
+            </div>
             <div className="flex flex-col justify-center">
               <h1 className="text-base md:text-lg font-bold tracking-tight">
                 Hi {profile?.full_name || "there"}!
