@@ -155,8 +155,8 @@ export default function Dashboard() {
               <Image
                 src={profile.avatar_url}
                 alt="Avatar"
-                width={100}
-                height={100}
+                width={128}
+                height={128}
                 className="relative cursor-pointer rounded-full bg-[#2B2B29] w-32 h-32 flex items-center justify-center hover:shadow-[0_4px_20px_0_#157FBF] overflow-hidden"
               />
             )}
