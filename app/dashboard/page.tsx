@@ -122,37 +122,39 @@ export default function Dashboard() {
     return <div className="container py-10 text-white">Loading...</div>;
 
   return (
-    <div className="w-full bg-[#242422] text-white px-4 md:px-8 lg:px-16 xl:px-32 py-10">
+    <div className="w-full bg-[#242422] text-white px-4 md:px-8 lg:px-16 xl:px-32 py-6">
       <div className="max-w-screen-2xl mx-auto flex flex-col gap-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-2">
+        {/* Uppdaterad layout */}
+        <div className="flex flex-col gap-4 md:flex-row">
+          <div className="flex gap-5 items-center md:w-3/4">
             {profile?.avatar_url && (
               <Image
                 src={profile.avatar_url}
                 alt="Avatar"
-                width={80}
-                height={80}
-                className="rounded-full"
+                width={100}
+                height={100}
+                className="relative cursor-pointer rounded-full bg-[#2B2B29] w-32 h-32 flex items-center justify-center hover:shadow-[0_4px_20px_0_#157FBF] overflow-hidden"
               />
             )}
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold tracking-tight">
+            <div className="flex flex-col justify-center">
+              <h1 className="text-base md:text-lg font-bold tracking-tight">
                 Hi {profile?.full_name || "there"}!
               </h1>
+              <p className="text-white text-xs md:text-sm pb-2">
+                Keep track of your ice bath <br />
+                challenge and follow your progress.
+              </p>
             </div>
-            <p className="text-white text-sm pb-2">
-              Keep track of your ice bath challenge
-              <br />
-              and follow your progress.
-            </p>
           </div>
-          <Button
-            onClick={() => setOpen(true)}
-            className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-            size="lg"
-          >
-            Log new ice bath
-          </Button>
+
+          <div className="md:w-1/4 w-full flex items-center">
+            <Button
+              onClick={() => setOpen(true)}
+              className="w-full h-12 bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
+            >
+              Log new ice bath
+            </Button>
+          </div>
         </div>
 
         {stats && (
@@ -219,6 +221,7 @@ export default function Dashboard() {
               <BathCalendar activities={stats?.activities ?? []} />
             </CardContent>
           </Card>
+
           <ProgressCard
             className="w-full"
             progress={Math.min(stats?.daysCompleted ?? 0, challengeLength)}
@@ -234,6 +237,7 @@ export default function Dashboard() {
                 : undefined
             }
           />
+
           <Card className="bg-[#242422] border-none text-white w-full lg:col-span-2">
             <CardHeader id="recent-activity" className="px-0 scroll-mt-20">
               <CardTitle className="text-white">Recent activity</CardTitle>

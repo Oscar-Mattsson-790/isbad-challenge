@@ -51,7 +51,7 @@ export function ProgressCard({
           </div>
         </div>
 
-        <h3 className="mt-4 font-medium text-[#157FBF]">Next milestone</h3>
+        <h3 className="mt-10 font-medium text-[#157FBF]">Next milestone</h3>
         <p className="text-sm text-white mb-4">{nextMilestone}</p>
 
         {onCancel && (
