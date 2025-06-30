@@ -47,6 +47,7 @@ export default function AddBathModal({
   const [selectedEmoji, setSelectedEmoji] = useState("😊");
   const [file, setFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [showImagePrompt, setShowImagePrompt] = useState(false);
   const { supabase, session } = useSupabase();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,29 +68,36 @@ export default function AddBathModal({
     if (!session) return;
 
     if (!file) {
-      toast.error("Please upload a photo or video");
+      setOpen(false);
+      setShowImagePrompt(true); // Show prompt if no image
       return;
     }
 
-    const duration = `${durationMinutes.padStart(
-      2,
-      "0"
-    )}:${durationSeconds.padStart(2, "0")}`;
+    await submitBath();
+  };
 
+  const submitBath = async () => {
+    if (!session) return;
+
+    const duration = `${durationMinutes.padStart(2, "0")}:${durationSeconds.padStart(2, "0")}`;
     let proof_url: string | null = null;
+
     if (file) {
       const fileExt = file.name.split(".").pop();
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `${session.user.id}/${fileName}`;
+
       const { error: uploadError } = await supabase.storage
         .from("bathproofs")
         .upload(filePath, file);
+
       if (uploadError) {
         toast.error("Failed to upload image", {
           description: uploadError.message,
         });
         return;
       }
+
       const { data: publicUrl } = supabase.storage
         .from("bathproofs")
         .getPublicUrl(filePath);
@@ -104,6 +112,7 @@ export default function AddBathModal({
       feeling: selectedEmoji,
       proof_url,
     });
+
     if (error) {
       toast.error("Failed to save bath", { description: error.message });
       return;
@@ -127,179 +136,161 @@ export default function AddBathModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="mx-auto w-[95%] sm:max-w-[425px bg-[#242422] text-white border-none">
-        <DialogHeader>
-          <DialogTitle>Log a new ice bath</DialogTitle>
-          <DialogDescription className="text-white">
-            Fill in the details of your ice bath to add it to your challenge.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="date">
-                Date:{" "}
-                {date
-                  ? format(date, "MMMM do, yyyy", { locale: enUS })
-                  : "Select a date"}
-              </Label>
-              <Popover>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={(date) => date && setDate(date)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="mx-auto w-[95%] sm:max-w-[425px] bg-[#242422] text-white border-none">
+          <DialogHeader>
+            <DialogTitle>Log a new ice bath</DialogTitle>
+            <DialogDescription className="text-white">
+              Fill in the details of your ice bath to add it to your challenge.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="date">
+                  Date:{" "}
+                  {date
+                    ? format(date, "MMMM do, yyyy", { locale: enUS })
+                    : "Select a date"}
+                </Label>
+                <Popover>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={(date) => date && setDate(date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="time">
-                Select the time you took your ice bath
-              </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button className="w-full justify-start text-left font-normal bg-white text-black hover:bg-white">
-                    <Clock className="mr-2 h-4 w-4" />
-                    {time}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  side="bottom"
-                  align="start"
-                  className="w-auto p-2 flex flex-col gap-2"
-                >
-                  <div className="flex items-center gap-2">
+              <div className="grid gap-2">
+                <Label htmlFor="time">
+                  Select the time you took your ice bath
+                </Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button className="w-full justify-start text-left font-normal bg-white text-black hover:bg-white">
+                      <Clock className="mr-2 h-4 w-4" />
+                      {time}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    side="bottom"
+                    align="start"
+                    className="w-auto p-2 flex flex-col gap-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={time.split(":")[0]}
+                        onChange={(e) =>
+                          setTime(
+                            `${e.target.value.padStart(2, "0")}:${time.split(":")[1]}`
+                          )
+                        }
+                        className="border rounded px-2 py-1 bg-white text-black"
+                      >
+                        {[...Array(24).keys()].map((h) => {
+                          const val = h.toString().padStart(2, "0");
+                          return (
+                            <option key={val} value={val}>
+                              {val}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      <span className="text-lg font-medium">:</span>
+                      <select
+                        value={time.split(":")[1]}
+                        onChange={(e) =>
+                          setTime(
+                            `${time.split(":")[0]}:${e.target.value.padStart(2, "0")}`
+                          )
+                        }
+                        className="border rounded px-2 py-1 bg-white text-black"
+                      >
+                        {[...Array(60).keys()].map((m) => {
+                          const val = m.toString().padStart(2, "0");
+                          return (
+                            <option key={val} value={val}>
+                              {val}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="grid gap-2">
+                <Label>How long did you stay in the water?</Label>
+                <div className="flex gap-2">
+                  <div className="flex flex-col">
+                    <span className="text-sm">Minutes</span>
                     <select
-                      value={time.split(":")[0]}
-                      onChange={(e) =>
-                        setTime(
-                          `${e.target.value.padStart(2, "0")}:${time.split(":")[1]}`
-                        )
-                      }
+                      value={durationMinutes}
+                      onChange={(e) => setDurationMinutes(e.target.value)}
                       className="border rounded px-2 py-1 bg-white text-black"
                     >
-                      {[...Array(24).keys()].map((h) => {
-                        const val = h.toString().padStart(2, "0");
-                        return (
-                          <option
-                            key={val}
-                            value={val}
-                            className={
-                              time.split(":")[0] === val
-                                ? "font-semibold text-blue-600 bg-blue-100"
-                                : ""
-                            }
-                          >
-                            {val}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <span className="text-lg font-medium">:</span>
-                    <select
-                      value={time.split(":")[1]}
-                      onChange={(e) =>
-                        setTime(
-                          `${time.split(":")[0]}:${e.target.value.padStart(2, "0")}`
-                        )
-                      }
-                      className="border rounded px-2 py-1 bg-white text-black"
-                    >
-                      {[...Array(60).keys()].map((m) => {
-                        const val = m.toString().padStart(2, "0");
-                        return (
-                          <option
-                            key={val}
-                            value={val}
-                            className={
-                              time.split(":")[1] === val
-                                ? "font-semibold text-blue-600 bg-blue-100"
-                                : ""
-                            }
-                          >
-                            {val}
-                          </option>
-                        );
-                      })}
+                      {[...Array(31).keys()].map((min) => (
+                        <option key={min} value={min.toString()}>
+                          {min.toString().padStart(2, "0")}
+                        </option>
+                      ))}
                     </select>
                   </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="grid gap-2">
-              <Label>How long did you stay in the water?</Label>
-              <div className="flex gap-2">
-                <div className="flex flex-col">
-                  <span className="text-sm">Minutes</span>
-                  <select
-                    value={durationMinutes}
-                    onChange={(e) => setDurationMinutes(e.target.value)}
-                    className="border rounded px-2 py-1 bg-white text-black cursor-pointer"
-                  >
-                    {[...Array(31).keys()].map((min) => (
-                      <option key={min} value={min.toString()}>
-                        {min.toString().padStart(2, "0")}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm">Seconds</span>
-                  <select
-                    value={durationSeconds}
-                    onChange={(e) => setDurationSeconds(e.target.value)}
-                    className="border rounded px-2 py-1 bg-white text-black cursor-pointer"
-                  >
-                    {[...Array(60).keys()].map((sec) => (
-                      <option key={sec} value={sec.toString()}>
-                        {sec.toString().padStart(2, "0")}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex flex-col">
+                    <span className="text-sm">Seconds</span>
+                    <select
+                      value={durationSeconds}
+                      onChange={(e) => setDurationSeconds(e.target.value)}
+                      className="border rounded px-2 py-1 bg-white text-black"
+                    >
+                      {[...Array(60).keys()].map((sec) => (
+                        <option key={sec} value={sec.toString()}>
+                          {sec.toString().padStart(2, "0")}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="grid gap-2">
-              <Label>How did it feel?</Label>
-              <div className="grid grid-cols-7 gap-2 justify-center">
-                {emojis.map((emoji) => (
-                  <Button
-                    key={emoji}
-                    type="button"
-                    className={`text-xl bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white ${
-                      selectedEmoji === emoji ? "bg-[#157FBF]" : ""
-                    }`}
-                    onClick={() => setSelectedEmoji(emoji)}
-                  >
-                    {emoji}
-                  </Button>
-                ))}
+              <div className="grid gap-2">
+                <Label>How did it feel?</Label>
+                <div className="grid grid-cols-7 gap-2 justify-center">
+                  {emojis.map((emoji) => (
+                    <Button
+                      key={emoji}
+                      type="button"
+                      className={`text-xl bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white ${
+                        selectedEmoji === emoji ? "bg-[#157FBF]" : ""
+                      }`}
+                      onClick={() => setSelectedEmoji(emoji)}
+                    >
+                      {emoji}
+                    </Button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="photo">Proof (photo/video)</Label>
-              <div className="flex flex-col gap-2 max-h-[220px] overflow-auto">
+              <div className="grid gap-2">
+                <Label htmlFor="photo">Proof (photo/video)</Label>
                 <Label
                   htmlFor="photo"
-                  className="flex h-32 cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-white p-2 text-center"
+                  className="relative max-h-64 overflow-y-auto cursor-pointer flex flex-col items-center justify-center rounded-md border border-dashed border-white p-2 text-center"
                 >
                   {photoPreview ? (
-                    <div className="relative h-full w-full">
-                      <Image
-                        src={photoPreview || "/placeholder.svg"}
-                        alt="Preview"
-                        className="h-auto max-h-[200px] w-full object-cover rounded"
-                        width={300}
-                        height={300}
-                      />
-                    </div>
+                    <Image
+                      src={photoPreview}
+                      alt="Preview"
+                      className="h-auto max-h-[200px] w-full object-cover rounded"
+                      width={300}
+                      height={300}
+                    />
                   ) : (
                     <div className="flex flex-col items-center justify-center gap-1 p-2 sm:p-4">
                       <Upload className="h-6 w-6 text-white" />
@@ -321,17 +312,50 @@ export default function AddBathModal({
                 </Label>
               </div>
             </div>
+            <DialogFooter>
+              <Button
+                type="submit"
+                className="bg-[#157FBF] w-full border-none hover:bg-[#115F93] hover:text-white"
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {showImagePrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
+          <div className="bg-[#2B2B29] text-white p-6 rounded-xl shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-2">
+              Don&apos;t you want to upload an image?
+            </h2>
+            <p className="mb-4 text-sm text-white/80">
+              You can upload a photo or video as proof of your bath.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button
+                className="bg-[#157FBF] hover:bg-[#115F93]"
+                onClick={() => {
+                  setShowImagePrompt(false);
+                  setOpen(true);
+                }}
+              >
+                Yes
+              </Button>
+              <Button
+                className="bg-black text-white"
+                onClick={async () => {
+                  setShowImagePrompt(false);
+                  await submitBath();
+                }}
+              >
+                No
+              </Button>
+            </div>
           </div>
-          <DialogFooter>
-            <Button
-              type="submit"
-              className="bg-[#157FBF] w-full border-none hover:bg-[#115F93] hover:text-white"
-            >
-              Save
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </div>
+      )}
+    </>
   );
 }
