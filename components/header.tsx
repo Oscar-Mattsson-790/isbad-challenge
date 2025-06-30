@@ -173,7 +173,7 @@ export default function Header() {
                   className="hover:bg-white hover:text-black"
                 >
                   <Settings className="mr-2 h-4 w-4 text-[#157FBF]" />
-                  <span>Settings</span>
+                  <span>My profile</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleSignOut}
