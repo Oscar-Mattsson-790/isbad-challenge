@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import type { BathRow } from "@/types/supabase";
 
@@ -23,6 +23,32 @@ export function BathCalendar({ activities }: BathCalendarProps) {
     setSelectedBath(match ?? null);
   };
 
+  const completedDates = useMemo(
+    () => activities.map((b) => new Date(b.date).toDateString()),
+    [activities]
+  );
+
+  const challengeStart = useMemo(() => {
+    return activities.length > 0
+      ? new Date(activities[activities.length - 1].date)
+      : new Date();
+  }, [activities]);
+
+  const today = new Date();
+  const totalDays = Math.floor(
+    (today.getTime() - challengeStart.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  const failedDates = useMemo(() => {
+    const allDates = Array.from({ length: totalDays }, (_, i) => {
+      const d = new Date(challengeStart);
+      d.setDate(d.getDate() + i);
+      return d.toDateString();
+    });
+
+    return allDates.filter((d) => !completedDates.includes(d));
+  }, [challengeStart, completedDates, totalDays]);
+
   return (
     <div className="space-y-4 px-0">
       <Calendar
@@ -31,14 +57,12 @@ export function BathCalendar({ activities }: BathCalendarProps) {
         onSelect={handleDayClick}
         className="rounded-md w-full"
         modifiers={{
-          completed: (date) =>
-            activities.some(
-              (bath) =>
-                new Date(bath.date).toDateString() === date.toDateString()
-            ),
+          completed: (date) => completedDates.includes(date.toDateString()),
+          failed: (date) => failedDates.includes(date.toDateString()),
         }}
         modifiersClassNames={{
           completed: "bg-[#157FBF] text-white font-bold",
+          failed: "bg-red-700 text-white font-bold",
         }}
         components={{
           DayContent: ({ date }) => {

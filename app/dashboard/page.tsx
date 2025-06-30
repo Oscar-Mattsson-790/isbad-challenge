@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSupabase } from "@/components/supabase-provider";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { BathCalendar } from "@/components/bath-calendar";
 import { BathStatsCard } from "@/components/bath-stats-card";
 import { RecentActivity } from "@/components/recent-activity";
@@ -28,11 +34,13 @@ export default function Dashboard() {
     null
   );
   const [challengeActive, setChallengeActive] = useState(false);
+  const [challengeFailed, setChallengeFailed] = useState(false);
   const [open, setOpen] = useState(false);
   const { supabase, session, initialLoading } = useSupabase();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [profile, setProfile] = useState<any>(null);
 
   const { stats, fetchBathData } = useBathStats(supabase, session?.user.id);
 
@@ -43,6 +51,7 @@ export default function Dashboard() {
         router.push("/login");
         return;
       }
+
       setLoading(true);
       const profile = await loadOrCreateUserProfile(supabase, session.user);
       setProfile(profile);
@@ -55,18 +64,33 @@ export default function Dashboard() {
       if (window.location.hash === "#recent-activity") {
         const el = document.getElementById("recent-activity");
         if (el) {
-          setTimeout(() => {
-            el.scrollIntoView({ behavior: "smooth" });
-          }, 200);
+          setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
         }
       }
 
       if (window.location.hash === "#calendar-section") {
         const el = document.getElementById("calendar-section");
         if (el) {
-          setTimeout(() => {
-            el.scrollIntoView({ behavior: "smooth" });
-          }, 200);
+          setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
+        }
+      }
+
+      // Kontroll för misslyckad utmaning
+      if (profile.challenge_active && profile.challenge_started_at) {
+        if (!stats) return;
+
+        const started = new Date(profile.challenge_started_at);
+        const today = new Date();
+        const diffDays = Math.floor(
+          (today.getTime() - started.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+        if (
+          diffDays > stats.daysCompleted &&
+          today.toDateString() !== started.toDateString()
+        ) {
+          setChallengeFailed(true);
+          await resetChallenge(); // nollställ progress
         }
       }
     };
@@ -103,7 +127,7 @@ export default function Dashboard() {
       .eq("id", session.user.id);
   };
 
-  const resetChallenge = async () => {
+  const resetChallenge = useCallback(async () => {
     if (!session) return;
     setChallengeActive(false);
     setChallengeStartedAt(null);
@@ -116,7 +140,7 @@ export default function Dashboard() {
         challenge_length: 30,
       })
       .eq("id", session.user.id);
-  };
+  }, [session, supabase]);
 
   if (loading || initialLoading)
     return <div className="container py-10 text-white">Loading...</div>;
@@ -124,7 +148,7 @@ export default function Dashboard() {
   return (
     <div className="w-full bg-[#242422] text-white px-4 md:px-8 lg:px-16 xl:px-32 py-6">
       <div className="max-w-screen-2xl mx-auto flex flex-col gap-8">
-        {/* Uppdaterad layout */}
+        {/* Header */}
         <div className="flex flex-col gap-4 md:flex-row">
           <div className="flex gap-5 items-center md:w-3/4">
             {profile?.avatar_url && (
@@ -157,6 +181,7 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <BathStatsCard
@@ -182,12 +207,13 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Calendar and Progress */}
         <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-8">
           <Card
             id="calendar-section"
             className="scroll-mt-[60px] bg-[#242422] border-none w-full"
           >
-            <CardHeader>
+            <CardHeader className="p-0">
               <CardTitle className="text-center text-white text-xl">
                 {challengeActive
                   ? `Your ${challengeLength}-day challenge`
@@ -198,16 +224,17 @@ export default function Dashboard() {
                   ? `Started on ${new Date(challengeStartedAt).toLocaleDateString("sv-SE")}`
                   : "Track your progress in the calendar below"}
               </CardDescription>
+
               {!challengeActive && (
-                <div className="rounded-sm bg-[#2B2B29] text-white p-5 hover:shadow-[0_4px_20px_0_#157FBF]">
+                <div className="w-full rounded-sm bg-[#2B2B29] text-white p-5 hover:shadow-[0_4px_20px_0_#157FBF]">
                   <p className="text-white text-[13px] text-center pb-2">
                     Start a new challenge, choose a duration
                   </p>
-                  <div className="grid grid-cols-3 gap-1 max-w-sm">
+                  <div className="grid grid-cols-3 gap-2 w-full">
                     {[10, 15, 30, 50, 100, 365].map((days) => (
                       <Button
                         key={days}
-                        className="bg-[#157FBF] hover:bg-[#157FBF]/90"
+                        className="w-full bg-[#157FBF] hover:bg-[#157FBF]/90 h-12"
                         onClick={() => startChallenge(days)}
                       >
                         {days}
@@ -237,20 +264,22 @@ export default function Dashboard() {
                 : undefined
             }
           />
-
-          <Card className="bg-[#242422] border-none text-white w-full lg:col-span-2">
-            <CardHeader id="recent-activity" className="px-0 scroll-mt-20">
-              <CardTitle className="text-white">Recent activity</CardTitle>
-              <CardDescription className="text-white">
-                Your latest entries in the challenge
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-0">
-              <RecentActivity activities={stats?.activities ?? []} />
-            </CardContent>
-          </Card>
         </div>
 
+        {/* Recent Activity */}
+        <Card className="bg-[#242422] border-none text-white w-full lg:col-span-2">
+          <CardHeader id="recent-activity" className="px-0 scroll-mt-20">
+            <CardTitle className="text-white">Recent activity</CardTitle>
+            <CardDescription className="text-white">
+              Your latest entries in the challenge
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-0">
+            <RecentActivity activities={stats?.activities ?? []} />
+          </CardContent>
+        </Card>
+
+        {/* Tabs */}
         <Tabs defaultValue="friends" className="w-full">
           <TabsList className="bg-[#2B2B29]">
             <TabsTrigger value="friends">Friends</TabsTrigger>
@@ -279,6 +308,7 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
 
+        {/* Modal */}
         <AddBathModal
           open={open}
           setOpen={setOpen}
@@ -287,6 +317,20 @@ export default function Dashboard() {
             setOpen(false);
           }}
         />
+
+        {/* 🔴 Failed Modal */}
+        <Dialog open={challengeFailed} onOpenChange={setChallengeFailed}>
+          <DialogContent className="bg-red-700 text-white border-none">
+            <DialogHeader>
+              <DialogTitle className="text-center text-xl">
+                Failed challenge, try again
+              </DialogTitle>
+            </DialogHeader>
+            <p className="text-center text-sm">
+              You missed a day. Please start a new challenge.
+            </p>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
