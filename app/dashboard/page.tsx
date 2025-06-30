@@ -151,7 +151,7 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col gap-4 md:flex-row">
           <div className="flex gap-5 items-center md:w-3/4">
-            <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full bg-[#2B2B29] text-white p-0 hover:shadow-[0_4px_20px_0_#157FBF] border-none">
+            <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full bg-[#2B2B29] overflow-hidden hover:shadow-[0_4px_20px_0_#157FBF] transition-shadow duration-300">
               {profile?.avatar_url && (
                 <Image
                   src={profile.avatar_url}
