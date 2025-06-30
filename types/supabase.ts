@@ -57,6 +57,7 @@ export type ProfileRow = {
   challenge_length?: number | null;
   challenge_started_at?: string | null;
   challenge_active?: boolean | null;
+  avatar_url?: string | null;
 };
 
 export type ProfileInsert = {
@@ -67,6 +68,7 @@ export type ProfileInsert = {
   challenge_length?: number | null;
   challenge_started_at?: string | null;
   challenge_active?: boolean | null;
+  avatar_url?: string | null;
 };
 
 export type ProfileUpdate = Partial<ProfileInsert>;

@@ -20,6 +20,7 @@ import { FriendsList } from "@/components/friends-list";
 import { ProgressCard } from "@/components/progress-card";
 import { loadOrCreateUserProfile } from "@/lib/profile/load-or-create-profile";
 import { useBathStats } from "@/lib/hooks/use-bath-stats";
+import Image from "next/image";
 
 export default function Dashboard() {
   const [challengeLength, setChallengeLength] = useState(30);
@@ -124,10 +125,21 @@ export default function Dashboard() {
     <div className="w-full bg-[#242422] text-white px-4 md:px-8 lg:px-16 xl:px-32 py-10">
       <div className="max-w-screen-2xl mx-auto flex flex-col gap-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-lg font-bold tracking-tight">
-              Hi {profile?.full_name || "there"}!
-            </h1>
+          <div className="flex flex-col gap-2">
+            {profile?.avatar_url && (
+              <Image
+                src={profile.avatar_url}
+                alt="Avatar"
+                width={80}
+                height={80}
+                className="rounded-full"
+              />
+            )}
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-bold tracking-tight">
+                Hi {profile?.full_name || "there"}!
+              </h1>
+            </div>
             <p className="text-white text-sm pb-2">
               Keep track of your ice bath challenge
               <br />
