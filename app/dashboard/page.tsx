@@ -19,6 +19,7 @@ import { StatsGrid } from "@/components/dashboard/statsGrid";
 import { ChallengeSection } from "@/components/dashboard/challengeSection";
 import { TabsSection } from "@/components/dashboard/tabsSection";
 import { FailedChallengeModal } from "@/components/dashboard/failedChallengeModal";
+import LayoutWrapper from "@/components/layout-wrapper";
 
 export default function Dashboard() {
   const [challengeLength, setChallengeLength] = useState(30);
@@ -135,8 +136,8 @@ export default function Dashboard() {
     return <div className="container py-10 text-white">Loading...</div>;
 
   return (
-    <div className="w-full bg-[#242422] text-white px-4 md:px-8 lg:px-16 xl:px-32 py-6">
-      <div className="max-w-screen-2xl mx-auto flex flex-col gap-8">
+    <LayoutWrapper>
+      <div className="max-w-screen-2xl mx-auto flex flex-col gap-8 pt-10 px-4 sm:px-0">
         <HeaderSection profile={profile} setOpen={setOpen} />
 
         {stats && <StatsGrid stats={stats} challengeLength={challengeLength} />}
@@ -179,6 +180,6 @@ export default function Dashboard() {
           setChallengeFailed={setChallengeFailed}
         />
       </div>
-    </div>
+    </LayoutWrapper>
   );
 }

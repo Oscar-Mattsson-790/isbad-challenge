@@ -6,6 +6,7 @@ import { useSupabase } from "@/components/supabase-provider";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Testimonials from "@/components/testimonials";
+import LayoutWrapper from "@/components/layout-wrapper";
 
 export default function Home() {
   const { supabase } = useSupabase();
@@ -26,9 +27,9 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col">
+    <LayoutWrapper>
       {/* Hero Section with background video */}
-      <section className="relative overflow-hidden min-h-[87vh] flex items-center px-4 sm:px-6">
+      <section className="relative overflow-hidden min-h-[87vh] flex items-center">
         <video
           src="/videos/ISBAD Challenge app Monika Amazon bakgrundsvideo.mp4"
           autoPlay
@@ -83,7 +84,7 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="py-8 md:py-12 bg-[#242422]">
-        <div className="container space-y-12">
+        <div className="px-4 space-y-12">
           <div className="space-y-4 text-center">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
               How does it work?
@@ -100,15 +101,15 @@ export default function Home() {
       <Testimonials />
 
       {/* CTA Section */}
-      <section className="py-8 md:py-8 px-4">
-        <div className="container flex flex-col items-center gap-8 text-center">
+      <section className="py-8 md:py-8">
+        <div className="px-4 flex flex-col items-center gap-8 text-center">
           <div className="space-y-4">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
               Ready to start your challenge?
             </h2>
-            <p className="mx-auto max-w-[600px] text-white">
+            <p className="mx-auto max-w-[500px] text-white">
               Join today and begin your journey toward better health and
-              well-being through ice bathing.
+              well-being through <br className="block sm:hidden" /> ice bathing.
             </p>
           </div>
           <Button
@@ -121,6 +122,6 @@ export default function Home() {
           </Button>
         </div>
       </section>
-    </div>
+    </LayoutWrapper>
   );
 }

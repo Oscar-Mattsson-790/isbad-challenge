@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import LayoutWrapper from "@/components/layout-wrapper";
 
 export default function ContactPage() {
   const [form, setForm] = useState({
@@ -52,70 +53,72 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="container py-10 pt-20 max-w-xl mx-auto text-white space-y-4">
-      <h2 className="text-2xl font-bold mb-6">Contact ISBAD.com</h2>
+    <LayoutWrapper>
+      <div className="max-w-xl mx-auto text-white space-y-4 pt-10 px-5">
+        <h2 className="text-2xl font-bold mb-6">Contact ISBAD.com</h2>
 
-      <div>
-        <Label className="mb-1" htmlFor="name">
-          Name
-        </Label>
-        <Input
-          id="name"
-          name="name"
-          placeholder="Your name"
-          value={form.name}
-          onChange={handleChange}
-        />
+        <div>
+          <Label className="mb-1" htmlFor="name">
+            Name
+          </Label>
+          <Input
+            id="name"
+            name="name"
+            placeholder="Your name"
+            value={form.name}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <Label className="mb-1" htmlFor="phone">
+            Phone
+          </Label>
+          <Input
+            id="phone"
+            name="phone"
+            placeholder="+46 701234567"
+            value={form.phone}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <Label className="mb-1" htmlFor="email">
+            Email
+          </Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="your@mail.com"
+            value={form.email}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <Label className="mb-1" htmlFor="message">
+            Message
+          </Label>
+          <Textarea
+            id="message"
+            name="message"
+            placeholder="Write your message here..."
+            className="h-48"
+            value={form.message}
+            onChange={handleChange}
+          />
+        </div>
+
+        <Button
+          className="bg-[#157FBF] sm:w-auto w-full border-none hover:bg-[#115F93] hover:text-white"
+          size="lg"
+          onClick={handleSendMessage}
+        >
+          Send Message
+        </Button>
       </div>
-
-      <div>
-        <Label className="mb-1" htmlFor="phone">
-          Phone
-        </Label>
-        <Input
-          id="phone"
-          name="phone"
-          placeholder="+46 701234567"
-          value={form.phone}
-          onChange={handleChange}
-        />
-      </div>
-
-      <div>
-        <Label className="mb-1" htmlFor="email">
-          Email
-        </Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="your@mail.com"
-          value={form.email}
-          onChange={handleChange}
-        />
-      </div>
-
-      <div>
-        <Label className="mb-1" htmlFor="message">
-          Message
-        </Label>
-        <Textarea
-          id="message"
-          name="message"
-          placeholder="Write your message here..."
-          className="h-48"
-          value={form.message}
-          onChange={handleChange}
-        />
-      </div>
-
-      <Button
-        className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-        size="lg"
-        onClick={handleSendMessage}
-      >
-        Send Message
-      </Button>
-    </div>
+    </LayoutWrapper>
   );
 }

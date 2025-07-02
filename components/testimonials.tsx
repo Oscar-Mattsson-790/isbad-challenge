@@ -30,9 +30,9 @@ const testimonials: Testimonial[] = [
 export default function Testimonials() {
   return (
     <section className="py-3 md:py-6">
-      <div className="container space-y-8">
+      <div className="px-4 space-y-8">
         <div className="text-center space-y-4">
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
             What our users say
           </h2>
         </div>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Image from "next/image";
+import LayoutWrapper from "@/components/layout-wrapper";
 
 interface UserProfile {
   full_name: string;
@@ -101,57 +102,59 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="container pt-20 py-10 max-w-xl mx-auto text-white">
-      <h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
+    <LayoutWrapper>
+      <div className="container pt-20 py-10 max-w-xl mx-auto text-white px-5">
+        <h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
 
-      <div className="space-y-4">
-        <div className="mb-4 flex items-center">
-          <label
-            htmlFor="avatar"
-            className="relative cursor-pointer rounded-full bg-[#2B2B29] w-32 h-32 flex items-center justify-center hover:shadow-[0_4px_20px_0_#157FBF] overflow-hidden"
-          >
-            {avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt="Profile avatar"
-                fill
-                className="object-cover rounded-full"
+        <div className="space-y-4">
+          <div className="mb-4 flex items-center">
+            <label
+              htmlFor="avatar"
+              className="relative cursor-pointer rounded-full bg-[#2B2B29] w-32 h-32 flex items-center justify-center hover:shadow-[0_4px_20px_0_#157FBF] overflow-hidden"
+            >
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt="Profile avatar"
+                  fill
+                  className="object-cover rounded-full"
+                />
+              ) : (
+                <span className="text-white text-sm">Upload</span>
+              )}
+              <input
+                id="avatar"
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                className="hidden"
               />
-            ) : (
-              <span className="text-white text-sm">Upload</span>
-            )}
-            <input
-              id="avatar"
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarUpload}
-              className="hidden"
+            </label>
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="name">Full Name</Label>
+            <Input
+              id="name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
             />
-          </label>
-        </div>
+          </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="name">Full Name</Label>
-          <Input
-            id="name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-          />
-        </div>
+          <div className="space-y-1">
+            <Label htmlFor="email">Email (readonly)</Label>
+            <Input id="email" value={email} disabled />
+          </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="email">Email (readonly)</Label>
-          <Input id="email" value={email} disabled />
+          <Button
+            onClick={handleUpdate}
+            className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
+            size="lg"
+          >
+            Update Profile
+          </Button>
         </div>
-
-        <Button
-          onClick={handleUpdate}
-          className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-          size="lg"
-        >
-          Update Profile
-        </Button>
       </div>
-    </div>
+    </LayoutWrapper>
   );
 }
