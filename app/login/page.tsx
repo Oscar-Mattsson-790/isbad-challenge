@@ -61,7 +61,7 @@ export default function LoginPage() {
 
   return (
     <LayoutWrapper>
-      <div className="flex h-[600px] w-full flex-col items-center justify-center text-white px-5">
+      <div className="flex h-[600px] w-full max-w-md mx-auto flex-col items-center justify-center text-white px-5">
         <div className="mx-auto grid w-full gap-6">
           <div className="grid gap-2 text-center">
             <h1 className="text-3xl font-bold">Log in</h1>

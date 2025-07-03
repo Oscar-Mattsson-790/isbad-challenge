@@ -12,7 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User, Settings, Menu, Mail } from "lucide-react";
+import { LogOut, User, Settings, Menu, Mail, Trophy } from "lucide-react";
 import Image from "next/image";
 import { useUserProfile } from "@/lib/hooks/use-user-profile";
 
@@ -61,12 +61,20 @@ export default function Header() {
             About
           </Link>
           {session && (
-            <Link
-              href="/dashboard"
-              className="text-sm font-medium text-white transition-colors hover:text-[#157FBF]"
-            >
-              My Challenge
-            </Link>
+            <>
+              <Link
+                href="/dashboard"
+                className="text-sm font-medium text-white transition-colors hover:text-[#157FBF]"
+              >
+                My Challenge
+              </Link>
+              <Link
+                href="/scoreboard"
+                className="text-sm font-medium text-white transition-colors hover:text-[#157FBF]"
+              >
+                Top ice bathers
+              </Link>
+            </>
           )}
           <Link
             href="/contact"
@@ -160,6 +168,13 @@ export default function Header() {
                 >
                   <User className="mr-2 h-4 w-4 text-[#157FBF]" />
                   <span>Challenge</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => router.push("/scoreboard")}
+                  className="hover:bg-white hover:text-black"
+                >
+                  <Trophy className="mr-2 h-4 w-4 text-[#157FBF]" />
+                  <span>Top ice bathers</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => router.push("/contact")}
