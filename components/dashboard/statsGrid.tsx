@@ -1,33 +1,43 @@
 import { BathStatsCard } from "@/components/bath-stats-card";
+import type { BathStats } from "@/lib/get-bath-stats";
 
 type Props = {
-  //eslint-disable-next-line @typescript-eslint/no-explicit-any
-  stats: any;
-  challengeLength: number;
+  stats: BathStats;
+  challengeLength?: number; // krävs bara för 'self'-läge
+  mode?: "self" | "friend"; // nytt: anpassar beskrivningen
 };
 
-export function StatsGrid({ stats, challengeLength }: Props) {
+export function StatsGrid({
+  stats,
+  challengeLength = 0,
+  mode = "self",
+}: Props) {
+  const daysDescription =
+    mode === "self"
+      ? `out of ${challengeLength} days`
+      : `out of ${stats.activities.length} total baths`;
+
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-4 mb-4">
       <BathStatsCard
         title="Days completed"
         value={stats.daysCompleted.toString()}
-        description={`out of ${challengeLength} days`}
+        description={daysDescription}
       />
       <BathStatsCard
         title="Longest bath"
         value={stats.longestBath}
-        description="minutes"
+        description="Your longest bath"
+      />
+      <BathStatsCard
+        title="Average duration"
+        value={stats.averageDuration}
+        description="Average bath time"
       />
       <BathStatsCard
         title="Latest bath"
         value={stats.latestBath}
-        description={stats.latestTime}
-      />
-      <BathStatsCard
-        title="Average"
-        value={stats.averageDuration}
-        description="minutes per bath"
+        description={`at ${stats.latestTime}`}
       />
     </div>
   );

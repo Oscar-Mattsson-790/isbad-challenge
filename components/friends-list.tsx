@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Search, UserPlus, X } from "lucide-react";
+import { Search, UserPlus, X, Calendar } from "lucide-react";
 import { useSupabase } from "@/components/supabase-provider";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
@@ -17,12 +17,15 @@ import { sendInvite } from "@/lib/send-invite";
 import { fetchFriends } from "@/lib/friends/fetch-friends";
 import { addFriend } from "@/lib/friends/add-friend";
 import { removeFriend } from "@/lib/friends/remove-friend";
+import { FriendStatsModal } from "@/components/friendsStatsModal";
 
 export function FriendsList() {
   const { supabase, session } = useSupabase();
   const [friends, setFriends] = useState<any[]>([]);
   const [searchName, setSearchName] = useState("");
   const [searchResult, setSearchResult] = useState<any | null>(null);
+  const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
+  const [selectedFriendName, setSelectedFriendName] = useState<string>("");
 
   const loadFriends = useCallback(async () => {
     if (!session) return;
@@ -169,8 +172,23 @@ export function FriendsList() {
               key={friend.friend_id}
               className="flex items-center justify-between gap-4 rounded p-2"
             >
-              <div>
-                <div className="font-medium">{friend.profiles.full_name}</div>
+              <div className="flex items-center gap-1">
+                <div
+                  className="font-medium cursor-pointer"
+                  onClick={() => {
+                    setSelectedFriendId(friend.friend_id);
+                    setSelectedFriendName(friend.profiles.full_name);
+                  }}
+                >
+                  {friend.profiles.full_name}
+                </div>
+                <Calendar
+                  className="h-4 w-4 text-[#157FBF] cursor-pointer"
+                  onClick={() => {
+                    setSelectedFriendId(friend.friend_id);
+                    setSelectedFriendName(friend.profiles.full_name);
+                  }}
+                />
               </div>
               <Button
                 variant="ghost"
@@ -184,6 +202,15 @@ export function FriendsList() {
           ))}
         </div>
       </CardContent>
+      {selectedFriendId && (
+        <FriendStatsModal
+          supabase={supabase}
+          friendId={selectedFriendId}
+          fullName={selectedFriendName}
+          open={!!selectedFriendId}
+          onClose={() => setSelectedFriendId(null)}
+        />
+      )}
     </Card>
   );
 }
