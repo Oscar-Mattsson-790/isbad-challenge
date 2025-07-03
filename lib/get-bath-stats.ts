@@ -46,19 +46,26 @@ export async function getBathStats(
   const format = (s: number) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
-  // 🧠 Streak-logik: räkna hur många dagar i rad man har loggat
+  // 🧠 Fixad streak-logik: unika datum, jämför dag för dag bakåt från idag
   const today = new Date();
-  const sortedDates = data
-    .map((b) => new Date(b.date.split("T")[0]))
+  today.setHours(0, 0, 0, 0);
+
+  const uniqueDateStrings = Array.from(new Set(data.map((b) => b.date)));
+
+  const uniqueDates = uniqueDateStrings
+    .map((dateStr) => {
+      const d = new Date(dateStr);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    })
     .sort((a, b) => b.getTime() - a.getTime());
 
   let streak = 0;
-  for (let i = 0; i < sortedDates.length; i++) {
-    const expectedDate = new Date();
-    expectedDate.setDate(today.getDate() - i);
-    expectedDate.setHours(0, 0, 0, 0);
 
-    if (sortedDates[i].toDateString() === expectedDate.toDateString()) {
+  for (let i = 0; i < uniqueDates.length; i++) {
+    const expectedDate = new Date(today);
+    expectedDate.setDate(today.getDate() - i);
+    if (uniqueDates[i].toDateString() === expectedDate.toDateString()) {
       streak++;
     } else {
       break;
