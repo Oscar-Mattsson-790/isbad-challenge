@@ -24,10 +24,11 @@ export function ProgressCard({
   className,
 }: Props) {
   const percentage = Math.min((progress / challengeLength) * 100, 100);
+  const remainingDays = Math.max(challengeLength - progress, 0);
   const nextMilestone =
     progress >= challengeLength
       ? "Challenge complete! 🎉"
-      : `${challengeLength} days – Keep going!`;
+      : `${remainingDays} day${remainingDays === 1 ? "" : "s"} left – Keep going!`;
 
   return (
     <Card className={`bg-[#242422] text-white border-none ${className}`}>
