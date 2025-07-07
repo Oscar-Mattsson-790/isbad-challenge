@@ -148,7 +148,7 @@ export default function AddBathModal({
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="mx-auto w-[95%] sm:max-w-[425px] bg-[#242422] text-white border-none">
+        <DialogContent className="mx-auto w-[95%] sm:max-w-[425px] bg-[#242422] text-white border-none max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Log a new ice bath</DialogTitle>
             <DialogDescription className="text-white">
