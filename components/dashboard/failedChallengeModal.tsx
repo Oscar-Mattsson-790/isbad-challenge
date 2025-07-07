@@ -23,7 +23,8 @@ export function FailedChallengeModal({
           </DialogTitle>
         </DialogHeader>
         <p className="text-center text-sm">
-          You missed a day. Please start a new challenge.
+          You missed a day. Continue to bath everyday or choose to start a new
+          challenge.
         </p>
       </DialogContent>
     </Dialog>
