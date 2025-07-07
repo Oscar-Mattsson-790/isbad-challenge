@@ -44,6 +44,7 @@ export type BathRow = {
   duration: string;
   feeling: string;
   proof_url: string | null;
+  type: string | null;
   profiles?: ProfileRow;
 };
 
@@ -56,6 +57,7 @@ export type BathInsert = {
   duration: string;
   feeling: string;
   proof_url?: string | null;
+  type?: string | null;
 };
 
 export type BathUpdate = Partial<BathInsert>;

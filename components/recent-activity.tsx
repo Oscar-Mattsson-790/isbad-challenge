@@ -11,6 +11,20 @@ export interface BathEntry {
   duration: string;
   feeling: string;
   proof_url: string | null;
+  type: "tub" | "shower" | "outside";
+}
+
+function getBathTypeImage(type: BathEntry["type"]) {
+  switch (type) {
+    case "tub":
+      return "/images/ice bath icon.png";
+    case "shower":
+      return "/images/cold shower icon.png";
+    case "outside":
+      return "/images/outside icon.png";
+    default:
+      return "/images/isbad_logo_white.png";
+  }
 }
 
 export function RecentActivity({ activities }: { activities: BathEntry[] }) {
@@ -27,12 +41,20 @@ export function RecentActivity({ activities }: { activities: BathEntry[] }) {
             className="flex items-center gap-4 rounded-sm bg-[#2B2B29] text-white p-4 hover:shadow-[0_4px_20px_0_#157FBF]"
           >
             <div className="flex-1">
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <div className="font-medium">
                   {new Date(activity.date).toLocaleDateString("sv-SE")}{" "}
                   {activity.time.slice(0, 5)}
                 </div>
-                <div className="text-2xl">{activity.feeling}</div>
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={getBathTypeImage(activity.type)}
+                    width={24}
+                    height={24}
+                    alt={`${activity.type} icon`}
+                  />
+                  <span className="text-2xl">{activity.feeling}</span>
+                </div>
               </div>
               <div className="text-sm text-[#157FBF]">
                 Duration: {activity.duration}

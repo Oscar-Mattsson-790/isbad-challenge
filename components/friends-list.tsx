@@ -173,6 +173,13 @@ export function FriendsList() {
               className="flex items-center justify-between gap-4 rounded p-2"
             >
               <div className="flex items-center gap-1">
+                <Calendar
+                  className="h-4 w-4 text-[#157FBF] cursor-pointer"
+                  onClick={() => {
+                    setSelectedFriendId(friend.friend_id);
+                    setSelectedFriendName(friend.profiles.full_name);
+                  }}
+                />
                 <div
                   className="font-medium cursor-pointer"
                   onClick={() => {
@@ -182,13 +189,6 @@ export function FriendsList() {
                 >
                   {friend.profiles.full_name}
                 </div>
-                <Calendar
-                  className="h-4 w-4 text-[#157FBF] cursor-pointer"
-                  onClick={() => {
-                    setSelectedFriendId(friend.friend_id);
-                    setSelectedFriendName(friend.profiles.full_name);
-                  }}
-                />
               </div>
               <Button
                 variant="ghost"

@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+// import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
@@ -44,11 +44,14 @@ export default function AddBathModal({
   const [time, setTime] = useState("08:00");
   const [durationMinutes, setDurationMinutes] = useState("1");
   const [durationSeconds, setDurationSeconds] = useState("30");
-  const [selectedEmoji, setSelectedEmoji] = useState("😊");
+  const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [showImagePrompt, setShowImagePrompt] = useState(false);
   const { supabase, session } = useSupabase();
+  const [bathType, setBathType] = useState<"tub" | "shower" | "outside" | null>(
+    null
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -66,6 +69,11 @@ export default function AddBathModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session) return;
+
+    if (!bathType) {
+      toast.error("Please select a bath type before saving.");
+      return;
+    }
 
     if (!file) {
       setOpen(false);
@@ -109,8 +117,9 @@ export default function AddBathModal({
       date: date.toISOString().split("T")[0],
       time,
       duration,
-      feeling: selectedEmoji,
+      feeling: selectedEmoji ?? "",
       proof_url,
+      type: bathType,
     });
 
     if (error) {
@@ -132,6 +141,7 @@ export default function AddBathModal({
     setSelectedEmoji("😊");
     setFile(null);
     setPhotoPreview(null);
+    setBathType("tub");
     onBathAdded?.();
   };
 
@@ -147,86 +157,155 @@ export default function AddBathModal({
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="date">
-                  Date:{" "}
-                  {date
-                    ? format(date, "MMMM do, yyyy", { locale: enUS })
-                    : "Select a date"}
-                </Label>
-                <Popover>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={(date) => date && setDate(date)}
-                      initialFocus
+              <Label>
+                <span className="w-7 h-7 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
+                  1
+                </span>
+                How did you take your ice bath?
+              </Label>
+              <div className="flex gap-2 justify-center">
+                {/* TUB */}
+                <div className="flex flex-col items-center">
+                  <Button
+                    type="button"
+                    className={`p-8 border text-white transition ${
+                      bathType === "outside"
+                        ? "bg-[#157FBF] border-none hover:bg-[#115F93]"
+                        : "bg-[#242422] border border-[#115F93] hover:border-[#115F93] hover:bg-[#115F93]"
+                    }`}
+                    onClick={() => setBathType("tub")}
+                  >
+                    <Image
+                      src="/images/ice bath icon.png"
+                      width={64}
+                      height={64}
+                      alt="ice bath tub"
                     />
-                  </PopoverContent>
-                </Popover>
+                  </Button>
+                  <span className="text-xs">ice bath</span>
+                </div>
+
+                {/* SHOWER */}
+                <div className="flex flex-col items-center">
+                  <Button
+                    type="button"
+                    className={`p-8 border text-white transition ${
+                      bathType === "outside"
+                        ? "bg-[#157FBF] border-none hover:bg-[#115F93]"
+                        : "bg-[#242422] border border-[#115F93] hover:border-[#115F93] hover:bg-[#115F93]"
+                    }`}
+                    onClick={() => setBathType("shower")}
+                  >
+                    <Image
+                      src="/images/cold shower icon.png"
+                      width={64}
+                      height={64}
+                      alt="cold shower icon"
+                    />
+                  </Button>
+                  <span className="text-xs">cold shower</span>
+                </div>
+
+                {/* OUTSIDE */}
+                <div className="flex flex-col items-center">
+                  <Button
+                    type="button"
+                    className={`p-8 border text-white transition ${
+                      bathType === "outside"
+                        ? "bg-[#157FBF] border-none hover:bg-[#115F93]"
+                        : "bg-[#242422] border border-[#115F93] hover:border-[#115F93] hover:bg-[#115F93]"
+                    }`}
+                    onClick={() => setBathType("outside")}
+                  >
+                    <Image
+                      src="/images/outside icon.png"
+                      width={64}
+                      height={64}
+                      alt="outside ice bath icon"
+                    />
+                  </Button>
+                  <span className="text-xs">outside</span>
+                </div>
               </div>
 
+              {/* TIME & DATE */}
               <div className="grid gap-2">
                 <Label htmlFor="time">
+                  <span className="w-7 h-7 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
+                    2
+                  </span>
                   Select the time you took your ice bath
                 </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button className="w-full justify-start text-left font-normal bg-white text-black hover:bg-white">
-                      <Clock className="mr-2 h-4 w-4" />
-                      {time}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    side="bottom"
-                    align="start"
-                    className="w-auto p-2 flex flex-col gap-2"
-                  >
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={time.split(":")[0]}
-                        onChange={(e) =>
-                          setTime(
-                            `${e.target.value.padStart(2, "0")}:${time.split(":")[1]}`
-                          )
-                        }
-                        className="border rounded px-2 py-1 bg-white text-black"
+                <div className="flex items-center gap-2">
+                  <div className="w-1/2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button className="w-full justify-start text-left font-normal bg-white text-black hover:bg-white">
+                          <Clock className="mr-2 h-4 w-4" />
+                          {time}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        side="bottom"
+                        align="start"
+                        className="w-auto p-2 flex flex-col gap-2"
                       >
-                        {[...Array(24).keys()].map((h) => {
-                          const val = h.toString().padStart(2, "0");
-                          return (
-                            <option key={val} value={val}>
-                              {val}
-                            </option>
-                          );
-                        })}
-                      </select>
-                      <span className="text-lg font-medium">:</span>
-                      <select
-                        value={time.split(":")[1]}
-                        onChange={(e) =>
-                          setTime(
-                            `${time.split(":")[0]}:${e.target.value.padStart(2, "0")}`
-                          )
-                        }
-                        className="border rounded px-2 py-1 bg-white text-black"
-                      >
-                        {[...Array(60).keys()].map((m) => {
-                          const val = m.toString().padStart(2, "0");
-                          return (
-                            <option key={val} value={val}>
-                              {val}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={time.split(":")[0]}
+                            onChange={(e) =>
+                              setTime(
+                                `${e.target.value.padStart(2, "0")}:${time.split(":")[1]}`
+                              )
+                            }
+                            className="border rounded px-2 py-1 bg-white text-black"
+                          >
+                            {[...Array(24).keys()].map((h) => {
+                              const val = h.toString().padStart(2, "0");
+                              return (
+                                <option key={val} value={val}>
+                                  {val}
+                                </option>
+                              );
+                            })}
+                          </select>
+                          <span className="text-lg font-medium">:</span>
+                          <select
+                            value={time.split(":")[1]}
+                            onChange={(e) =>
+                              setTime(
+                                `${time.split(":")[0]}:${e.target.value.padStart(2, "0")}`
+                              )
+                            }
+                            className="border rounded px-2 py-1 bg-white text-black"
+                          >
+                            {[...Array(60).keys()].map((m) => {
+                              const val = m.toString().padStart(2, "0");
+                              return (
+                                <option key={val} value={val}>
+                                  {val}
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="w-1/2 text-sm text-white/80">
+                    Today: {format(date, "MMMM do, yyyy", { locale: enUS })}
+                  </div>
+                </div>
               </div>
 
+              {/* DURATION */}
               <div className="grid gap-2">
-                <Label>How long did you stay in the water?</Label>
+                <Label>
+                  <span className="w-7 h-7 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
+                    3
+                  </span>
+                  How long did you stay in the water?
+                </Label>
                 <div className="flex gap-2">
                   <div className="flex flex-col">
                     <span className="text-sm">Minutes</span>
@@ -259,16 +338,24 @@ export default function AddBathModal({
                 </div>
               </div>
 
+              {/* EMOJIS */}
               <div className="grid gap-2">
-                <Label>How did it feel?</Label>
+                <Label>
+                  <span className="w-7 h-7 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
+                    4
+                  </span>
+                  How did it feel?
+                </Label>
                 <div className="grid grid-cols-7 gap-2 justify-center">
                   {emojis.map((emoji) => (
                     <Button
                       key={emoji}
                       type="button"
-                      className={`text-xl bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white ${
-                        selectedEmoji === emoji ? "bg-[#157FBF]" : ""
-                      }`}
+                      className={`text-xl p-2 border transition ${
+                        selectedEmoji === emoji
+                          ? "bg-[#157FBF] border-none hover:bg-[#115F93]"
+                          : "bg-[#242422] border border-[#115F93] hover:border-[#115F93] hover:bg-[#115F93]"
+                      } text-white`}
                       onClick={() => setSelectedEmoji(emoji)}
                     >
                       {emoji}
@@ -277,8 +364,14 @@ export default function AddBathModal({
                 </div>
               </div>
 
+              {/* FILE UPLOAD */}
               <div className="grid gap-2">
-                <Label htmlFor="photo">Proof (photo/video)</Label>
+                <Label htmlFor="photo">
+                  <span className="w-7 h-7 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
+                    5
+                  </span>
+                  Proof (photo/video)
+                </Label>
                 <Label
                   htmlFor="photo"
                   className="relative max-h-64 overflow-y-auto cursor-pointer flex flex-col items-center justify-center rounded-md border border-dashed border-white p-2 text-center"
@@ -312,6 +405,7 @@ export default function AddBathModal({
                 </Label>
               </div>
             </div>
+
             <DialogFooter>
               <Button
                 type="submit"
@@ -324,6 +418,7 @@ export default function AddBathModal({
         </DialogContent>
       </Dialog>
 
+      {/* Image prompt if no image */}
       {showImagePrompt && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
           <div className="bg-[#2B2B29] text-white p-6 rounded-xl shadow-lg max-w-sm w-full">
