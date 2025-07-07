@@ -169,9 +169,9 @@ export default function AddBathModal({
                   <Button
                     type="button"
                     className={`p-8 border text-white transition ${
-                      bathType === "outside"
-                        ? "bg-[#157FBF] border-none hover:bg-[#115F93]"
-                        : "bg-[#242422] border border-[#115F93] hover:border-[#115F93] hover:bg-[#115F93]"
+                      bathType === "tub"
+                        ? "bg-[#157FBF] border-[#157FBF] hover:bg-[#157FBF]"
+                        : "bg-[#242422] border-[#157FBF] hover:border-[#157FBF] hover:bg-[#157FBF]"
                     }`}
                     onClick={() => setBathType("tub")}
                   >
@@ -190,9 +190,9 @@ export default function AddBathModal({
                   <Button
                     type="button"
                     className={`p-8 border text-white transition ${
-                      bathType === "outside"
-                        ? "bg-[#157FBF] border-none hover:bg-[#115F93]"
-                        : "bg-[#242422] border border-[#115F93] hover:border-[#115F93] hover:bg-[#115F93]"
+                      bathType === "shower"
+                        ? "bg-[#157FBF] border-[#157FBF] hover:bg-[#157FBF]"
+                        : "bg-[#242422] border-[#157FBF] hover:border-[#157FBF] hover:bg-[#157FBF]"
                     }`}
                     onClick={() => setBathType("shower")}
                   >
@@ -212,8 +212,8 @@ export default function AddBathModal({
                     type="button"
                     className={`p-8 border text-white transition ${
                       bathType === "outside"
-                        ? "bg-[#157FBF] border-none hover:bg-[#115F93]"
-                        : "bg-[#242422] border border-[#115F93] hover:border-[#115F93] hover:bg-[#115F93]"
+                        ? "bg-[#157FBF] border-[#157FBF] hover:bg-[#157FBF]"
+                        : "bg-[#242422] border-[#157FBF] hover:border-[#157FBF] hover:bg-[#157FBF]"
                     }`}
                     onClick={() => setBathType("outside")}
                   >
