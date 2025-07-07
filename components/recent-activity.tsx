@@ -3,18 +3,9 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import type { BathRow } from "@/types/supabase";
 
-export interface BathEntry {
-  id: string;
-  date: string;
-  time: string;
-  duration: string;
-  feeling: string;
-  proof_url: string | null;
-  type: "tub" | "shower" | "outside";
-}
-
-function getBathTypeImage(type: BathEntry["type"]) {
+function getBathTypeImage(type: BathRow["type"]) {
   switch (type) {
     case "tub":
       return "/images/ice bath icon.png";
@@ -27,7 +18,7 @@ function getBathTypeImage(type: BathEntry["type"]) {
   }
 }
 
-export function RecentActivity({ activities }: { activities: BathEntry[] }) {
+export function RecentActivity({ activities }: { activities: BathRow[] }) {
   const [showAll, setShowAll] = useState(false);
 
   const visibleActivities = showAll ? activities : activities.slice(0, 5);
