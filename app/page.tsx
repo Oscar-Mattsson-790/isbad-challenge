@@ -27,9 +27,9 @@ export default function Home() {
   };
 
   return (
-    <LayoutWrapper>
+    <>
       {/* Hero Section with background video */}
-      <section className="relative overflow-hidden min-h-[87vh] flex items-center">
+      <section className="w-full relative overflow-hidden min-h-[87vh] flex items-center">
         <video
           src="/videos/ISBAD Challenge app Monika Amazon bakgrundsvideo.mp4"
           autoPlay
@@ -50,16 +50,16 @@ export default function Home() {
             </h1>
             <div>
               <p className="max-w-[700px] text-white text-sm sm:text-base">
-                Challenge yourself and your friends to a consistent ice bath.
-                Track your progress, document your experiences and feel the
-                benefits of cold water.
+                Challenge yourself and your friends to a consistent cold
+                exposure. Track your progress, document your experiences and
+                feel the benefits of cold water.
               </p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
               onClick={handleStartChallenge}
-              className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
+              className="bg-[#157FBF] text-white border-none hover:bg-[#115F93]"
               size="lg"
               disabled={isLoading}
             >
@@ -75,53 +75,56 @@ export default function Home() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Read more about the benefits
+                Explore the Benefits
               </a>
             </Button>
           </div>
         </div>
       </section>
-
-      {/* Features Section */}
-      <section className="py-8 md:py-12 bg-[#242422]">
-        <div className="px-4 space-y-12">
-          <div className="space-y-4 text-center">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
-              How does it work?
-            </h2>
-            <p className="mx-auto max-w-[700px] text-white">
-              Follow your ice bath challenge with our smart tools and features.
-            </p>
+      <LayoutWrapper>
+        {/* Features Section */}
+        <section className="py-8 md:py-12 bg-[#242422]">
+          <div className="px-4 space-y-12">
+            <div className="space-y-4 text-center">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
+                How does it work?
+              </h2>
+              <p className="mx-auto max-w-[700px] text-white">
+                Follow your ice bath challenge with our smart tools and
+                features.
+              </p>
+            </div>
+            <FeaturesGrid />
           </div>
-          <FeaturesGrid />
-        </div>
-      </section>
+        </section>
 
-      {/* Testimonials */}
-      <Testimonials />
+        {/* Testimonials */}
+        <Testimonials />
 
-      {/* CTA Section */}
-      <section className="py-8 md:py-8">
-        <div className="px-4 flex flex-col items-center gap-8 text-center">
-          <div className="space-y-4">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
-              Ready to start your challenge?
-            </h2>
-            <p className="mx-auto max-w-[500px] text-white">
-              Join today and begin your journey toward better health and
-              well-being through <br className="block sm:hidden" /> ice bathing.
-            </p>
+        {/* CTA Section */}
+        <section className="py-8 md:py-8">
+          <div className="px-4 flex flex-col items-center gap-8 text-center">
+            <div className="space-y-4">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
+                Ready to start your challenge?
+              </h2>
+              <p className="mx-auto max-w-[500px] text-white">
+                Join today and begin your journey toward better health and
+                well-being through <br className="block sm:hidden" /> ice
+                bathing.
+              </p>
+            </div>
+            <Button
+              onClick={handleStartChallenge}
+              className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
+              size="lg"
+              disabled={isLoading}
+            >
+              Start now
+            </Button>
           </div>
-          <Button
-            onClick={handleStartChallenge}
-            className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-            size="lg"
-            disabled={isLoading}
-          >
-            Start now
-          </Button>
-        </div>
-      </section>
-    </LayoutWrapper>
+        </section>
+      </LayoutWrapper>
+    </>
   );
 }
