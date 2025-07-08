@@ -5,15 +5,16 @@ import type { BathStats } from "../get-bath-stats";
 
 export function useBathStats(
   supabase: SupabaseClient,
-  userId: string | undefined
+  userId: string | undefined,
+  challengeStartedAt: string | null
 ) {
   const [stats, setStats] = useState<BathStats | null>(null);
 
   const fetchBathData = useCallback(async () => {
     if (!userId) return;
-    const bathStats = await getBathStats(supabase, userId);
+    const bathStats = await getBathStats(supabase, userId, challengeStartedAt);
     setStats(bathStats);
-  }, [supabase, userId]);
+  }, [supabase, userId, challengeStartedAt]);
 
   return { stats, fetchBathData };
 }

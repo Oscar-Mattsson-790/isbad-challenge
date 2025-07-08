@@ -35,7 +35,11 @@ export default function Dashboard() {
   //eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [profile, setProfile] = useState<any>(null);
 
-  const { stats, fetchBathData } = useBathStats(supabase, session?.user.id);
+  const { stats, fetchBathData } = useBathStats(
+    supabase,
+    session?.user.id,
+    challengeStartedAt
+  );
 
   useEffect(() => {
     const init = async () => {
@@ -102,6 +106,7 @@ export default function Dashboard() {
         challenge_active: true,
       })
       .eq("id", session.user.id);
+    await fetchBathData(); // Uppdatera data direkt efter start
   };
 
   const cancelChallenge = async () => {
@@ -115,6 +120,7 @@ export default function Dashboard() {
         challenge_started_at: null,
       })
       .eq("id", session.user.id);
+    await fetchBathData(); // 🧠 Detta gör att progress uppdateras direkt
   };
 
   const resetChallenge = useCallback(async () => {
@@ -130,7 +136,8 @@ export default function Dashboard() {
         challenge_length: 30,
       })
       .eq("id", session.user.id);
-  }, [session, supabase]);
+    await fetchBathData(); // Uppdatera även vid reset
+  }, [session, supabase, fetchBathData]);
 
   if (loading || initialLoading)
     return <div className="container py-10 text-white">Loading...</div>;

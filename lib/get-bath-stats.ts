@@ -13,7 +13,8 @@ export interface BathStats {
 
 export async function getBathStats(
   supabase: SupabaseClient<Database>,
-  userId: string
+  userId: string,
+  challengeStartedAt?: string | null
 ): Promise<BathStats> {
   const { data, error } = await supabase
     .from("baths")
@@ -34,7 +35,12 @@ export async function getBathStats(
     };
   }
 
-  const durations = data.map((b) => {
+  // Filtrera bort bad innan challenge startade
+  const filteredBaths = challengeStartedAt
+    ? data.filter((b) => new Date(b.date) >= new Date(challengeStartedAt))
+    : [];
+
+  const durations = filteredBaths.map((b) => {
     const [min, sec] = b.duration.split(":").map(Number);
     return min * 60 + sec;
   });
@@ -50,7 +56,9 @@ export async function getBathStats(
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const uniqueDateStrings = Array.from(new Set(data.map((b) => b.date)));
+  const uniqueDateStrings = Array.from(
+    new Set(filteredBaths.map((b) => b.date))
+  );
 
   const uniqueDates = uniqueDateStrings
     .map((dateStr) => {
@@ -76,8 +84,8 @@ export async function getBathStats(
     daysCompleted: streak,
     longestBath: format(longest),
     averageDuration: format(Math.round(average)),
-    latestBath: data[0]?.date ?? "No bath yet",
-    latestTime: data[0]?.time?.slice(0, 5) ?? "-",
-    activities: data,
+    latestBath: filteredBaths[0]?.date ?? "No bath yet",
+    latestTime: filteredBaths[0]?.time?.slice(0, 5) ?? "-",
+    activities: filteredBaths,
   };
 }
