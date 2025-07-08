@@ -9,7 +9,7 @@ import { useBathStats } from "@/lib/hooks/use-bath-stats";
 export default function StickyWrapper() {
   const { session, supabase } = useSupabase();
   const [open, setOpen] = useState(false);
-  const { fetchBathData } = useBathStats(supabase, session?.user.id);
+  const { fetchBathData } = useBathStats(supabase, session?.user.id, null);
 
   if (!session) return null;
 
