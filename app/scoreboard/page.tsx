@@ -14,7 +14,7 @@ export default function ScoreboardPage() {
 
   return (
     <LayoutWrapper>
-      <div className="pt-10 px-4 sm:px-0">
+      <div className="flex flex-col justify-center items-center pt-10 px-4 sm:px-0">
         <h1 className="text-3xl font-bold text-white mb-4 flex items-center gap-2">
           <Trophy className="h-8 w-8 text-[#157FBF]" />
           <span>Top ice bathers</span>

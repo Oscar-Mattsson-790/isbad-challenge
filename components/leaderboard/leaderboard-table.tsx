@@ -24,7 +24,7 @@ export function LeaderboardTable() {
   );
 
   return (
-    <div className="text-white">
+    <div className="flex flex-col justify-center items-center text-white">
       <div className="flex gap-2 mb-4">
         <button
           className={`px-4 py-2 rounded border transition ${

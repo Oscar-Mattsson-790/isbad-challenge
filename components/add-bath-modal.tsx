@@ -10,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +22,7 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
-import { Clock, Upload } from "lucide-react";
+import { Clock, Upload, CalendarPlus } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -149,16 +148,16 @@ export default function AddBathModal({
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="mx-auto w-[95%] sm:max-w-[425px] bg-[#242422] text-white border-none max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Log a new ice bath</DialogTitle>
-            <DialogDescription className="text-white">
-              Fill in the details of your ice bath to add it to your challenge.
-            </DialogDescription>
+          <DialogHeader className="items-center">
+            <DialogTitle className="flex items-center">
+              <CalendarPlus className="mr-2 h-6 w-6 text-[#157FBF]" />
+              Log a new ice bath
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               <Label>
-                <span className="w-7 h-7 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
+                <span className="w-6 h-6 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
                   1
                 </span>
                 How did you take your ice bath?
@@ -168,11 +167,7 @@ export default function AddBathModal({
                 <div className="flex flex-col items-center">
                   <Button
                     type="button"
-                    className={`p-8 border text-white transition ${
-                      bathType === "tub"
-                        ? "bg-[#157FBF] border-[#157FBF] hover:bg-[#157FBF]"
-                        : "bg-[#242422] border-[#157FBF] hover:border-[#157FBF] hover:bg-[#157FBF]"
-                    }`}
+                    className="bg-[#2B2B29] text-white border-none rounded-xl p-8 hover:shadow-[0_4px_20px_0_#157FBF] transition-all"
                     onClick={() => setBathType("tub")}
                   >
                     <Image
@@ -189,11 +184,7 @@ export default function AddBathModal({
                 <div className="flex flex-col items-center">
                   <Button
                     type="button"
-                    className={`p-8 border text-white transition ${
-                      bathType === "shower"
-                        ? "bg-[#157FBF] border-[#157FBF] hover:bg-[#157FBF]"
-                        : "bg-[#242422] border-[#157FBF] hover:border-[#157FBF] hover:bg-[#157FBF]"
-                    }`}
+                    className="bg-[#2B2B29] text-white border-none rounded-xl p-8 hover:shadow-[0_4px_20px_0_#157FBF] transition-all"
                     onClick={() => setBathType("shower")}
                   >
                     <Image
@@ -210,11 +201,7 @@ export default function AddBathModal({
                 <div className="flex flex-col items-center">
                   <Button
                     type="button"
-                    className={`p-8 border text-white transition ${
-                      bathType === "outside"
-                        ? "bg-[#157FBF] border-[#157FBF] hover:bg-[#157FBF]"
-                        : "bg-[#242422] border-[#157FBF] hover:border-[#157FBF] hover:bg-[#157FBF]"
-                    }`}
+                    className="bg-[#2B2B29] text-white border-none rounded-xl p-8 hover:shadow-[0_4px_20px_0_#157FBF] transition-all"
                     onClick={() => setBathType("outside")}
                   >
                     <Image
@@ -231,7 +218,7 @@ export default function AddBathModal({
               {/* TIME & DATE */}
               <div className="grid gap-2">
                 <Label htmlFor="time">
-                  <span className="w-7 h-7 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
+                  <span className="w-6 h-6 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
                     2
                   </span>
                   Select the time you took your ice bath
@@ -301,7 +288,7 @@ export default function AddBathModal({
               {/* DURATION */}
               <div className="grid gap-2">
                 <Label>
-                  <span className="w-7 h-7 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
+                  <span className="w-6 h-6 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
                     3
                   </span>
                   How long did you stay in the water?
@@ -341,7 +328,7 @@ export default function AddBathModal({
               {/* EMOJIS */}
               <div className="grid gap-2">
                 <Label>
-                  <span className="w-7 h-7 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
+                  <span className="w-6 h-6 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
                     4
                   </span>
                   How did it feel?
@@ -351,11 +338,9 @@ export default function AddBathModal({
                     <Button
                       key={emoji}
                       type="button"
-                      className={`text-xl p-2 border transition ${
-                        selectedEmoji === emoji
-                          ? "bg-[#157FBF] border-none hover:bg-[#115F93]"
-                          : "bg-[#242422] border border-[#115F93] hover:border-[#115F93] hover:bg-[#115F93]"
-                      } text-white`}
+                      className={`bg-[#2B2B29] text-white border-none rounded-xl p-4 hover:shadow-[0_4px_20px_0_#157FBF] transition-all text-xl ${
+                        selectedEmoji === emoji ? "ring-2 ring-[#157FBF]" : ""
+                      }`}
                       onClick={() => setSelectedEmoji(emoji)}
                     >
                       {emoji}
@@ -367,7 +352,7 @@ export default function AddBathModal({
               {/* FILE UPLOAD */}
               <div className="grid gap-2">
                 <Label htmlFor="photo">
-                  <span className="w-7 h-7 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
+                  <span className="w-6 h-6 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
                     5
                   </span>
                   Proof (photo/video)
