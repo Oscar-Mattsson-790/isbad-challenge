@@ -113,7 +113,7 @@ export default function AddBathModal({
 
     const { error } = await supabase.from("baths").insert({
       user_id: session.user.id,
-      date: date.toISOString().split("T")[0],
+      date: format(date, "yyyy-MM-dd"),
       time,
       duration,
       feeling: selectedEmoji ?? "",

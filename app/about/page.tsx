@@ -30,7 +30,7 @@ export default function AboutPage() {
   return (
     <LayoutWrapper>
       <div className="max-w-screen-2xl flex flex-col pt-10 px-4 sm:px-0">
-        <div className="flex flex-col lg:flex-row w-full h-full rounded-md overflow-hidden gap-6 items-center">
+        <div className="flex flex-col lg:flex-row w-full h-full rounded-md overflow-hidden gap-20 items-center">
           <div className="w-full lg:w-1/2 h-full flex flex-col">
             <div className="space-y-6">
               <h1 className="text-4xl font-bold">
@@ -60,7 +60,7 @@ export default function AboutPage() {
             </Button>
           </div>
 
-          <div className="w-full h-[350px] md:h-[500px] lg:w-[650px] lg:h-[650px] rounded-md overflow-hidden relative">
+          <div className="w-full h-[350px] md:h-[500px] lg:w-[650px] lg:h-[500px] rounded-md overflow-hidden relative">
             <Image
               src="/images/Man badar i mössa i en isbad Premium med skvätt vatten.jpg"
               alt="Hero"
