@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
+import { getLocalDate } from "@/lib/utils";
 import { Clock, Upload, CalendarPlus } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -113,7 +114,7 @@ export default function AddBathModal({
 
     const { error } = await supabase.from("baths").insert({
       user_id: session.user.id,
-      date: format(date, "yyyy-MM-dd"),
+      date: getLocalDate(date),
       time,
       duration,
       feeling: selectedEmoji ?? "",

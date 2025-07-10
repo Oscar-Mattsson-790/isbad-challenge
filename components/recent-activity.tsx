@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { formatLocalDateTime } from "@/lib/utils";
 import type { BathRow } from "@/types/supabase";
 
 function getBathTypeImage(type: BathRow["type"]) {
@@ -34,8 +35,7 @@ export function RecentActivity({ activities }: { activities: BathRow[] }) {
             <div className="flex-1">
               <div className="flex justify-between items-center">
                 <div className="font-medium">
-                  {new Date(activity.date).toLocaleDateString("sv-SE")}{" "}
-                  {activity.time.slice(0, 5)}
+                  {formatLocalDateTime(activity.date, activity.time)}
                 </div>
                 <div className="flex items-center gap-2">
                   <Image
