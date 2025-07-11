@@ -70,21 +70,34 @@ export default function Dashboard() {
           setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
       }
 
-      if (profile.challenge_active && profile.challenge_started_at) {
-        if (!stats) return;
-
-        const started = new Date(profile.challenge_started_at);
+      if (profile.challenge_active && profile.challenge_started_at && stats) {
         const today = new Date();
-        const diffDays = Math.floor(
-          (today.getTime() - started.getTime()) / (1000 * 60 * 60 * 24)
+        today.setHours(0, 0, 0, 0);
+
+        const hasBatchedToday = stats.activities.some(
+          (activity) =>
+            new Date(activity.date).toDateString() === today.toDateString()
         );
 
-        if (
-          diffDays > stats.daysCompleted &&
-          today.toDateString() !== started.toDateString()
-        ) {
-          setChallengeFailed(true);
-          await resetChallenge();
+        if (!hasBatchedToday) {
+          const yesterday = new Date(today);
+          yesterday.setDate(today.getDate() - 1);
+
+          const missedYesterday = !stats.activities.some(
+            (activity) =>
+              new Date(activity.date).toDateString() ===
+              yesterday.toDateString()
+          );
+
+          // Missade gårdagens bad → fail
+          if (
+            missedYesterday &&
+            today.toDateString() !==
+              new Date(profile.challenge_started_at).toDateString()
+          ) {
+            setChallengeFailed(true);
+            await resetChallenge();
+          }
         }
       }
     };
