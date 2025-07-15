@@ -42,7 +42,7 @@ export default function SignUpPage() {
       }
 
       if (data.user) {
-        const { error: profileError } = await supabase.from("profiles").insert([
+        const { error: profileError } = await supabase.from("profiles").upsert([
           {
             id: data.user.id,
             full_name: fullName,
@@ -52,6 +52,24 @@ export default function SignUpPage() {
 
         if (profileError) {
           console.error("Error creating profile:", profileError);
+        }
+
+        // Skicka onboarding-meddelande via Novu
+        const res = await fetch("/api/novu/onboarding", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: data.user.id,
+            email,
+            fullName,
+          }),
+        });
+
+        console.log("VAD ÄR DETTA :::::", res);
+        if (!res.ok) {
+          console.warn("Novu onboarding trigger failed");
         }
 
         toast.success("Sign up successful! Please check your email.");

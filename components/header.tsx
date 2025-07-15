@@ -15,11 +15,17 @@ import {
 import { LogOut, User, Settings, Menu, Mail, Trophy } from "lucide-react";
 import Image from "next/image";
 import { useUserProfile } from "@/lib/hooks/use-user-profile";
+import { Bell } from "lucide-react";
+import NovuInbox from "@/components/inbox/NovuInbox";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { useState } from "react";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 export default function Header() {
   const { supabase, session } = useSupabase();
   const router = useRouter();
   const { profile } = useUserProfile();
+  const [openInbox, setOpenInbox] = useState(false);
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -217,8 +223,22 @@ export default function Header() {
               </Button>
             </div>
           )}
+          <button
+            onClick={() => setOpenInbox(true)}
+            className="relative text-white hover:text-[#157FBF]"
+          >
+            <Bell className="h-5 w-5" />
+          </button>
         </div>
       </div>
+      <Dialog open={openInbox} onOpenChange={setOpenInbox}>
+        <DialogContent className="bg-[#242422] text-white max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-white">Notifications</DialogTitle>
+          </DialogHeader>
+          <NovuInbox />
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }

@@ -1,6 +1,7 @@
 import type React from "react";
 import { Poppins } from "next/font/google";
 import Link from "next/link";
+import NovuInbox from "@/components/inbox/NovuInbox";
 
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -36,6 +37,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <SupabaseProvider>
+            <NovuInbox />
             <div className="flex min-h-screen flex-col">
               <Header />
               <main className="flex-1 bg-[#242422] pb-[64px]">{children}</main>
