@@ -211,7 +211,7 @@ export default function Header() {
               <Button
                 asChild
                 size="sm"
-                className="border border-black bg-[#242422] hover:bg-white hover:text-black"
+                className="border border-black bg-white text-black hover:bg-black hover:text-white"
               >
                 <Link href="/signup">Sign up</Link>
               </Button>
