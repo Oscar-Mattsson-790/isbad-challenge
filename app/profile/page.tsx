@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useSupabase } from "@/components/supabase-provider";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -101,9 +100,29 @@ export default function ProfilePage() {
     }
   };
 
+  const handlePasswordReset = async () => {
+    if (!session || !session.user.email) {
+      toast.error("No email found for this user");
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      session.user.email,
+      {
+        redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password`,
+      }
+    );
+
+    if (error) {
+      toast.error("Failed to send reset email", { description: error.message });
+    } else {
+      toast.success("Password reset link sent to your email");
+    }
+  };
+
   return (
     <LayoutWrapper>
-      <div className="container pt-20 py-10 max-w-xl mx-auto text-white px-5">
+      <div className="container pt-20 py-10 max-w-md mx-auto text-white px-5">
         <h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
 
         <div className="space-y-4">
@@ -139,20 +158,24 @@ export default function ProfilePage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />
+            <p
+              onClick={handleUpdate}
+              className="text-white text-sm cursor-pointer underline"
+            >
+              Update profile name
+            </p>
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="email">Email (readonly)</Label>
             <Input id="email" value={email} disabled />
+            <p
+              onClick={handlePasswordReset}
+              className="text-white text-sm cursor-pointer underline"
+            >
+              Send password reset
+            </p>
           </div>
-
-          <Button
-            onClick={handleUpdate}
-            className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-            size="lg"
-          >
-            Update Profile
-          </Button>
         </div>
       </div>
     </LayoutWrapper>

@@ -43,9 +43,11 @@ export function DesktopNav({ session }: { session: any }) {
           Contact
         </Link>
       </div>
-      <Button className="bg-white text-black">
-        <Link href="/login">Login</Link>
-      </Button>
+      {!session && (
+        <Button className="bg-white text-black">
+          <Link href="/login">Login</Link>
+        </Button>
+      )}
     </nav>
   );
 }
