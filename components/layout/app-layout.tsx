@@ -1,5 +1,5 @@
 import React from "react";
-import Header from "./header";
+import Header from "./header/header";
 import StickyWrapper from "@/components/sticky-wrapper";
 import Footer from "./footer";
 import { Toaster } from "sonner";
