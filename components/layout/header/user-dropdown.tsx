@@ -29,7 +29,7 @@ export function UserDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 rounded-full">
+        <Button className="h-8 w-8 rounded-full hover:shadow-[0_4px_20px_0_#157FBF] overflow-hidden ">
           <User className="h-5 w-5 text-white" />
         </Button>
       </DropdownMenuTrigger>
