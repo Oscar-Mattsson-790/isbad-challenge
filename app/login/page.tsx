@@ -45,6 +45,25 @@ export default function LoginPage() {
     }
   };
 
+  const handlePasswordReset = async () => {
+    if (!email) {
+      toast.error("Please enter your email first");
+      return;
+    }
+
+    const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password`;
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
+
+    if (error) {
+      toast.error("Failed to send reset email", { description: error.message });
+    } else {
+      toast.success("Password reset link sent!");
+    }
+  };
+
   const handleGoogleLogin = async () => {
     const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`;
 
@@ -119,12 +138,23 @@ export default function LoginPage() {
             <FcGoogle size={20} />
             Google
           </Button>
-          <p className="text-center text-sm text-white">
-            Don’t have an account?{" "}
-            <Link href="/signup" className="underline text-[#157FBF] font-bold">
-              Sign up
-            </Link>
-          </p>
+          <div>
+            <p className="text-center text-sm text-white">
+              Don’t have an account?{" "}
+              <Link
+                href="/signup"
+                className="underline text-[#157FBF] font-bold"
+              >
+                Sign up
+              </Link>
+            </p>
+            <p
+              onClick={handlePasswordReset}
+              className="text-center font-bold text-xs text-[#157FBF] cursor-pointer underline"
+            >
+              Forgot your password?
+            </p>
+          </div>
         </div>
       </div>
     </LayoutWrapper>
