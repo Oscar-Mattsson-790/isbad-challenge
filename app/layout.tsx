@@ -13,9 +13,38 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "ISBAD Challenge - 30-Day Challenge",
+  title: {
+    default: "ISBAD Challenge",
+    template: "%s | ISBAD Challenge",
+  },
   description:
-    "Challenge yourself with 30 days of ice baths and track your progress",
+    "Challenge yourself and your friends to a consistent cold exposure. Track your progress, document your experiences and feel the benefits of cold water.",
+  metadataBase: new URL("https://isbad.com"),
+  openGraph: {
+    title: "ISBAD Challenge",
+    description:
+      "Track your cold exposure journey with friends and build resilience together.",
+    url: "https://isbad.com",
+    siteName: "ISBAD Challenge",
+    images: [
+      {
+        url: "/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "ISBAD Challenge",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@IsbadSe",
+    creator: "@IsbadSe",
+    title: "ISBAD Challenge",
+    description: "Join the ISBAD Challenge and grow through cold exposure.",
+    images: ["/images/og-image.jpg"],
+  },
 };
 
 export default function RootLayout({
