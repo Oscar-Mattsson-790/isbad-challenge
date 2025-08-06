@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import LayoutWrapper from "@/components/layout-wrapper";
 import Image from "next/image";
+import { Camera } from "lucide-react";
 
 export default function AboutPage() {
   const { supabase } = useSupabase();
@@ -58,6 +59,17 @@ export default function AboutPage() {
             >
               Get started
             </Button>
+            <div className="mt-10">
+              <p>Follow us on instagram:</p>
+              <p>
+                <Link
+                  href="https://www.instagram.com/isbad.se/"
+                  className="flex gap-1 items-center"
+                >
+                  @isbad.se <Camera className="h-6 w-6 text-[#157FBF]" />
+                </Link>
+              </p>
+            </div>
           </div>
 
           <div className="w-full h-[350px] md:h-[500px] lg:w-[650px] lg:h-[500px] rounded-md overflow-hidden relative">
