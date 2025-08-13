@@ -14,6 +14,17 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // www -> isbad.com
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.isbad.com" }],
+        destination: "https://isbad.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
