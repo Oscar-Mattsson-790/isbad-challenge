@@ -35,12 +35,13 @@ export async function getBathStats(
     };
   }
 
-  // Filtrera bort bad innan challenge startade
-  const filteredBaths = challengeStartedAt
-    ? data.filter((b) => new Date(b.date) >= new Date(challengeStartedAt))
-    : [];
+  const allBaths = data;
 
-  const durations = filteredBaths.map((b) => {
+  const challengeBaths = challengeStartedAt
+    ? allBaths.filter((b) => new Date(b.date) >= new Date(challengeStartedAt))
+    : allBaths;
+
+  const durations = challengeBaths.map((b) => {
     const [min, sec] = b.duration.split(":").map(Number);
     return min * 60 + sec;
   });
@@ -52,14 +53,12 @@ export async function getBathStats(
   const format = (s: number) =>
     `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
 
-  // 🧠 Fixad streak-logik: unika datum, jämför dag för dag bakåt från idag
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const uniqueDateStrings = Array.from(
-    new Set(filteredBaths.map((b) => b.date))
+    new Set(challengeBaths.map((b) => b.date))
   );
-
   const uniqueDates = uniqueDateStrings
     .map((dateStr) => {
       const d = new Date(dateStr);
@@ -84,8 +83,8 @@ export async function getBathStats(
     daysCompleted: streak,
     longestBath: format(longest),
     averageDuration: format(Math.round(average)),
-    latestBath: filteredBaths[0]?.date ?? "No bath yet",
-    latestTime: filteredBaths[0]?.time?.slice(0, 5) ?? "-",
-    activities: filteredBaths,
+    latestBath: allBaths[0]?.date ?? "No bath yet",
+    latestTime: allBaths[0]?.time?.slice(0, 5) ?? "-",
+    activities: allBaths,
   };
 }
