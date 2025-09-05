@@ -25,7 +25,7 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -41,22 +41,8 @@ export default function SignUpPage() {
         return;
       }
 
-      if (data.user) {
-        const { error: profileError } = await supabase.from("profiles").insert([
-          {
-            id: data.user.id,
-            full_name: fullName,
-            email: email,
-          },
-        ]);
-
-        if (profileError) {
-          console.error("Error creating profile:", profileError);
-        }
-
-        toast.success("Sign up successful! Please check your email.");
-        router.push("/login");
-      }
+      toast.success("Sign up successful! Please check your email.");
+      router.push("/login");
     } catch (error) {
       console.error("Signup error:", error);
       toast.error("An error occurred. Please try again later.");
