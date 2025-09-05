@@ -41,8 +41,8 @@ export default function SignUpPage() {
         return;
       }
 
-      toast.success("Sign up successful! Please check your email.");
-      router.push("/login");
+      toast.success("Sign up successful! Verify your email please.");
+      router.push("/confirm-signup");
     } catch (error) {
       console.error("Signup error:", error);
       toast.error("An error occurred. Please try again later.");
