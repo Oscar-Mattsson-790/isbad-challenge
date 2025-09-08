@@ -1,4 +1,3 @@
-// app/api/invite-user/route.ts
 import { NextResponse, type NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
@@ -24,7 +23,6 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    // Who is inviting?
     const {
       data: { user },
       error: userErr,
@@ -33,7 +31,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // If the invitee already has a profile → make friends immediately
     const { data: existing, error: existErr } = await admin
       .from("profiles")
       .select("id")
@@ -69,7 +66,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 👉 Send Supabase invite that lands directly on /set-password
     const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/set-password?inviter=${user.id}`;
 
     const { error: inviteErr } = await admin.auth.admin.inviteUserByEmail(
@@ -79,7 +75,6 @@ export async function POST(req: NextRequest) {
     if (inviteErr)
       return NextResponse.json({ error: inviteErr.message }, { status: 500 });
 
-    // Save pending invite
     const { error: invErr } = await admin.from("invites").insert({
       inviter_id: user.id,
       email,

@@ -1,4 +1,3 @@
-// app/api/finalize-invite/route.ts
 import { NextResponse, type NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
@@ -30,7 +29,6 @@ export async function POST(req: NextRequest) {
     if (!user)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // Make friends both directions (idempotent)
     const pairs = [
       { user_id: inviter, friend_id: user.id, status: "accepted" },
       { user_id: user.id, friend_id: inviter, status: "accepted" },
@@ -45,7 +43,6 @@ export async function POST(req: NextRequest) {
       if (!f) await admin.from("friends").insert(r);
     }
 
-    // Mark pending invite(s) as used (idempotent)
     await admin
       .from("invites")
       .update({ used: true, used_at: new Date().toISOString() })
