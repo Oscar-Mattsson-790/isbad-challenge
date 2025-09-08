@@ -27,6 +27,12 @@ export function FriendsList() {
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [selectedFriendName, setSelectedFriendName] = useState<string>("");
 
+  // visa full_name om det finns, annars email
+  const nameOf = (p?: { full_name?: string | null; email?: string | null }) => {
+    const n = (p?.full_name ?? "").trim();
+    return n.length > 0 ? n : (p?.email ?? "Unknown");
+  };
+
   const loadFriends = useCallback(async () => {
     if (!session) return;
     try {
@@ -47,9 +53,10 @@ export function FriendsList() {
     const trimmed = searchName.trim();
     let foundProfiles: any[] = [];
 
+    // Hämta endast det du behöver: id, full_name, email
     const { data: nameMatches, error: nameError } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id, full_name, email")
       .ilike("full_name", `%${trimmed}%`);
 
     if (nameError) {
@@ -62,7 +69,7 @@ export function FriendsList() {
     } else {
       const { data: emailMatch, error: emailError } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, full_name, email")
         .eq("email", trimmed);
 
       if (emailError) {
@@ -92,7 +99,6 @@ export function FriendsList() {
           description: "No match found and input is not an email address.",
         });
       }
-
       setSearchResult(null);
     }
   };
@@ -131,6 +137,7 @@ export function FriendsList() {
           Track your friends progress in the challenge
         </CardDescription>
       </CardHeader>
+
       <CardContent>
         <div className="relative mb-4 flex gap-2">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -154,7 +161,9 @@ export function FriendsList() {
         {searchResult && (
           <div className="mb-4 flex items-center justify-between rounded border p-2">
             <div>
-              <div className="font-medium">{searchResult.full_name}</div>
+              <div className="font-medium">{nameOf(searchResult)}</div>
+              {/* valfritt: visa e-post i liten text */}
+              {/* <div className="text-xs text-white/60">{searchResult.email}</div> */}
             </div>
             <Button
               onClick={handleAddFriend}
@@ -167,41 +176,48 @@ export function FriendsList() {
         )}
 
         <div className="space-y-4">
-          {friends.map((friend) => (
-            <div
-              key={friend.friend_id}
-              className="flex items-center justify-between gap-4 rounded p-2"
-            >
-              <div className="flex items-center gap-1">
-                <Calendar
-                  className="h-4 w-4 text-[#157FBF] cursor-pointer"
-                  onClick={() => {
-                    setSelectedFriendId(friend.friend_id);
-                    setSelectedFriendName(friend.profiles.full_name);
-                  }}
-                />
-                <div
-                  className="font-medium cursor-pointer"
-                  onClick={() => {
-                    setSelectedFriendId(friend.friend_id);
-                    setSelectedFriendName(friend.profiles.full_name);
-                  }}
-                >
-                  {friend.profiles.full_name}
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleRemoveFriend(friend.friend_id)}
-                title="Remove friend"
+          {friends.map((friend) => {
+            const p = friend.profiles; // { id, full_name, email, ... }
+            const display = nameOf(p);
+
+            return (
+              <div
+                key={friend.friend_id}
+                className="flex items-center justify-between gap-4 rounded p-2"
               >
-                <X className="h-4 w-4 text-[#157FBF]" />
-              </Button>
-            </div>
-          ))}
+                <div className="flex items-center gap-1">
+                  <Calendar
+                    className="h-4 w-4 text-[#157FBF] cursor-pointer"
+                    onClick={() => {
+                      setSelectedFriendId(friend.friend_id);
+                      setSelectedFriendName(display);
+                    }}
+                  />
+                  <div
+                    className="font-medium cursor-pointer"
+                    onClick={() => {
+                      setSelectedFriendId(friend.friend_id);
+                      setSelectedFriendName(display);
+                    }}
+                  >
+                    {display}
+                  </div>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleRemoveFriend(friend.friend_id)}
+                  title="Remove friend"
+                >
+                  <X className="h-4 w-4 text-[#157FBF]" />
+                </Button>
+              </div>
+            );
+          })}
         </div>
       </CardContent>
+
       {selectedFriendId && (
         <FriendStatsModal
           supabase={supabase}

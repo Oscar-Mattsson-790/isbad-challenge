@@ -1,3 +1,4 @@
+// types/supabase.ts
 export type Json =
   | string
   | number
@@ -6,13 +7,13 @@ export type Json =
   | { [key: string]: Json }
   | Json[];
 
+// ------- Extra typer du använder i appen -------
 export type LeaderboardRow = {
   full_name: string;
   bath_count: number;
   challenges_completed: number;
 };
 
-// 🔹 CHALLENGE LOGS
 export type ChallengeLogRow = {
   id: string;
   user_id: string;
@@ -34,7 +35,6 @@ export type ChallengeLogInsert = {
 
 export type ChallengeLogUpdate = Partial<ChallengeLogInsert>;
 
-// 🔹 BATHS
 export type BathRow = {
   id: string;
   created_at: string;
@@ -62,7 +62,6 @@ export type BathInsert = {
 
 export type BathUpdate = Partial<BathInsert>;
 
-// 🔹 FRIENDS
 export type FriendRow = {
   id: string;
   created_at: string;
@@ -82,7 +81,6 @@ export type FriendInsert = {
 
 export type FriendUpdate = Partial<FriendInsert>;
 
-// 🔹 PROFILES
 export type ProfileRow = {
   id: string;
   created_at: string;
@@ -107,7 +105,41 @@ export type ProfileInsert = {
 
 export type ProfileUpdate = Partial<ProfileInsert>;
 
-// 🔹 DATABASE DEFINITION
+export type EmailResendTokenRow = {
+  token: string;
+  email: string;
+  created_at: string;
+};
+
+export type EmailResendTokenInsert = {
+  token?: string;
+  email: string;
+  created_at?: string;
+};
+
+export type EmailResendTokenUpdate = Partial<EmailResendTokenInsert>;
+
+export type InviteRow = {
+  token: string;
+  email: string;
+  inviter_id: string;
+  used: boolean;
+  created_at: string;
+  used_at: string | null;
+};
+
+export type InviteInsert = {
+  token?: string;
+  email: string;
+  inviter_id: string;
+  used?: boolean;
+  created_at?: string;
+  used_at?: string | null;
+};
+
+export type InviteUpdate = Partial<InviteInsert>;
+
+// ------- Database definition -------
 export type Database = {
   public: {
     Tables: {
@@ -162,13 +194,32 @@ export type Database = {
           },
         ];
       };
+      invites: {
+        Row: InviteRow;
+        Insert: InviteInsert;
+        Update: InviteUpdate;
+        Relationships: [
+          {
+            foreignKeyName: "invites_inviter_id_fkey";
+            columns: ["inviter_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      email_resend_tokens: {
+        Row: EmailResendTokenRow;
+        Insert: EmailResendTokenInsert;
+        Update: EmailResendTokenUpdate;
+        Relationships: [];
+      };
     };
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     Views: {};
     Functions: {
       get_leaderboard: {
-        Args: Record<string, never>; // eller dina inputs om funktionen tar några
-        Returns: LeaderboardRow[]; // om du har en typ för resultatet
+        Args: Record<string, never>;
+        Returns: LeaderboardRow[];
       };
     };
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type

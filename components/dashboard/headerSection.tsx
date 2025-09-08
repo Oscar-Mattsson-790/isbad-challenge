@@ -9,6 +9,11 @@ type Props = {
 };
 
 export function HeaderSection({ profile, setOpen }: Props) {
+  const displayName =
+    profile?.full_name && String(profile.full_name).trim().length > 0
+      ? profile.full_name
+      : (profile?.email ?? "there");
+
   return (
     <div className="flex flex-col gap-4 md:flex-row">
       <div className="flex gap-5 items-center md:w-3/4">
@@ -24,7 +29,7 @@ export function HeaderSection({ profile, setOpen }: Props) {
         </div>
         <div className="flex flex-col justify-center">
           <h1 className="text-base md:text-lg font-bold tracking-tight">
-            Hi {profile?.full_name || "there"}!
+            Hi {displayName}!
           </h1>
           <p className="text-white text-xs md:text-sm pb-2">
             Keep track of your ice bath <br />
