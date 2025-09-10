@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BathCalendar } from "@/components/bath-calendar";
 import { ProgressCard } from "@/components/progress-card";
+import BuddyProgressCard from "@/components/buddy-progress-card";
 
 type Props = {
   //eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,6 +19,12 @@ type Props = {
   startChallenge: (days: number) => void;
   cancelChallenge: () => void;
   resetChallenge: () => void;
+
+  buddy?: {
+    friendName: string;
+    friendProgress: number;
+    friendLength: number;
+  } | null;
 };
 
 export function ChallengeSection({
@@ -28,6 +35,7 @@ export function ChallengeSection({
   startChallenge,
   cancelChallenge,
   resetChallenge,
+  buddy,
 }: Props) {
   return (
     <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-8">
@@ -66,26 +74,38 @@ export function ChallengeSection({
             </div>
           )}
         </CardHeader>
+
         <CardContent className="px-0">
           <BathCalendar activities={stats?.activities ?? []} />
         </CardContent>
       </Card>
 
-      <ProgressCard
-        className="w-full"
-        progress={Math.min(stats?.daysCompleted ?? 0, challengeLength)}
-        challengeLength={challengeLength}
-        onCancel={
-          challengeActive && (stats?.daysCompleted ?? 0) < challengeLength
-            ? cancelChallenge
-            : undefined
-        }
-        onCompleteReset={
-          challengeActive && (stats?.daysCompleted ?? 0) >= challengeLength
-            ? resetChallenge
-            : undefined
-        }
-      />
+      <div className="flex flex-col gap-4">
+        <ProgressCard
+          className="w-full"
+          progress={Math.min(stats?.daysCompleted ?? 0, challengeLength)}
+          challengeLength={challengeLength}
+          onCancel={
+            challengeActive && (stats?.daysCompleted ?? 0) < challengeLength
+              ? cancelChallenge
+              : undefined
+          }
+          onCompleteReset={
+            challengeActive && (stats?.daysCompleted ?? 0) >= challengeLength
+              ? resetChallenge
+              : undefined
+          }
+        />
+
+        {buddy && (
+          <BuddyProgressCard
+            className="w-full"
+            friendName={buddy.friendName}
+            friendProgress={buddy.friendProgress}
+            friendLength={buddy.friendLength}
+          />
+        )}
+      </div>
     </div>
   );
 }

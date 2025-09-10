@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSupabase } from "@/components/supabase-provider";
 import { toast } from "sonner";
@@ -25,7 +25,16 @@ export default function SetPasswordClient() {
   const { supabase, session } = useSupabase();
   const router = useRouter();
   const sp = useSearchParams();
+
   const inviter = useMemo(() => sp.get("inviter") || "", [sp]);
+  const challengeLenParam = useMemo(
+    () => sp.get("challenge_length") || "",
+    [sp]
+  );
+  const challengeLen = useMemo(() => {
+    const n = Number(challengeLenParam);
+    return Number.isFinite(n) ? n : undefined;
+  }, [challengeLenParam]);
 
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
@@ -64,20 +73,34 @@ export default function SetPasswordClient() {
     };
   }, [session, supabase]);
 
+  const finalizedOnce = useRef(false);
   useEffect(() => {
     (async () => {
-      if (!inviter) return;
+      if (!inviter || finalizedOnce.current) return;
+
       const { data: sess } = await supabase.auth.getSession();
       if (!sess.session) return;
-      await fetch(
-        `/api/finalize-invite?inviter=${encodeURIComponent(inviter)}`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
+
+      finalizedOnce.current = true;
+
+      const qs =
+        challengeLen !== undefined
+          ? `inviter=${encodeURIComponent(inviter)}&challenge_length=${encodeURIComponent(
+              String(challengeLen)
+            )}`
+          : `inviter=${encodeURIComponent(inviter)}`;
+
+      const res = await fetch(`/api/finalize-invite?${qs}`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        console.error("finalize-invite failed:", msg);
+      }
     })();
-  }, [inviter, supabase]);
+  }, [inviter, challengeLen, supabase]);
 
   const onSave = async () => {
     const { data: s } = await supabase.auth.getSession();
