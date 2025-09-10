@@ -27,7 +27,6 @@ export function FriendsList() {
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [selectedFriendName, setSelectedFriendName] = useState<string>("");
 
-  // visa full_name om det finns, annars email
   const nameOf = (p?: { full_name?: string | null; email?: string | null }) => {
     const n = (p?.full_name ?? "").trim();
     return n.length > 0 ? n : (p?.email ?? "Unknown");
@@ -53,7 +52,6 @@ export function FriendsList() {
     const trimmed = searchName.trim();
     let foundProfiles: any[] = [];
 
-    // Hämta endast det du behöver: id, full_name, email
     const { data: nameMatches, error: nameError } = await supabase
       .from("profiles")
       .select("id, full_name, email")
@@ -93,7 +91,7 @@ export function FriendsList() {
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (emailRegex.test(trimmed)) {
-        await sendInvite(trimmed);
+        await sendInvite(trimmed, 30);
       } else {
         toast.error("No match", {
           description: "No match found and input is not an email address.",
@@ -162,8 +160,6 @@ export function FriendsList() {
           <div className="mb-4 flex items-center justify-between rounded border p-2">
             <div>
               <div className="font-medium">{nameOf(searchResult)}</div>
-              {/* valfritt: visa e-post i liten text */}
-              {/* <div className="text-xs text-white/60">{searchResult.email}</div> */}
             </div>
             <Button
               onClick={handleAddFriend}
@@ -177,7 +173,7 @@ export function FriendsList() {
 
         <div className="space-y-4">
           {friends.map((friend) => {
-            const p = friend.profiles; // { id, full_name, email, ... }
+            const p = friend.profiles;
             const display = nameOf(p);
 
             return (

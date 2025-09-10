@@ -4,8 +4,6 @@ import { createServerClient } from "@supabase/ssr";
 import admin from "@/lib/supabase-admin";
 import type { Database } from "@/types/supabase";
 
-const ALLOWED = new Set([10, 15, 30, 50, 100, 365]);
-
 export async function POST(req: NextRequest) {
   try {
     const { email, challengeLength } = (await req.json()) as {
@@ -15,13 +13,9 @@ export async function POST(req: NextRequest) {
     if (!email)
       return NextResponse.json({ error: "Missing email" }, { status: 400 });
 
-    const chosen = Number(challengeLength ?? 30);
-    if (!ALLOWED.has(chosen)) {
-      return NextResponse.json(
-        { error: "Invalid challenge length" },
-        { status: 400 }
-      );
-    }
+    const cl = Number.isFinite(Number(challengeLength))
+      ? Number(challengeLength)
+      : 30;
 
     const cookieStore = await cookies();
     const supa = createServerClient<Database>(
@@ -46,20 +40,17 @@ export async function POST(req: NextRequest) {
 
     const { data: existing, error: existErr } = await admin
       .from("profiles")
-      .select("id")
+      .select("id, full_name, email")
       .eq("email", email)
       .maybeSingle();
     if (existErr)
       return NextResponse.json({ error: existErr.message }, { status: 500 });
-
-    const today = new Date().toISOString().slice(0, 10);
 
     if (existing?.id) {
       const pairs = [
         { user_id: user.id, friend_id: existing.id, status: "accepted" },
         { user_id: existing.id, friend_id: user.id, status: "accepted" },
       ];
-
       for (const r of pairs) {
         const { data: f } = await admin
           .from("friends")
@@ -76,40 +67,31 @@ export async function POST(req: NextRequest) {
             );
         }
       }
-
-      const { error: up1 } = await admin
-        .from("profiles")
-        .update({
-          challenge_length: chosen,
-          challenge_started_at: today,
-          challenge_active: true,
-        })
-        .eq("id", user.id);
-      if (up1)
-        return NextResponse.json({ error: up1.message }, { status: 500 });
-
-      const { error: up2 } = await admin
-        .from("profiles")
-        .update({
-          challenge_length: chosen,
-          challenge_started_at: today,
-          challenge_active: true,
-        })
-        .eq("id", existing.id);
-      if (up2)
-        return NextResponse.json({ error: up2.message }, { status: 500 });
-
       return NextResponse.json({
         success: true,
-        note: "User existed; friendship created and challenge started for both.",
+        note: "User already existed; friendship created.",
       });
     }
 
-    const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/set-password?inviter=${user.id}&challenge_length=${chosen}`;
+    const { data: inviterProfile } = await admin
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/set-password?inviter=${user.id}&challenge_length=${cl}`;
 
     const { error: inviteErr } = await admin.auth.admin.inviteUserByEmail(
       email,
-      { redirectTo }
+      {
+        redirectTo,
+        data: {
+          inviter_id: user.id,
+          inviter_email: inviterProfile?.email ?? user.email,
+          inviter_name: inviterProfile?.full_name ?? null,
+          challenge_length: cl,
+        },
+      }
     );
     if (inviteErr)
       return NextResponse.json({ error: inviteErr.message }, { status: 500 });
