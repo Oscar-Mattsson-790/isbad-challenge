@@ -4,11 +4,22 @@ import { createServerClient } from "@supabase/ssr";
 import admin from "@/lib/supabase-admin";
 import type { Database } from "@/types/supabase";
 
+const ALLOWED = new Set([10, 15, 30, 50, 100, 365]);
+
 export async function POST(req: NextRequest) {
   try {
     const inviter = req.nextUrl.searchParams.get("inviter");
+    const challengeParam = req.nextUrl.searchParams.get("challenge_length");
     if (!inviter)
       return NextResponse.json({ error: "Missing inviter" }, { status: 400 });
+
+    const chosen = Number(challengeParam ?? 30);
+    if (!ALLOWED.has(chosen)) {
+      return NextResponse.json(
+        { error: "Invalid challenge length" },
+        { status: 400 }
+      );
+    }
 
     const cookieStore = await cookies();
     const supa = createServerClient<Database>(
@@ -43,6 +54,28 @@ export async function POST(req: NextRequest) {
       if (!f) await admin.from("friends").insert(r);
     }
 
+    const today = new Date().toISOString().slice(0, 10);
+
+    // Starta samma challenge för båda
+    await admin
+      .from("profiles")
+      .update({
+        challenge_length: chosen,
+        challenge_started_at: today,
+        challenge_active: true,
+      })
+      .eq("id", inviter);
+
+    await admin
+      .from("profiles")
+      .update({
+        challenge_length: chosen,
+        challenge_started_at: today,
+        challenge_active: true,
+      })
+      .eq("id", user.id);
+
+    // Markera invite som använd om den finns
     await admin
       .from("invites")
       .update({ used: true, used_at: new Date().toISOString() })

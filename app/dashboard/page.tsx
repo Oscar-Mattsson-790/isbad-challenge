@@ -21,6 +21,12 @@ import { TabsSection } from "@/components/dashboard/tabsSection";
 import { FailedChallengeModal } from "@/components/dashboard/failedChallengeModal";
 import LayoutWrapper from "@/components/layout-wrapper";
 
+type BuddyState = {
+  friendName: string;
+  friendProgress: number;
+  friendLength: number;
+} | null;
+
 export default function Dashboard() {
   const [challengeLength, setChallengeLength] = useState(30);
   const [challengeStartedAt, setChallengeStartedAt] = useState<string | null>(
@@ -29,33 +35,104 @@ export default function Dashboard() {
   const [challengeActive, setChallengeActive] = useState(false);
   const [challengeFailed, setChallengeFailed] = useState(false);
   const [open, setOpen] = useState(false);
+
   const { supabase, session, initialLoading } = useSupabase();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+
   //eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [profile, setProfile] = useState<any>(null);
-
   const { stats, fetchBathData } = useBathStats(
     supabase,
     session?.user.id,
     challengeStartedAt
   );
 
+  const [buddy, setBuddy] = useState<BuddyState>(null);
+
+  const countUniqueDates = (rows: { date: string }[]) => {
+    const s = new Set<string>();
+    rows.forEach((r) => s.add(r.date));
+    return s.size;
+  };
+
+  const fetchBuddy = useCallback(async () => {
+    if (!session || !challengeActive) return setBuddy(null);
+
+    const { data: fr } = await supabase
+      .from("friends")
+      .select(
+        "friend_id, profiles:friend_id(full_name, email, challenge_started_at, challenge_length, challenge_active)"
+      )
+      .eq("user_id", session.user.id)
+      .eq("status", "accepted")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    // @ts-expect-error Supabase type join alias
+    const p = fr?.profiles as {
+      full_name: string | null;
+      email: string | null;
+      challenge_started_at: string | null;
+      challenge_length: number | null;
+      challenge_active: boolean | null;
+    };
+
+    if (
+      !fr ||
+      !p ||
+      !fr.friend_id ||
+      !p.challenge_active ||
+      !p.challenge_started_at
+    ) {
+      setBuddy(null);
+      return;
+    }
+
+    const friendId = fr.friend_id as string;
+
+    const friendName =
+      p.full_name && p.full_name.trim().length > 0
+        ? p.full_name
+        : p.email || "Friend";
+    const friendStart = p.challenge_started_at;
+    const friendLen = p.challenge_length ?? 30;
+
+    const { data: friendBaths } = await supabase
+      .from("baths")
+      .select("date")
+      .eq("user_id", friendId)
+      .gte("date", friendStart);
+
+    const friendProgress = countUniqueDates(friendBaths ?? []);
+
+    setBuddy({
+      friendName,
+      friendProgress,
+      friendLength: friendLen,
+    });
+  }, [session, supabase, challengeActive]);
+
   useEffect(() => {
     const init = async () => {
       if (initialLoading) return;
+
       if (!session) {
         router.push("/login");
         return;
       }
 
       setLoading(true);
-      const profile = await loadOrCreateUserProfile(supabase, session.user);
-      setProfile(profile);
-      setChallengeLength(profile.challenge_length ?? 30);
-      setChallengeStartedAt(profile.challenge_started_at ?? null);
-      setChallengeActive(profile.challenge_active ?? false);
+      const prof = await loadOrCreateUserProfile(supabase, session.user);
+      setProfile(prof);
+
+      setChallengeLength(prof.challenge_length ?? 30);
+      setChallengeStartedAt(prof.challenge_started_at ?? null);
+      setChallengeActive(prof.challenge_active ?? false);
+
       await fetchBathData();
+      await fetchBuddy();
       setLoading(false);
 
       if (window.location.hash === "#recent-activity") {
@@ -63,19 +140,19 @@ export default function Dashboard() {
         if (el)
           setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
       }
-
       if (window.location.hash === "#calendar-section") {
         const el = document.getElementById("calendar-section");
         if (el)
           setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
       }
 
-      if (profile.challenge_active && profile.challenge_started_at && stats) {
+      if (prof.challenge_active && prof.challenge_started_at && stats) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         const hasBatchedToday = stats.activities.some(
-          (activity) =>
+          //eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (activity: any) =>
             new Date(activity.date).toDateString() === today.toDateString()
         );
 
@@ -84,16 +161,16 @@ export default function Dashboard() {
           yesterday.setDate(today.getDate() - 1);
 
           const missedYesterday = !stats.activities.some(
-            (activity) =>
+            //eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (activity: any) =>
               new Date(activity.date).toDateString() ===
               yesterday.toDateString()
           );
 
-          // Missade gårdagens bad → fail
           if (
             missedYesterday &&
             today.toDateString() !==
-              new Date(profile.challenge_started_at).toDateString()
+              new Date(prof.challenge_started_at).toDateString()
           ) {
             setChallengeFailed(true);
             await resetChallenge();
@@ -103,14 +180,16 @@ export default function Dashboard() {
     };
 
     init();
-  }, [initialLoading, session, router, supabase, fetchBathData]);
+  }, [initialLoading, session, router, supabase, fetchBathData, fetchBuddy]);
 
   const startChallenge = async (days: number) => {
     if (!session) return;
     const today = new Date().toISOString().split("T")[0];
+
     setChallengeLength(days);
     setChallengeStartedAt(today);
     setChallengeActive(true);
+
     await supabase
       .from("profiles")
       .update({
@@ -119,13 +198,17 @@ export default function Dashboard() {
         challenge_active: true,
       })
       .eq("id", session.user.id);
-    await fetchBathData(); // Uppdatera data direkt efter start
+
+    await fetchBathData();
+    await fetchBuddy();
   };
 
   const cancelChallenge = async () => {
     if (!session) return;
+
     setChallengeActive(false);
     setChallengeStartedAt(null);
+
     await supabase
       .from("profiles")
       .update({
@@ -133,14 +216,18 @@ export default function Dashboard() {
         challenge_started_at: null,
       })
       .eq("id", session.user.id);
-    await fetchBathData(); // 🧠 Detta gör att progress uppdateras direkt
+
+    await fetchBathData();
+    await fetchBuddy();
   };
 
   const resetChallenge = useCallback(async () => {
     if (!session) return;
+
     setChallengeActive(false);
     setChallengeStartedAt(null);
     setChallengeLength(30);
+
     await supabase
       .from("profiles")
       .update({
@@ -149,11 +236,14 @@ export default function Dashboard() {
         challenge_length: 30,
       })
       .eq("id", session.user.id);
-    await fetchBathData(); // Uppdatera även vid reset
-  }, [session, supabase, fetchBathData]);
 
-  if (loading || initialLoading)
+    await fetchBathData();
+    await fetchBuddy();
+  }, [session, supabase, fetchBathData, fetchBuddy]);
+
+  if (loading || initialLoading) {
     return <div className="container py-10 text-white">Loading...</div>;
+  }
 
   return (
     <LayoutWrapper>
@@ -170,6 +260,7 @@ export default function Dashboard() {
           startChallenge={startChallenge}
           cancelChallenge={cancelChallenge}
           resetChallenge={resetChallenge}
+          buddy={challengeActive ? buddy : null}
         />
 
         <Card className="bg-[#242422] border-none text-white w-full lg:col-span-2">
@@ -189,8 +280,9 @@ export default function Dashboard() {
         <AddBathModal
           open={open}
           setOpen={setOpen}
-          onBathAdded={() => {
-            fetchBathData();
+          onBathAdded={async () => {
+            await fetchBathData();
+            await fetchBuddy();
             setOpen(false);
           }}
         />

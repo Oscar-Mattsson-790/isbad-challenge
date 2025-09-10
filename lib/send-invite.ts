@@ -1,18 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { toast } from "sonner";
 
 export type InviteResponse = { success: boolean; error?: string };
 
-export const sendInvite = async (email: string): Promise<InviteResponse> => {
+export const sendInvite = async (
+  email: string,
+  challengeLength: number = 30
+): Promise<InviteResponse> => {
   try {
     const res = await fetch("/api/invite-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email, challengeLength }),
       credentials: "include",
     });
 
     const text = await res.text();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let result: any = {};
     try {
       result = JSON.parse(text);
@@ -26,7 +29,6 @@ export const sendInvite = async (email: string): Promise<InviteResponse> => {
 
     toast.success("Invitation sent", { description: `Email sent to ${email}` });
     return { success: true };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     const errorMsg = err?.message || "Unknown error";
     toast.error("Failed to send invite", { description: errorMsg });

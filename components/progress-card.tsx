@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-// 🔁 ÄNDRING 1: Lägg till className som prop
 type Props = {
   progress: number;
   challengeLength: number;
@@ -31,9 +30,9 @@ export function ProgressCard({
       : `${remainingDays} day${remainingDays === 1 ? "" : "s"} left – Keep going!`;
 
   return (
-    <Card className={`bg-[#242422] text-white border-none ${className}`}>
+    <Card className={`bg-[#242422] text-white border-none ${className ?? ""}`}>
       <CardHeader className="px-0">
-        <CardTitle className="text-[#157FBF]">Your progress</CardTitle>
+        <CardTitle className="text-[#157FBF]">My challenge</CardTitle>
         <CardDescription className="text-white">
           Progress towards your {challengeLength}-day goal
         </CardDescription>
@@ -68,7 +67,7 @@ export function ProgressCard({
         {onCompleteReset && (
           <div className="space-y-2 mt-4">
             <p className="text-sm text-center font-medium">
-              🎉 Congratulations!
+              🎉 Congratulations!{" "}
             </p>
             <Button
               className="bg-[#157FBF] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"

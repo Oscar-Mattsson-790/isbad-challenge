@@ -6,9 +6,16 @@ import type { Database } from "@/types/supabase";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = (await req.json()) as { email?: string };
+    const { email, challengeLength } = (await req.json()) as {
+      email?: string;
+      challengeLength?: number;
+    };
     if (!email)
       return NextResponse.json({ error: "Missing email" }, { status: 400 });
+
+    const cl = Number.isFinite(Number(challengeLength))
+      ? Number(challengeLength)
+      : 30;
 
     const cookieStore = await cookies();
     const supa = createServerClient<Database>(
@@ -33,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existing, error: existErr } = await admin
       .from("profiles")
-      .select("id")
+      .select("id, full_name, email")
       .eq("email", email)
       .maybeSingle();
     if (existErr)
@@ -66,11 +73,25 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/set-password?inviter=${user.id}`;
+    const { data: inviterProfile } = await admin
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const redirectTo = `${process.env.NEXT_PUBLIC_BASE_URL}/set-password?inviter=${user.id}&challenge_length=${cl}`;
 
     const { error: inviteErr } = await admin.auth.admin.inviteUserByEmail(
       email,
-      { redirectTo }
+      {
+        redirectTo,
+        data: {
+          inviter_id: user.id,
+          inviter_email: inviterProfile?.email ?? user.email,
+          inviter_name: inviterProfile?.full_name ?? null,
+          challenge_length: cl,
+        },
+      }
     );
     if (inviteErr)
       return NextResponse.json({ error: inviteErr.message }, { status: 500 });
