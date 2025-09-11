@@ -21,70 +21,80 @@ export default function AboutPage() {
       data: { session },
     } = await supabase.auth.getSession();
 
-    if (session?.user) {
-      router.push("/dashboard");
-    } else {
-      router.push("/signup");
-    }
+    if (session?.user) router.push("/dashboard");
+    else router.push("/signup");
   };
 
   return (
     <LayoutWrapper>
-      <div className="max-w-screen-2xl flex flex-col pt-10 px-4 sm:px-0">
-        <div className="flex flex-col lg:flex-row w-full h-full rounded-md overflow-hidden gap-20 items-center">
-          <div className="w-full lg:w-1/2 h-full flex flex-col">
-            <div className="space-y-6">
-              <h1 className="text-4xl font-bold">
-                Step into the Cold <br /> and Grow
+      <div className="container pt-20 py-10 max-w-5xl mx-auto text-white px-5">
+        {/* Kort utan padding – vi paddar endast textkolumnen */}
+        <div className="rounded-xl bg-[#2B2B29] border border-white/5 overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2">
+            {/* Textkolumn med padding */}
+            <div className="p-6 md:p-8">
+              <h1 className="text-3xl md:text-4xl font-bold mb-6">
+                Step into the Cold and Grow
               </h1>
-              <p>
-                ISBAD Challenge is a community-driven movement for those who
-                want to build resilience, discipline, and health through
-                consistent cold exposure. Our app allows you to track your
-                progress, connect with others, and stay motivated on your ice
-                bath journey.
-              </p>
-              <p>
-                Whether you&apos;re a beginner or an experienced cold plunger,
-                our tools help you stay committed and document your experiences.
-                Join us on this transformative journey and let&apos;s build a
-                better future for ourselves and future generations.
-              </p>
-            </div>
-            <Button
-              onClick={handleStart}
-              className="mt-6 w-full sm:w-auto bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-              size="lg"
-              disabled={loading}
-            >
-              Get started
-            </Button>
-            <div className="mt-10">
-              <p>Follow us on instagram:</p>
-              <p>
-                <Link
-                  href="https://www.instagram.com/isbad.se/"
-                  className="flex gap-1 items-center"
-                >
-                  @isbad.se <Camera className="h-6 w-6 text-[#157FBF]" />
-                </Link>
-              </p>
-            </div>
-          </div>
 
-          <div className="w-full h-[350px] md:h-[500px] lg:w-[650px] lg:h-[500px] rounded-md overflow-hidden relative">
-            <Image
-              src="/images/Man badar i mössa i en isbad Premium med skvätt vatten.jpg"
-              alt="Hero"
-              fill
-              className="object-cover rounded-md"
-            />
+              <div className="space-y-5">
+                <p>
+                  ISBAD Challenge is a community-driven movement for those who
+                  want to build resilience, discipline, and health through
+                  consistent cold exposure. Our app lets you track your
+                  progress, connect with others, and stay motivated on your ice
+                  bath journey.
+                </p>
+                <p>
+                  Whether you&apos;re a beginner or an experienced cold plunger,
+                  our tools help you stay committed and document your
+                  experiences. Join us and let&apos;s build a better future for
+                  ourselves and future generations.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <Button
+                    onClick={handleStart}
+                    className="bg-[#157FBF] hover:bg-[#115F93] text-white"
+                    size="lg"
+                    disabled={loading}
+                  >
+                    {loading ? "Loading…" : "Get started"}
+                  </Button>
+
+                  <Link
+                    href="https://www.instagram.com/isbad.se/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-md border border-white/15 px-4 py-2.5 text-sm hover:bg-white/10"
+                    aria-label="Open ISBAD on Instagram"
+                  >
+                    <Camera className="h-5 w-5 text-[#157FBF]" />
+                    <span>@isbad.se</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Bildkolumn – går flush mot kortets kanter */}
+            <div className="relative h-[260px] sm:h-[360px] md:h-[420px] lg:h-full min-h-[260px]">
+              <Image
+                src="/images/Man badar i mössa i en isbad Premium med skvätt vatten.jpg"
+                alt="Cold plunge in an ISBAD tub"
+                fill
+                className="object-cover"
+                sizes="(min-width:1024px) 50vw, 100vw"
+                priority
+              />
+            </div>
           </div>
         </div>
 
-        <HowItWorks />
+        <div className="mt-12">
+          <HowItWorks />
+        </div>
 
-        <div className="text-center text-sm text-gray-400 mt-12">
+        <div className="text-center text-sm text-white/60 mt-12">
           <Link href="/privacy" className="hover:underline mr-4">
             Privacy Policy
           </Link>

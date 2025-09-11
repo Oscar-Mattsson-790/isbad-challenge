@@ -80,7 +80,7 @@ export default function HowItWorks() {
 
   return (
     <div className="mt-12 space-y-6">
-      <h2 className="text-3xl font-bold text-white text-center">
+      <h2 className="text-3xl font-bold text-white text-center mb-12">
         How it works
       </h2>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-2">
