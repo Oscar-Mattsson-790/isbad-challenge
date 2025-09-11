@@ -86,6 +86,7 @@ export type ProfileRow = {
   created_at: string;
   full_name: string;
   email: string;
+  phone?: string | null;
   challenge_length?: number | null;
   challenge_started_at?: string | null;
   challenge_active?: boolean | null;
@@ -97,6 +98,7 @@ export type ProfileInsert = {
   created_at?: string;
   full_name: string;
   email: string;
+  phone?: string | null;
   challenge_length?: number | null;
   challenge_started_at?: string | null;
   challenge_active?: boolean | null;
