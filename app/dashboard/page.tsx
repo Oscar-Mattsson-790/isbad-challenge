@@ -40,7 +40,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
-  //eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [profile, setProfile] = useState<any>(null);
   const { stats, fetchBathData } = useBathStats(
     supabase,
@@ -114,6 +114,23 @@ export default function Dashboard() {
     });
   }, [session, supabase, challengeActive]);
 
+  /** Liten helper så vi kan refresha profil + stats on demand (t.ex. när modalen startat ny challenge) */
+  const refreshAll = useCallback(async () => {
+    if (!session) return;
+    setLoading(true);
+
+    const prof = await loadOrCreateUserProfile(supabase, session.user);
+    setProfile(prof);
+    setChallengeLength(prof.challenge_length ?? 30);
+    setChallengeStartedAt(prof.challenge_started_at ?? null);
+    setChallengeActive(prof.challenge_active ?? false);
+
+    await fetchBathData();
+    await fetchBuddy();
+
+    setLoading(false);
+  }, [session, supabase, fetchBathData, fetchBuddy]);
+
   useEffect(() => {
     const init = async () => {
       if (initialLoading) return;
@@ -123,17 +140,7 @@ export default function Dashboard() {
         return;
       }
 
-      setLoading(true);
-      const prof = await loadOrCreateUserProfile(supabase, session.user);
-      setProfile(prof);
-
-      setChallengeLength(prof.challenge_length ?? 30);
-      setChallengeStartedAt(prof.challenge_started_at ?? null);
-      setChallengeActive(prof.challenge_active ?? false);
-
-      await fetchBathData();
-      await fetchBuddy();
-      setLoading(false);
+      await refreshAll();
 
       if (window.location.hash === "#recent-activity") {
         const el = document.getElementById("recent-activity");
@@ -146,12 +153,12 @@ export default function Dashboard() {
           setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
       }
 
-      if (prof.challenge_active && prof.challenge_started_at && stats) {
+      if (profile?.challenge_active && profile?.challenge_started_at && stats) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         const hasBatchedToday = stats.activities.some(
-          //eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (activity: any) =>
             new Date(activity.date).toDateString() === today.toDateString()
         );
@@ -161,7 +168,7 @@ export default function Dashboard() {
           yesterday.setDate(today.getDate() - 1);
 
           const missedYesterday = !stats.activities.some(
-            //eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (activity: any) =>
               new Date(activity.date).toDateString() ===
               yesterday.toDateString()
@@ -170,7 +177,7 @@ export default function Dashboard() {
           if (
             missedYesterday &&
             today.toDateString() !==
-              new Date(prof.challenge_started_at).toDateString()
+              new Date(profile.challenge_started_at).toDateString()
           ) {
             setChallengeFailed(true);
             await resetChallenge();
@@ -180,7 +187,18 @@ export default function Dashboard() {
     };
 
     init();
-  }, [initialLoading, session, router, supabase, fetchBathData, fetchBuddy]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLoading, session, router, refreshAll]);
+
+  /** ⬇️ Lyssna på event från ChallengeFriendModal och refresha */
+  useEffect(() => {
+    const handler = () => {
+      refreshAll();
+    };
+    window.addEventListener("challenge-started", handler as EventListener);
+    return () =>
+      window.removeEventListener("challenge-started", handler as EventListener);
+  }, [refreshAll]);
 
   const startChallenge = async (days: number) => {
     if (!session) return;
@@ -275,7 +293,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <TabsSection />
+        <TabsSection layout="stacked" />
 
         <AddBathModal
           open={open}
