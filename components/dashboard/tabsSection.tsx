@@ -29,7 +29,12 @@ type ActivePair = {
   friendLength: number;
 };
 
-export function TabsSection() {
+type Props = {
+  /** "tabs" (default) eller "stacked" för innehåll under varandra */
+  layout?: "tabs" | "stacked";
+};
+
+export function TabsSection({ layout = "tabs" }: Props) {
   const { supabase, session } = useSupabase();
 
   const [loading, setLoading] = useState(true);
@@ -77,7 +82,7 @@ export function TabsSection() {
 
     const rows: ActivePair[] = [];
     for (const f of friends) {
-      // @ts-expect-error alias join
+      // @ts-expect-error join alias
       const p = f?.profiles as {
         full_name: string | null;
         email: string | null;
@@ -120,6 +125,73 @@ export function TabsSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
+  const ChallengesCard = (
+    <Card className="bg-[#2B2B29] text-white border-none">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>Active challenges</CardTitle>
+          <Button
+            size="sm"
+            onClick={fetchData}
+            className="border bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
+          >
+            Refresh
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        {!myActive && (
+          <p className="text-sm text-white/80">
+            Start your own challenge to see friend match-ups here.
+          </p>
+        )}
+
+        {loading && <p className="text-sm text-white/80">Loading…</p>}
+
+        {!loading && myActive && !hasPairs && (
+          <div>
+            <p className="text-sm">
+              You have no active challenges with friends yet.
+            </p>
+          </div>
+        )}
+
+        {!loading &&
+          myActive &&
+          hasPairs &&
+          pairs.map((p) => {
+            const pct = (p.friendProgress / p.friendLength) * 100;
+            return (
+              <div
+                key={p.friendId}
+                className="rounded-lg bg-[#242422] px-4 py-3 border border-white/5"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <div className="font-medium">{p.friendLabel}</div>
+                  <div className="text-xs text-white/60">
+                    {p.friendProgress}/{p.friendLength} days
+                  </div>
+                </div>
+                <ProgressBar value={pct} />
+              </div>
+            );
+          })}
+      </CardContent>
+    </Card>
+  );
+
+  if (layout === "stacked") {
+    // Ingen toggle – visa båda sektioner under varandra
+    return (
+      <div className="w-full space-y-6">
+        <FriendsList />
+        {ChallengesCard}
+      </div>
+    );
+  }
+
+  // Default: flikar
   return (
     <Tabs defaultValue="friends" className="w-full">
       <TabsList className="bg-[#2B2B29]">
@@ -132,63 +204,7 @@ export function TabsSection() {
       </TabsContent>
 
       <TabsContent value="challenges" className="border-none p-0 pt-4">
-        <Card className="bg-[#2B2B29] text-white border-none">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Active challenges</CardTitle>
-
-              <Button
-                size="sm"
-                onClick={fetchData}
-                className="border bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-              >
-                Refresh
-              </Button>
-            </div>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {!myActive && (
-              <p className="text-sm text-white/80">
-                Start your own challenge to see friend match-ups here.
-              </p>
-            )}
-
-            {loading && <p className="text-sm text-white/80">Loading…</p>}
-
-            {!loading && myActive && !hasPairs && (
-              <div>
-                <p className="text-sm">
-                  You have no active challenges with friends yet.
-                </p>
-                <Button className="mt-4 border bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white">
-                  Challenge a friend
-                </Button>
-              </div>
-            )}
-
-            {!loading &&
-              myActive &&
-              hasPairs &&
-              pairs.map((p) => {
-                const pct = (p.friendProgress / p.friendLength) * 100;
-                return (
-                  <div
-                    key={p.friendId}
-                    className="rounded-lg bg-[#242422] px-4 py-3 border border-white/5"
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="font-medium">{p.friendLabel}</div>
-                      <div className="text-xs text-white/60">
-                        {p.friendProgress}/{p.friendLength} days
-                      </div>
-                    </div>
-                    <ProgressBar value={pct} />
-                  </div>
-                );
-              })}
-          </CardContent>
-        </Card>
+        {ChallengesCard}
       </TabsContent>
     </Tabs>
   );
