@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendsList } from "@/components/friends-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useSupabase } from "@/components/supabase-provider";
 
 function ProgressBar({ value }: { value: number }) {
@@ -30,7 +29,6 @@ type ActivePair = {
 };
 
 type Props = {
-  /** "tabs" (default) eller "stacked" för innehåll under varandra */
   layout?: "tabs" | "stacked";
 };
 
@@ -51,7 +49,6 @@ export function TabsSection({ layout = "tabs" }: Props) {
 
   const fetchData = async () => {
     if (!session) return;
-
     setLoading(true);
 
     const { data: me } = await supabase
@@ -62,7 +59,6 @@ export function TabsSection({ layout = "tabs" }: Props) {
 
     const iAmActive = !!me?.challenge_active;
     const iStart = me?.challenge_started_at ?? null;
-
     setMyActive(iAmActive);
 
     const { data: friends } = await supabase
@@ -128,16 +124,7 @@ export function TabsSection({ layout = "tabs" }: Props) {
   const ChallengesCard = (
     <Card className="bg-[#2B2B29] text-white border-none">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Active challenges</CardTitle>
-          <Button
-            size="sm"
-            onClick={fetchData}
-            className="border bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-          >
-            Refresh
-          </Button>
-        </div>
+        <CardTitle>Active challenges</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -150,11 +137,9 @@ export function TabsSection({ layout = "tabs" }: Props) {
         {loading && <p className="text-sm text-white/80">Loading…</p>}
 
         {!loading && myActive && !hasPairs && (
-          <div>
-            <p className="text-sm">
-              You have no active challenges with friends yet.
-            </p>
-          </div>
+          <p className="text-sm">
+            You have no active challenges with friends yet.
+          </p>
         )}
 
         {!loading &&
@@ -182,7 +167,6 @@ export function TabsSection({ layout = "tabs" }: Props) {
   );
 
   if (layout === "stacked") {
-    // Ingen toggle – visa båda sektioner under varandra
     return (
       <div className="w-full space-y-6">
         <FriendsList />
@@ -191,7 +175,6 @@ export function TabsSection({ layout = "tabs" }: Props) {
     );
   }
 
-  // Default: flikar
   return (
     <Tabs defaultValue="friends" className="w-full">
       <TabsList className="bg-[#2B2B29]">
