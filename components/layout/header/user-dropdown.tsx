@@ -1,3 +1,4 @@
+// components/header/user-dropdown.tsx
 "use client";
 
 import {
@@ -8,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { LogOut, Mail, Settings, Trophy, User } from "lucide-react";
+import { LogOut, Mail, Settings, Trophy, User, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSignOut } from "@/lib/hooks/use-signout";
 
@@ -33,6 +34,7 @@ export function UserDropdown({
           <User className="h-5 w-5 text-white" />
         </Button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent
         className="bg-[#242422] text-white border-none"
         align="end"
@@ -45,20 +47,41 @@ export function UserDropdown({
             <p className="text-xs text-[#157FBF]">{session.user.email}</p>
           </div>
         </DropdownMenuLabel>
+
+        {/* 1) My Challenges */}
         <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-          <User className="mr-2 h-4 w-4 text-[#157FBF]" /> Challenge
+          <User className="mr-2 h-4 w-4 text-[#157FBF]" />
+          My Challenges
         </DropdownMenuItem>
+
+        {/* 2) Top ice bathers */}
         <DropdownMenuItem onClick={() => router.push("/scoreboard")}>
-          <Trophy className="mr-2 h-4 w-4 text-[#157FBF]" /> Top ice bathers
+          <Trophy className="mr-2 h-4 w-4 text-[#157FBF]" />
+          Top ice bathers
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/contact")}>
-          <Mail className="mr-2 h-4 w-4 text-[#157FBF]" /> Contact
-        </DropdownMenuItem>
+
+        {/* 3) My profile */}
         <DropdownMenuItem onClick={() => router.push("/profile")}>
-          <Settings className="mr-2 h-4 w-4 text-[#157FBF]" /> My profile
+          <Settings className="mr-2 h-4 w-4 text-[#157FBF]" />
+          My profile
         </DropdownMenuItem>
+
+        {/* 4) Contact */}
+        <DropdownMenuItem onClick={() => router.push("/contact")}>
+          <Mail className="mr-2 h-4 w-4 text-[#157FBF]" />
+          Contact
+        </DropdownMenuItem>
+
+        {/* 5) About */}
+        <DropdownMenuItem onClick={() => router.push("/about")}>
+          <Info className="mr-2 h-4 w-4 text-[#157FBF]" />
+          About
+        </DropdownMenuItem>
+
+        {/* 6) Sign out */}
         <DropdownMenuItem onClick={handleSignOut}>
-          <LogOut className="mr-2 h-4 w-4 text-[#157FBF]" /> Sign out
+          <LogOut className="mr-2 h-4 w-4 text-[#157FBF]" />
+          Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

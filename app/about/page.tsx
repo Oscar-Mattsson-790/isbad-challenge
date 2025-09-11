@@ -35,7 +35,7 @@ export default function AboutPage() {
           <div className="w-full lg:w-1/2 h-full flex flex-col">
             <div className="space-y-6">
               <h1 className="text-4xl font-bold">
-                Step into the Cold – <br /> and Grow
+                Step into the Cold <br /> and Grow
               </h1>
               <p>
                 ISBAD Challenge is a community-driven movement for those who
