@@ -20,12 +20,8 @@ import { ChallengeSection } from "@/components/dashboard/challengeSection";
 import { TabsSection } from "@/components/dashboard/tabsSection";
 import { FailedChallengeModal } from "@/components/dashboard/failedChallengeModal";
 import LayoutWrapper from "@/components/layout-wrapper";
-
-type BuddyState = {
-  friendName: string;
-  friendProgress: number;
-  friendLength: number;
-} | null;
+import { useBuddy } from "@/lib/hooks/use-buddy";
+import { useChallengeActions } from "@/lib/hooks/use-challenge-actions";
 
 export default function Dashboard() {
   const [challengeLength, setChallengeLength] = useState(30);
@@ -48,73 +44,18 @@ export default function Dashboard() {
     challengeStartedAt
   );
 
-  const [buddy, setBuddy] = useState<BuddyState>(null);
+  const { buddy, fetchBuddy } = useBuddy(
+    supabase,
+    session?.user.id,
+    challengeActive
+  );
 
-  const countUniqueDates = (rows: { date: string }[]) => {
-    const s = new Set<string>();
-    rows.forEach((r) => s.add(r.date));
-    return s.size;
-  };
+  const {
+    startChallenge: dbStart,
+    cancelChallenge: dbCancel,
+    resetChallenge: dbReset,
+  } = useChallengeActions(supabase, session?.user.id);
 
-  const fetchBuddy = useCallback(async () => {
-    if (!session || !challengeActive) return setBuddy(null);
-
-    const { data: fr } = await supabase
-      .from("friends")
-      .select(
-        "friend_id, profiles:friend_id(full_name, email, challenge_started_at, challenge_length, challenge_active)"
-      )
-      .eq("user_id", session.user.id)
-      .eq("status", "accepted")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    // @ts-expect-error Supabase type join alias
-    const p = fr?.profiles as {
-      full_name: string | null;
-      email: string | null;
-      challenge_started_at: string | null;
-      challenge_length: number | null;
-      challenge_active: boolean | null;
-    };
-
-    if (
-      !fr ||
-      !p ||
-      !fr.friend_id ||
-      !p.challenge_active ||
-      !p.challenge_started_at
-    ) {
-      setBuddy(null);
-      return;
-    }
-
-    const friendId = fr.friend_id as string;
-
-    const friendName =
-      p.full_name && p.full_name.trim().length > 0
-        ? p.full_name
-        : p.email || "Friend";
-    const friendStart = p.challenge_started_at;
-    const friendLen = p.challenge_length ?? 30;
-
-    const { data: friendBaths } = await supabase
-      .from("baths")
-      .select("date")
-      .eq("user_id", friendId)
-      .gte("date", friendStart);
-
-    const friendProgress = countUniqueDates(friendBaths ?? []);
-
-    setBuddy({
-      friendName,
-      friendProgress,
-      friendLength: friendLen,
-    });
-  }, [session, supabase, challengeActive]);
-
-  /** Liten helper så vi kan refresha profil + stats on demand (t.ex. när modalen startat ny challenge) */
   const refreshAll = useCallback(async () => {
     if (!session) return;
     setLoading(true);
@@ -159,8 +100,7 @@ export default function Dashboard() {
 
         const hasBatchedToday = stats.activities.some(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (activity: any) =>
-            new Date(activity.date).toDateString() === today.toDateString()
+          (a: any) => new Date(a.date).toDateString() === today.toDateString()
         );
 
         if (!hasBatchedToday) {
@@ -169,9 +109,8 @@ export default function Dashboard() {
 
           const missedYesterday = !stats.activities.some(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (activity: any) =>
-              new Date(activity.date).toDateString() ===
-              yesterday.toDateString()
+            (a: any) =>
+              new Date(a.date).toDateString() === yesterday.toDateString()
           );
 
           if (
@@ -186,14 +125,13 @@ export default function Dashboard() {
       }
     };
 
-    init();
+    void init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialLoading, session, router, refreshAll]);
 
-  /** ⬇️ Lyssna på event från ChallengeFriendModal och refresha */
   useEffect(() => {
     const handler = () => {
-      refreshAll();
+      void refreshAll();
     };
     window.addEventListener("challenge-started", handler as EventListener);
     return () =>
@@ -208,17 +146,8 @@ export default function Dashboard() {
     setChallengeStartedAt(today);
     setChallengeActive(true);
 
-    await supabase
-      .from("profiles")
-      .update({
-        challenge_length: days,
-        challenge_started_at: today,
-        challenge_active: true,
-      })
-      .eq("id", session.user.id);
-
-    await fetchBathData();
-    await fetchBuddy();
+    await dbStart(days, today);
+    await Promise.all([fetchBathData(), fetchBuddy()]);
   };
 
   const cancelChallenge = async () => {
@@ -227,16 +156,8 @@ export default function Dashboard() {
     setChallengeActive(false);
     setChallengeStartedAt(null);
 
-    await supabase
-      .from("profiles")
-      .update({
-        challenge_active: false,
-        challenge_started_at: null,
-      })
-      .eq("id", session.user.id);
-
-    await fetchBathData();
-    await fetchBuddy();
+    await dbCancel();
+    await Promise.all([fetchBathData(), fetchBuddy()]);
   };
 
   const resetChallenge = useCallback(async () => {
@@ -246,18 +167,9 @@ export default function Dashboard() {
     setChallengeStartedAt(null);
     setChallengeLength(30);
 
-    await supabase
-      .from("profiles")
-      .update({
-        challenge_active: false,
-        challenge_started_at: null,
-        challenge_length: 30,
-      })
-      .eq("id", session.user.id);
-
-    await fetchBathData();
-    await fetchBuddy();
-  }, [session, supabase, fetchBathData, fetchBuddy]);
+    await dbReset();
+    await Promise.all([fetchBathData(), fetchBuddy()]);
+  }, [session, dbReset, fetchBathData, fetchBuddy]);
 
   if (loading || initialLoading) {
     return <div className="container py-10 text-white">Loading...</div>;
@@ -299,8 +211,7 @@ export default function Dashboard() {
           open={open}
           setOpen={setOpen}
           onBathAdded={async () => {
-            await fetchBathData();
-            await fetchBuddy();
+            await Promise.all([fetchBathData(), fetchBuddy()]);
             setOpen(false);
           }}
         />

@@ -14,7 +14,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-// import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
@@ -168,7 +167,13 @@ export default function AddBathModal({
                 <div className="flex flex-col items-center">
                   <Button
                     type="button"
-                    className="bg-[#2B2B29] text-white border-none rounded-xl p-8 hover:shadow-[0_4px_20px_0_#157FBF] transition-all"
+                    className={`bg-[#2B2B29] text-white border-none rounded-xl p-8 transition-all
+                      ${
+                        bathType === "tub"
+                          ? "ring-2 ring-[#157FBF] shadow-[0_4px_20px_0_#157FBF]"
+                          : "hover:shadow-[0_4px_20px_0_#157FBF]"
+                      }
+                    `}
                     onClick={() => setBathType("tub")}
                   >
                     <Image
@@ -185,7 +190,13 @@ export default function AddBathModal({
                 <div className="flex flex-col items-center">
                   <Button
                     type="button"
-                    className="bg-[#2B2B29] text-white border-none rounded-xl p-8 hover:shadow-[0_4px_20px_0_#157FBF] transition-all"
+                    className={`bg-[#2B2B29] text-white border-none rounded-xl p-8 transition-all
+                      ${
+                        bathType === "shower"
+                          ? "ring-2 ring-[#157FBF] shadow-[0_4px_20px_0_#157FBF]"
+                          : "hover:shadow-[0_4px_20px_0_#157FBF]"
+                      }
+                    `}
                     onClick={() => setBathType("shower")}
                   >
                     <Image
@@ -202,7 +213,13 @@ export default function AddBathModal({
                 <div className="flex flex-col items-center">
                   <Button
                     type="button"
-                    className="bg-[#2B2B29] text-white border-none rounded-xl p-8 hover:shadow-[0_4px_20px_0_#157FBF] transition-all"
+                    className={`bg-[#2B2B29] text-white border-none rounded-xl p-8 transition-all
+                      ${
+                        bathType === "outside"
+                          ? "ring-2 ring-[#157FBF] shadow-[0_4px_20px_0_#157FBF]"
+                          : "hover:shadow-[0_4px_20px_0_#157FBF]"
+                      }
+                    `}
                     onClick={() => setBathType("outside")}
                   >
                     <Image
@@ -225,7 +242,7 @@ export default function AddBathModal({
                   Select the time you took your ice bath
                 </Label>
                 <div className="flex items-center gap-2">
-                  <div className="w-1/2">
+                  <div className="shrink-0">
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button className="w-full justify-start text-left font-normal bg-white text-black hover:bg-white">
@@ -339,9 +356,13 @@ export default function AddBathModal({
                     <Button
                       key={emoji}
                       type="button"
-                      className={`bg-[#2B2B29] text-white border-none rounded-xl p-4 hover:shadow-[0_4px_20px_0_#157FBF] transition-all text-xl ${
-                        selectedEmoji === emoji ? "ring-2 ring-[#157FBF]" : ""
-                      }`}
+                      className={`bg-[#2B2B29] text-white border-none rounded-xl p-4 transition-all text-xl
+                        ${
+                          selectedEmoji === emoji
+                            ? "ring-2 ring-[#157FBF] shadow-[0_4px_20px_0_#157FBF]"
+                            : "hover:shadow-[0_4px_20px_0_#157FBF]"
+                        }
+                      `}
                       onClick={() => setSelectedEmoji(emoji)}
                     >
                       {emoji}
