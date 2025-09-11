@@ -15,6 +15,7 @@ export default function ContactPage() {
     email: "",
     message: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -24,6 +25,7 @@ export default function ContactPage() {
 
   const handleSendMessage = async () => {
     const toastId = toast.loading("Sending message...");
+    setLoading(true);
 
     try {
       const res = await fetch("/api/contact", {
@@ -33,91 +35,96 @@ export default function ContactPage() {
       });
 
       if (!res.ok) {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         toast.error("Could not send message", {
           id: toastId,
-          description: err.error,
+          description: err?.error || "Unexpected error",
         });
+        setLoading(false);
         return;
       }
 
-      toast.success("Message sent successfully!", {
-        id: toastId,
-      });
+      toast.success("Message sent successfully!", { id: toastId });
+      // Rensa formuläret
+      setForm({ name: "", phone: "", email: "", message: "" });
     } catch (err) {
       console.error(err);
-      toast.error("A technical error occurred", {
-        id: toastId,
-      });
+      toast.error("A technical error occurred", { id: toastId });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <LayoutWrapper>
-      <div className="max-w-xl mx-auto text-white space-y-4 pt-10 px-5">
-        <h2 className="text-2xl font-bold mb-6">Contact ISBAD.com</h2>
+      <div className="container pt-20 py-10 max-w-2xl mx-auto text-white px-5">
+        <h1 className="text-2xl font-bold mb-6">Contact ISBAD.com</h1>
 
-        <div>
-          <Label className="mb-1" htmlFor="name">
-            Name
-          </Label>
-          <Input
-            id="name"
-            name="name"
-            placeholder="Your name"
-            value={form.name}
-            onChange={handleChange}
-          />
+        {/* Kort/Container i samma stil som ProfilePage */}
+        <div className="rounded-xl bg-[#2B2B29] border border-white/5 p-6 space-y-6">
+          {/* Övre grid: Name/Phone */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="Your name"
+                value={form.name}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                name="phone"
+                placeholder="+46 701234567"
+                value={form.phone}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          {/* Email */}
+          <div className="space-y-1">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="your@mail.com"
+              value={form.email}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Message */}
+          <div className="space-y-1">
+            <Label htmlFor="message">Message</Label>
+            <Textarea
+              id="message"
+              name="message"
+              placeholder="Write your message here..."
+              className="min-h-[180px]"
+              value={form.message}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end">
+            <Button
+              className="bg-[#157FBF] hover:bg-[#115F93] text-white"
+              size="lg"
+              onClick={handleSendMessage}
+              disabled={loading}
+            >
+              {loading ? "Sending…" : "Send Message"}
+            </Button>
+          </div>
         </div>
-
-        <div>
-          <Label className="mb-1" htmlFor="phone">
-            Phone
-          </Label>
-          <Input
-            id="phone"
-            name="phone"
-            placeholder="+46 701234567"
-            value={form.phone}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <Label className="mb-1" htmlFor="email">
-            Email
-          </Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="your@mail.com"
-            value={form.email}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <Label className="mb-1" htmlFor="message">
-            Message
-          </Label>
-          <Textarea
-            id="message"
-            name="message"
-            placeholder="Write your message here..."
-            className="h-48"
-            value={form.message}
-            onChange={handleChange}
-          />
-        </div>
-
-        <Button
-          className="bg-[#157FBF] sm:w-auto w-full border-none hover:bg-[#115F93] hover:text-white"
-          size="lg"
-          onClick={handleSendMessage}
-        >
-          Send Message
-        </Button>
       </div>
     </LayoutWrapper>
   );

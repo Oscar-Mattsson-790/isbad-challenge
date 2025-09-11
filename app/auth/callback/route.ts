@@ -1,15 +1,18 @@
-// app/auth/callback/route.ts
 import { NextResponse, type NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import admin from "@/lib/supabase-admin";
 import type { Database } from "@/types/supabase";
 
+const ALLOWED = new Set([10, 15, 30, 50, 100, 365]);
+
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const next = url.searchParams.get("next") || "/dashboard";
   const inviter = url.searchParams.get("inviter");
+  const cl = url.searchParams.get("challenge_length");
+  const chosen = cl && ALLOWED.has(Number(cl)) ? Number(cl) : undefined;
 
   const finalRedirect = `${process.env.NEXT_PUBLIC_BASE_URL}${next}`;
   const res = NextResponse.redirect(finalRedirect);
@@ -37,8 +40,11 @@ export async function GET(request: NextRequest) {
   const {
     data: { user },
   } = await supa.auth.getUser();
+
   if (!user)
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/login`);
+    return NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_SUPABASE_BASE_URL}/login`
+    );
 
   try {
     if (inviter) {
@@ -54,6 +60,26 @@ export async function GET(request: NextRequest) {
           .eq("friend_id", r.friend_id)
           .maybeSingle();
         if (!f) await admin.from("friends").insert(r);
+      }
+
+      if (chosen) {
+        const today = new Date().toISOString().slice(0, 10);
+        await admin
+          .from("profiles")
+          .update({
+            challenge_length: chosen,
+            challenge_started_at: today,
+            challenge_active: true,
+          })
+          .eq("id", inviter);
+        await admin
+          .from("profiles")
+          .update({
+            challenge_length: chosen,
+            challenge_started_at: today,
+            challenge_active: true,
+          })
+          .eq("id", user.id);
       }
 
       await admin

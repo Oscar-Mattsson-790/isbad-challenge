@@ -1,33 +1,28 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Search, UserPlus, X, Calendar } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar, Swords, X } from "lucide-react";
 import { useSupabase } from "@/components/supabase-provider";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { sendInvite } from "@/lib/send-invite";
 import { fetchFriends } from "@/lib/friends/fetch-friends";
-import { addFriend } from "@/lib/friends/add-friend";
 import { removeFriend } from "@/lib/friends/remove-friend";
 import { FriendStatsModal } from "@/components/friendsStatsModal";
+import ChallengeFriendModal from "@/components/challenge-friend-modal";
 
 export function FriendsList() {
   const { supabase, session } = useSupabase();
   const [friends, setFriends] = useState<any[]>([]);
-  const [searchName, setSearchName] = useState("");
-  const [searchResult, setSearchResult] = useState<any | null>(null);
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [selectedFriendName, setSelectedFriendName] = useState<string>("");
 
-  // visa full_name om det finns, annars email
+  // Modal: challenge friend
+  const [challengeFriend, setChallengeFriend] = useState<{
+    id: string;
+    label: string;
+  } | null>(null);
+
   const nameOf = (p?: { full_name?: string | null; email?: string | null }) => {
     const n = (p?.full_name ?? "").trim();
     return n.length > 0 ? n : (p?.email ?? "Unknown");
@@ -47,75 +42,6 @@ export function FriendsList() {
     loadFriends();
   }, [loadFriends]);
 
-  const handleSearch = async () => {
-    if (!session || !searchName.trim()) return;
-
-    const trimmed = searchName.trim();
-    let foundProfiles: any[] = [];
-
-    // Hämta endast det du behöver: id, full_name, email
-    const { data: nameMatches, error: nameError } = await supabase
-      .from("profiles")
-      .select("id, full_name, email")
-      .ilike("full_name", `%${trimmed}%`);
-
-    if (nameError) {
-      toast.error("Search failed", { description: nameError.message });
-      return;
-    }
-
-    if (nameMatches && nameMatches.length > 0) {
-      foundProfiles = nameMatches;
-    } else {
-      const { data: emailMatch, error: emailError } = await supabase
-        .from("profiles")
-        .select("id, full_name, email")
-        .eq("email", trimmed);
-
-      if (emailError) {
-        toast.error("Email search failed", { description: emailError.message });
-        return;
-      }
-
-      if (emailMatch && emailMatch.length > 0) {
-        foundProfiles = emailMatch;
-      }
-    }
-
-    if (foundProfiles.length > 0) {
-      const filtered = foundProfiles.filter(
-        (person) =>
-          person.id !== session.user.id &&
-          !friends.some((f) => f.friend_id === person.id)
-      );
-
-      setSearchResult(filtered.length > 0 ? filtered[0] : null);
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (emailRegex.test(trimmed)) {
-        await sendInvite(trimmed);
-      } else {
-        toast.error("No match", {
-          description: "No match found and input is not an email address.",
-        });
-      }
-      setSearchResult(null);
-    }
-  };
-
-  const handleAddFriend = async () => {
-    if (!session || !searchResult) return;
-    try {
-      await addFriend(supabase, session.user.id, searchResult.id);
-      toast.success("Friend added!");
-      setSearchResult(null);
-      setSearchName("");
-      loadFriends();
-    } catch (err: any) {
-      toast.error("Failed to add friend", { description: err.message });
-    }
-  };
-
   const handleRemoveFriend = async (friendId: string) => {
     if (!session) return;
     try {
@@ -131,93 +57,83 @@ export function FriendsList() {
     <Card className="w-full bg-[#2B2B29] text-white border-none">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Find Your Friends</CardTitle>
+          <CardTitle>Friend list</CardTitle>
         </div>
-        <CardDescription className="text-white">
-          Track your friends progress in the challenge
-        </CardDescription>
       </CardHeader>
 
       <CardContent>
-        <div className="relative mb-4 flex gap-2">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search by name or email..."
-            className="pl-8 placeholder:text-sm"
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-          />
-          <Button
-            className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-            size="sm"
-            onClick={handleSearch}
-          >
-            <UserPlus className="mr-1 h-4 w-4" />
-            Find
-          </Button>
-        </div>
-
-        {searchResult && (
-          <div className="mb-4 flex items-center justify-between rounded border p-2">
-            <div>
-              <div className="font-medium">{nameOf(searchResult)}</div>
-              {/* valfritt: visa e-post i liten text */}
-              {/* <div className="text-xs text-white/60">{searchResult.email}</div> */}
+        {/* Inner container – samma stil som i Active challenges */}
+        <div className="rounded-xl bg-[#242422] border border-white/5 overflow-hidden">
+          {friends.length === 0 ? (
+            <div className="px-4 py-6 text-sm text-white/70">
+              No friends yet.
             </div>
-            <Button
-              onClick={handleAddFriend}
-              size="sm"
-              className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-            >
-              Add Friend
-            </Button>
-          </div>
-        )}
+          ) : (
+            friends.map((friend, idx) => {
+              const p = friend.profiles;
+              const display = nameOf(p);
+              const notLast = idx < friends.length - 1;
 
-        <div className="space-y-4">
-          {friends.map((friend) => {
-            const p = friend.profiles; // { id, full_name, email, ... }
-            const display = nameOf(p);
+              return (
+                <div
+                  key={friend.friend_id}
+                  className={[
+                    "px-4 py-3 flex items-center justify-between",
+                    notLast ? "border-b border-white/5" : "",
+                  ].join(" ")}
+                >
+                  <div className="flex items-center gap-2">
+                    <Calendar
+                      className="h-4 w-4 text-[#157FBF] cursor-pointer"
+                      onClick={() => {
+                        setSelectedFriendId(friend.friend_id);
+                        setSelectedFriendName(display);
+                      }}
+                    />
+                    <button
+                      className="font-medium text-left hover:underline decoration-white/20"
+                      onClick={() => {
+                        setSelectedFriendId(friend.friend_id);
+                        setSelectedFriendName(display);
+                      }}
+                    >
+                      {display}
+                    </button>
+                  </div>
 
-            return (
-              <div
-                key={friend.friend_id}
-                className="flex items-center justify-between gap-4 rounded p-2"
-              >
-                <div className="flex items-center gap-1">
-                  <Calendar
-                    className="h-4 w-4 text-[#157FBF] cursor-pointer"
-                    onClick={() => {
-                      setSelectedFriendId(friend.friend_id);
-                      setSelectedFriendName(display);
-                    }}
-                  />
-                  <div
-                    className="font-medium cursor-pointer"
-                    onClick={() => {
-                      setSelectedFriendId(friend.friend_id);
-                      setSelectedFriendName(display);
-                    }}
-                  >
-                    {display}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
+                      onClick={() =>
+                        setChallengeFriend({
+                          id: friend.friend_id as string,
+                          label: display,
+                        })
+                      }
+                      title="Challenge your friend"
+                    >
+                      <Swords className="h-4 w-4 mr-1" />
+                      Challenge
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveFriend(friend.friend_id)}
+                      title="Remove friend"
+                    >
+                      <X className="h-4 w-4 text-[#157FBF]" />
+                    </Button>
                   </div>
                 </div>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemoveFriend(friend.friend_id)}
-                  title="Remove friend"
-                >
-                  <X className="h-4 w-4 text-[#157FBF]" />
-                </Button>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </CardContent>
 
+      {/* Friend stats modal */}
       {selectedFriendId && (
         <FriendStatsModal
           supabase={supabase}
@@ -225,6 +141,15 @@ export function FriendsList() {
           fullName={selectedFriendName}
           open={!!selectedFriendId}
           onClose={() => setSelectedFriendId(null)}
+        />
+      )}
+
+      {/* Challenge modal */}
+      {challengeFriend && (
+        <ChallengeFriendModal
+          friendId={challengeFriend.id}
+          friendLabel={challengeFriend.label}
+          onClose={() => setChallengeFriend(null)}
         />
       )}
     </Card>

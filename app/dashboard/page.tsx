@@ -20,6 +20,8 @@ import { ChallengeSection } from "@/components/dashboard/challengeSection";
 import { TabsSection } from "@/components/dashboard/tabsSection";
 import { FailedChallengeModal } from "@/components/dashboard/failedChallengeModal";
 import LayoutWrapper from "@/components/layout-wrapper";
+import { useBuddy } from "@/lib/hooks/use-buddy";
+import { useChallengeActions } from "@/lib/hooks/use-challenge-actions";
 
 export default function Dashboard() {
   const [challengeLength, setChallengeLength] = useState(30);
@@ -29,54 +31,76 @@ export default function Dashboard() {
   const [challengeActive, setChallengeActive] = useState(false);
   const [challengeFailed, setChallengeFailed] = useState(false);
   const [open, setOpen] = useState(false);
+
   const { supabase, session, initialLoading } = useSupabase();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  //eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [profile, setProfile] = useState<any>(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [profile, setProfile] = useState<any>(null);
   const { stats, fetchBathData } = useBathStats(
     supabase,
     session?.user.id,
     challengeStartedAt
   );
 
+  const { buddy, fetchBuddy } = useBuddy(
+    supabase,
+    session?.user.id,
+    challengeActive
+  );
+
+  const {
+    startChallenge: dbStart,
+    cancelChallenge: dbCancel,
+    resetChallenge: dbReset,
+  } = useChallengeActions(supabase, session?.user.id);
+
+  const refreshAll = useCallback(async () => {
+    if (!session) return;
+    setLoading(true);
+
+    const prof = await loadOrCreateUserProfile(supabase, session.user);
+    setProfile(prof);
+    setChallengeLength(prof.challenge_length ?? 30);
+    setChallengeStartedAt(prof.challenge_started_at ?? null);
+    setChallengeActive(prof.challenge_active ?? false);
+
+    await fetchBathData();
+    await fetchBuddy();
+
+    setLoading(false);
+  }, [session, supabase, fetchBathData, fetchBuddy]);
+
   useEffect(() => {
     const init = async () => {
       if (initialLoading) return;
+
       if (!session) {
         router.push("/login");
         return;
       }
 
-      setLoading(true);
-      const profile = await loadOrCreateUserProfile(supabase, session.user);
-      setProfile(profile);
-      setChallengeLength(profile.challenge_length ?? 30);
-      setChallengeStartedAt(profile.challenge_started_at ?? null);
-      setChallengeActive(profile.challenge_active ?? false);
-      await fetchBathData();
-      setLoading(false);
+      await refreshAll();
 
       if (window.location.hash === "#recent-activity") {
         const el = document.getElementById("recent-activity");
         if (el)
           setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
       }
-
       if (window.location.hash === "#calendar-section") {
         const el = document.getElementById("calendar-section");
         if (el)
           setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
       }
 
-      if (profile.challenge_active && profile.challenge_started_at && stats) {
+      if (profile?.challenge_active && profile?.challenge_started_at && stats) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         const hasBatchedToday = stats.activities.some(
-          (activity) =>
-            new Date(activity.date).toDateString() === today.toDateString()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (a: any) => new Date(a.date).toDateString() === today.toDateString()
         );
 
         if (!hasBatchedToday) {
@@ -84,12 +108,11 @@ export default function Dashboard() {
           yesterday.setDate(today.getDate() - 1);
 
           const missedYesterday = !stats.activities.some(
-            (activity) =>
-              new Date(activity.date).toDateString() ===
-              yesterday.toDateString()
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (a: any) =>
+              new Date(a.date).toDateString() === yesterday.toDateString()
           );
 
-          // Missade gårdagens bad → fail
           if (
             missedYesterday &&
             today.toDateString() !==
@@ -102,58 +125,55 @@ export default function Dashboard() {
       }
     };
 
-    init();
-  }, [initialLoading, session, router, supabase, fetchBathData]);
+    void init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLoading, session, router, refreshAll]);
+
+  useEffect(() => {
+    const handler = () => {
+      void refreshAll();
+    };
+    window.addEventListener("challenge-started", handler as EventListener);
+    return () =>
+      window.removeEventListener("challenge-started", handler as EventListener);
+  }, [refreshAll]);
 
   const startChallenge = async (days: number) => {
     if (!session) return;
     const today = new Date().toISOString().split("T")[0];
+
     setChallengeLength(days);
     setChallengeStartedAt(today);
     setChallengeActive(true);
-    await supabase
-      .from("profiles")
-      .update({
-        challenge_length: days,
-        challenge_started_at: today,
-        challenge_active: true,
-      })
-      .eq("id", session.user.id);
-    await fetchBathData(); // Uppdatera data direkt efter start
+
+    await dbStart(days, today);
+    await Promise.all([fetchBathData(), fetchBuddy()]);
   };
 
   const cancelChallenge = async () => {
     if (!session) return;
+
     setChallengeActive(false);
     setChallengeStartedAt(null);
-    await supabase
-      .from("profiles")
-      .update({
-        challenge_active: false,
-        challenge_started_at: null,
-      })
-      .eq("id", session.user.id);
-    await fetchBathData(); // 🧠 Detta gör att progress uppdateras direkt
+
+    await dbCancel();
+    await Promise.all([fetchBathData(), fetchBuddy()]);
   };
 
   const resetChallenge = useCallback(async () => {
     if (!session) return;
+
     setChallengeActive(false);
     setChallengeStartedAt(null);
     setChallengeLength(30);
-    await supabase
-      .from("profiles")
-      .update({
-        challenge_active: false,
-        challenge_started_at: null,
-        challenge_length: 30,
-      })
-      .eq("id", session.user.id);
-    await fetchBathData(); // Uppdatera även vid reset
-  }, [session, supabase, fetchBathData]);
 
-  if (loading || initialLoading)
+    await dbReset();
+    await Promise.all([fetchBathData(), fetchBuddy()]);
+  }, [session, dbReset, fetchBathData, fetchBuddy]);
+
+  if (loading || initialLoading) {
     return <div className="container py-10 text-white">Loading...</div>;
+  }
 
   return (
     <LayoutWrapper>
@@ -170,6 +190,7 @@ export default function Dashboard() {
           startChallenge={startChallenge}
           cancelChallenge={cancelChallenge}
           resetChallenge={resetChallenge}
+          buddy={challengeActive ? buddy : null}
         />
 
         <Card className="bg-[#242422] border-none text-white w-full lg:col-span-2">
@@ -184,13 +205,13 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <TabsSection />
+        <TabsSection layout="stacked" />
 
         <AddBathModal
           open={open}
           setOpen={setOpen}
-          onBathAdded={() => {
-            fetchBathData();
+          onBathAdded={async () => {
+            await Promise.all([fetchBathData(), fetchBuddy()]);
             setOpen(false);
           }}
         />
