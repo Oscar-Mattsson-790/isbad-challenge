@@ -1,13 +1,17 @@
 "use client";
+
 import { useEffect, useMemo, useState } from "react";
 import { fetchLeaderboard } from "@/lib/fetch-leaderboard";
 import { useSupabase } from "@/components/supabase-provider";
 import type { LeaderboardRow } from "@/types/supabase";
 
+type SortBy = "baths" | "challenges";
+
 export function LeaderboardTable() {
   const { supabase } = useSupabase();
   const [data, setData] = useState<LeaderboardRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<SortBy>("baths");
 
   useEffect(() => {
     const load = async () => {
@@ -19,23 +23,22 @@ export function LeaderboardTable() {
     load();
   }, [supabase]);
 
-  // Sortera alltid på antal bad (fallande)
   const sortedData = useMemo(() => {
     const copy = [...data];
-    return copy.sort((a, b) => b.bath_count - a.bath_count);
-  }, [data]);
+    return copy.sort((a, b) =>
+      sortBy === "baths"
+        ? b.bath_count - a.bath_count
+        : b.challenges_completed - a.challenges_completed
+    );
+  }, [data, sortBy]);
 
   const maxBaths = useMemo(() => {
     const vals = sortedData.map((u) => u.bath_count);
     return Math.max(1, ...vals);
   }, [sortedData]);
 
-  const rankBadge = (i: number) => {
-    if (i === 0) return "🥇";
-    if (i === 1) return "🥈";
-    if (i === 2) return "🥉";
-    return `${i + 1}.`;
-  };
+  const rankBadge = (i: number) =>
+    i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4">
@@ -51,10 +54,22 @@ export function LeaderboardTable() {
             </p>
           </div>
 
-          {/* Litet "badge" som visar vad listan rankar på */}
-          <div className="inline-flex items-center rounded-lg bg-white/10 px-3 py-1.5 text-sm">
-            Ranking by{" "}
-            <span className="mx-1 font-medium text-[#157FBF]">baths</span>
+          {/* Sort toggle */}
+          <div className="inline-flex items-center rounded-lg bg-white/10 p-1 text-sm">
+            <button
+              className={`px-3 py-1.5 rounded-md ${sortBy === "baths" ? "bg-[#157FBF]" : "hover:bg-white/10"}`}
+              onClick={() => setSortBy("baths")}
+              aria-pressed={sortBy === "baths"}
+            >
+              baths
+            </button>
+            <button
+              className={`px-3 py-1.5 rounded-md ${sortBy === "challenges" ? "bg-[#157FBF]" : "hover:bg-white/10"}`}
+              onClick={() => setSortBy("challenges")}
+              aria-pressed={sortBy === "challenges"}
+            >
+              challenges
+            </button>
           </div>
         </div>
 
@@ -71,7 +86,6 @@ export function LeaderboardTable() {
           {loading && (
             <div className="p-6 text-white/70">Loading leaderboard…</div>
           )}
-
           {!loading && sortedData.length === 0 && (
             <div className="p-6 text-white/70">No leaderboard data yet.</div>
           )}
@@ -88,23 +102,19 @@ export function LeaderboardTable() {
                   key={`${u.full_name}-${i}`}
                   className="px-5 md:px-6 py-4 hover:bg-white/5 transition-colors"
                 >
-                  {/* Desktop row */}
+                  {/* Desktop */}
                   <div className="hidden md:grid grid-cols-12 gap-3 items-center">
                     <div className="col-span-1 text-white/90">
                       {rankBadge(i)}
                     </div>
-
                     <div className="col-span-6 font-medium">{u.full_name}</div>
-
                     <div className="col-span-2 text-right tabular-nums">
                       {u.bath_count}
                     </div>
-
                     <div className="col-span-3 text-right tabular-nums">
                       {u.challenges_completed}
                     </div>
 
-                    {/* Progressbar */}
                     <div className="col-span-12 mt-2">
                       <div className="h-2 w-full rounded bg-white/10">
                         <div
@@ -118,7 +128,7 @@ export function LeaderboardTable() {
                     </div>
                   </div>
 
-                  {/* Mobile row */}
+                  {/* Mobile */}
                   <div className="md:hidden">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
