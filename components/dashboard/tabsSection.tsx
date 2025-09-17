@@ -53,12 +53,13 @@ export function TabsSection({ layout = "tabs" }: Props) {
 
     const { data: me } = await supabase
       .from("profiles")
-      .select("challenge_active, challenge_started_at")
+      .select("challenge_active, challenge_started_at, challenge_length")
       .eq("id", session.user.id)
       .maybeSingle();
 
     const iAmActive = !!me?.challenge_active;
     const iStart = me?.challenge_started_at ?? null;
+    const iLen = me?.challenge_length ?? 30;
     setMyActive(iAmActive);
 
     const { data: friends } = await supabase
@@ -78,7 +79,7 @@ export function TabsSection({ layout = "tabs" }: Props) {
 
     const rows: ActivePair[] = [];
     for (const f of friends) {
-      // @ts-expect-error join alias
+      // @ts-expect-error alias
       const p = f?.profiles as {
         full_name: string | null;
         email: string | null;
@@ -92,11 +93,19 @@ export function TabsSection({ layout = "tabs" }: Props) {
       const friendStart = p.challenge_started_at;
       const friendLen = p.challenge_length ?? 30;
 
+      const pairStart =
+        iStart && friendStart
+          ? iStart > friendStart
+            ? iStart
+            : friendStart
+          : friendStart;
+      const pairLen = Math.min(iLen, friendLen);
+
       const { data: friendBaths } = await supabase
         .from("baths")
         .select("date")
         .eq("user_id", f.friend_id as string)
-        .gte("date", friendStart);
+        .gte("date", pairStart);
 
       const friendProgress = countUniqueDates(friendBaths ?? []);
       const label =
@@ -108,7 +117,7 @@ export function TabsSection({ layout = "tabs" }: Props) {
         friendId: f.friend_id as string,
         friendLabel: label,
         friendProgress,
-        friendLength: friendLen,
+        friendLength: pairLen,
       });
     }
 
