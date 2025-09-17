@@ -97,30 +97,22 @@ export default function Dashboard() {
       if (profile?.challenge_active && profile?.challenge_started_at && stats) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
 
-        const hasBatchedToday = stats.activities.some(
+        const isFirstDay =
+          today.toDateString() ===
+          new Date(profile.challenge_started_at).toDateString();
+
+        const missedYesterday = !stats.activities.some(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (a: any) => new Date(a.date).toDateString() === today.toDateString()
+          (a: any) =>
+            new Date(a.date).toDateString() === yesterday.toDateString()
         );
 
-        if (!hasBatchedToday) {
-          const yesterday = new Date(today);
-          yesterday.setDate(today.getDate() - 1);
-
-          const missedYesterday = !stats.activities.some(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (a: any) =>
-              new Date(a.date).toDateString() === yesterday.toDateString()
-          );
-
-          if (
-            missedYesterday &&
-            today.toDateString() !==
-              new Date(profile.challenge_started_at).toDateString()
-          ) {
-            setChallengeFailed(true);
-            await resetChallenge();
-          }
+        if (missedYesterday && !isFirstDay) {
+          setChallengeFailed(true);
+          await resetChallenge();
         }
       }
     };
@@ -147,6 +139,21 @@ export default function Dashboard() {
     setChallengeActive(true);
 
     await dbStart(days, today);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (buddy && (buddy as any).friendId) {
+      await fetch("/api/challenge-start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          friendId: (buddy as any).friendId,
+          length: days,
+          force: true,
+        }),
+      }).catch(() => {});
+    }
+
     await Promise.all([fetchBathData(), fetchBuddy()]);
   };
 
@@ -166,8 +173,8 @@ export default function Dashboard() {
     setChallengeActive(false);
     setChallengeStartedAt(null);
     setChallengeLength(30);
-
     await dbReset();
+
     await Promise.all([fetchBathData(), fetchBuddy()]);
   }, [session, dbReset, fetchBathData, fetchBuddy]);
 
