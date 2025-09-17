@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
 
 export type Buddy = {
+  friendId: string;
   friendName: string;
   friendProgress: number;
   friendLength: number;
@@ -26,6 +27,15 @@ export function useBuddy(
       return;
     }
 
+    const { data: me } = await supabase
+      .from("profiles")
+      .select("challenge_started_at, challenge_length, challenge_active")
+      .eq("id", userId)
+      .maybeSingle();
+
+    const myStart = me?.challenge_started_at ?? null;
+    const myLen = me?.challenge_length ?? 30;
+
     const { data: fr } = await supabase
       .from("friends")
       .select(
@@ -37,7 +47,7 @@ export function useBuddy(
       .limit(1)
       .maybeSingle();
 
-    // @ts-expect-error – Supabase alias-join
+    // @ts-expect-error – alias join
     const p = fr?.profiles as {
       full_name: string | null;
       email: string | null;
@@ -62,15 +72,22 @@ export function useBuddy(
     const friendStart = p.challenge_started_at!;
     const friendLen = p.challenge_length ?? 30;
 
+    const pairStart =
+      myStart && friendStart
+        ? myStart > friendStart
+          ? myStart
+          : friendStart
+        : friendStart;
+    const pairLen = Math.min(myLen, friendLen);
+
     const { data: friendBaths } = await supabase
       .from("baths")
       .select("date")
       .eq("user_id", friendId)
-      .gte("date", friendStart);
+      .gte("date", pairStart);
 
     const friendProgress = countUniqueDates(friendBaths ?? []);
-
-    setBuddy({ friendName, friendProgress, friendLength: friendLen });
+    setBuddy({ friendId, friendName, friendProgress, friendLength: pairLen });
   }, [supabase, userId, challengeActive]);
 
   return { buddy, setBuddy, fetchBuddy };
