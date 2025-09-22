@@ -1,7 +1,8 @@
+// components/add-bath-modal.tsx
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSupabase } from "@/components/supabase-provider";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -30,6 +31,10 @@ interface AddBathModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   onBathAdded: () => void;
+
+  // nya – om satta visas inte duration-steget och värdet används vid spar
+  presetDurationSec?: number;
+  hideDuration?: boolean;
 }
 
 const emojis = ["😊", "😎", "🥶", "💪", "🔥", "😁", "😌"];
@@ -38,11 +43,30 @@ export default function AddBathModal({
   open,
   setOpen,
   onBathAdded,
+  presetDurationSec,
+  hideDuration = false,
 }: AddBathModalProps) {
   const [date, setDate] = useState<Date>(new Date());
-  const [time, setTime] = useState("08:00");
+  const [time, setTime] = useState(() => {
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mm = String(d.getMinutes()).padStart(2, "0");
+    return `${hh}:${mm}`;
+  });
+
   const [durationMinutes, setDurationMinutes] = useState("1");
   const [durationSeconds, setDurationSeconds] = useState("30");
+
+  // Om presetDurationSec finns – sätt defaultvärden från timern
+  useEffect(() => {
+    if (typeof presetDurationSec === "number") {
+      const mins = Math.floor(presetDurationSec / 60);
+      const secs = presetDurationSec % 60;
+      setDurationMinutes(String(mins));
+      setDurationSeconds(String(secs));
+    }
+  }, [presetDurationSec]);
+
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -56,14 +80,21 @@ export default function AddBathModal({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setFile(file);
-
       const reader = new FileReader();
-      reader.onload = (event) => {
-        setPhotoPreview(event.target?.result as string);
-      };
+      reader.onload = (ev) => setPhotoPreview(ev.target?.result as string);
       reader.readAsDataURL(file);
     }
   };
+
+  const durationString = useMemo(() => {
+    // använd preset om den finns, annars UI-värden
+    if (typeof presetDurationSec === "number") {
+      const mins = Math.floor(presetDurationSec / 60);
+      const secs = presetDurationSec % 60;
+      return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+    return `${durationMinutes.padStart(2, "0")}:${durationSeconds.padStart(2, "0")}`;
+  }, [presetDurationSec, durationMinutes, durationSeconds]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +107,7 @@ export default function AddBathModal({
 
     if (!file) {
       setOpen(false);
-      setShowImagePrompt(true); // Show prompt if no image
+      setShowImagePrompt(true);
       return;
     }
 
@@ -86,9 +117,7 @@ export default function AddBathModal({
   const submitBath = async () => {
     if (!session) return;
 
-    const duration = `${durationMinutes.padStart(2, "0")}:${durationSeconds.padStart(2, "0")}`;
     let proof_url: string | null = null;
-
     if (file) {
       const fileExt = file.name.split(".").pop();
       const fileName = `${uuidv4()}.${fileExt}`;
@@ -115,7 +144,7 @@ export default function AddBathModal({
       user_id: session.user.id,
       date: getLocalDate(date),
       time,
-      duration,
+      duration: durationString, // 👈 kommer från timer om preset fanns
       feeling: selectedEmoji ?? "",
       proof_url,
       type: bathType,
@@ -127,16 +156,11 @@ export default function AddBathModal({
     }
 
     toast.success("Ice bath recorded🧊", {
-      description: `Your ice bath on ${format(date, "PPP", {
-        locale: enUS,
-      })} has been saved.`,
+      description: `Your ice bath on ${format(date, "PPP", { locale: enUS })} has been saved.`,
     });
 
     setOpen(false);
     setDate(new Date());
-    setTime("08:00");
-    setDurationMinutes("1");
-    setDurationSeconds("30");
     setSelectedEmoji("😊");
     setFile(null);
     setPhotoPreview(null);
@@ -154,8 +178,10 @@ export default function AddBathModal({
               Log a new ice bath
             </DialogTitle>
           </DialogHeader>
+
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
+              {/* 1. Bath type */}
               <Label>
                 <span className="w-6 h-6 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
                   1
@@ -163,77 +189,38 @@ export default function AddBathModal({
                 How did you take your ice bath?
               </Label>
               <div className="flex gap-2 justify-center">
-                {/* TUB */}
-                <div className="flex flex-col items-center">
-                  <Button
-                    type="button"
-                    className={`bg-[#2B2B29] text-white border-none rounded-xl p-8 transition-all
-                      ${
-                        bathType === "tub"
+                {(["tub", "shower", "outside"] as const).map((t) => (
+                  <div key={t} className="flex flex-col items-center">
+                    <Button
+                      type="button"
+                      className={`bg-[#2B2B29] text-white border-none rounded-xl p-8 transition-all ${
+                        bathType === t
                           ? "ring-2 ring-[#157FBF] shadow-[0_4px_20px_0_#157FBF]"
                           : "hover:shadow-[0_4px_20px_0_#157FBF]"
-                      }
-                    `}
-                    onClick={() => setBathType("tub")}
-                  >
-                    <Image
-                      src="/images/ice bath icon.png"
-                      width={64}
-                      height={64}
-                      alt="ice bath tub"
-                    />
-                  </Button>
-                  <span className="text-xs">ice bath</span>
-                </div>
-
-                {/* SHOWER */}
-                <div className="flex flex-col items-center">
-                  <Button
-                    type="button"
-                    className={`bg-[#2B2B29] text-white border-none rounded-xl p-8 transition-all
-                      ${
-                        bathType === "shower"
-                          ? "ring-2 ring-[#157FBF] shadow-[0_4px_20px_0_#157FBF]"
-                          : "hover:shadow-[0_4px_20px_0_#157FBF]"
-                      }
-                    `}
-                    onClick={() => setBathType("shower")}
-                  >
-                    <Image
-                      src="/images/cold shower icon.png"
-                      width={64}
-                      height={64}
-                      alt="cold shower icon"
-                    />
-                  </Button>
-                  <span className="text-xs">cold shower</span>
-                </div>
-
-                {/* OUTSIDE */}
-                <div className="flex flex-col items-center">
-                  <Button
-                    type="button"
-                    className={`bg-[#2B2B29] text-white border-none rounded-xl p-8 transition-all
-                      ${
-                        bathType === "outside"
-                          ? "ring-2 ring-[#157FBF] shadow-[0_4px_20px_0_#157FBF]"
-                          : "hover:shadow-[0_4px_20px_0_#157FBF]"
-                      }
-                    `}
-                    onClick={() => setBathType("outside")}
-                  >
-                    <Image
-                      src="/images/outside icon.png"
-                      width={64}
-                      height={64}
-                      alt="outside ice bath icon"
-                    />
-                  </Button>
-                  <span className="text-xs">outside</span>
-                </div>
+                      }`}
+                      onClick={() => setBathType(t)}
+                    >
+                      <Image
+                        src={
+                          t === "tub"
+                            ? "/images/ice bath icon.png"
+                            : t === "shower"
+                              ? "/images/cold shower icon.png"
+                              : "/images/outside icon.png"
+                        }
+                        width={64}
+                        height={64}
+                        alt={`${t} icon`}
+                      />
+                    </Button>
+                    <span className="text-xs">
+                      {t === "tub" ? "ice bath" : t}
+                    </span>
+                  </div>
+                ))}
               </div>
 
-              {/* TIME & DATE */}
+              {/* 2. Time & date */}
               <div className="grid gap-2">
                 <Label htmlFor="time">
                   <span className="w-6 h-6 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
@@ -303,47 +290,49 @@ export default function AddBathModal({
                 </div>
               </div>
 
-              {/* DURATION */}
-              <div className="grid gap-2">
-                <Label>
-                  <span className="w-6 h-6 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
-                    3
-                  </span>
-                  How long did you stay in the water?
-                </Label>
-                <div className="flex gap-2">
-                  <div className="flex flex-col">
-                    <span className="text-sm">Minutes</span>
-                    <select
-                      value={durationMinutes}
-                      onChange={(e) => setDurationMinutes(e.target.value)}
-                      className="border rounded px-2 py-1 bg-white text-black"
-                    >
-                      {[...Array(31).keys()].map((min) => (
-                        <option key={min} value={min.toString()}>
-                          {min.toString().padStart(2, "0")}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm">Seconds</span>
-                    <select
-                      value={durationSeconds}
-                      onChange={(e) => setDurationSeconds(e.target.value)}
-                      className="border rounded px-2 py-1 bg-white text-black"
-                    >
-                      {[...Array(60).keys()].map((sec) => (
-                        <option key={sec} value={sec.toString()}>
-                          {sec.toString().padStart(2, "0")}
-                        </option>
-                      ))}
-                    </select>
+              {/* 3. Duration (göms om preset finns) */}
+              {!hideDuration && (
+                <div className="grid gap-2">
+                  <Label>
+                    <span className="w-6 h-6 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
+                      3
+                    </span>
+                    How long did you stay in the water?
+                  </Label>
+                  <div className="flex gap-2">
+                    <div className="flex flex-col">
+                      <span className="text-sm">Minutes</span>
+                      <select
+                        value={durationMinutes}
+                        onChange={(e) => setDurationMinutes(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white text-black"
+                      >
+                        {[...Array(31).keys()].map((min) => (
+                          <option key={min} value={min.toString()}>
+                            {min.toString().padStart(2, "0")}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm">Seconds</span>
+                      <select
+                        value={durationSeconds}
+                        onChange={(e) => setDurationSeconds(e.target.value)}
+                        className="border rounded px-2 py-1 bg-white text-black"
+                      >
+                        {[...Array(60).keys()].map((sec) => (
+                          <option key={sec} value={sec.toString()}>
+                            {sec.toString().padStart(2, "0")}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* EMOJIS */}
+              {/* 4. Emojis */}
               <div className="grid gap-2">
                 <Label>
                   <span className="w-6 h-6 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
@@ -356,13 +345,11 @@ export default function AddBathModal({
                     <Button
                       key={emoji}
                       type="button"
-                      className={`bg-[#2B2B29] text-white border-none rounded-xl p-4 transition-all text-xl
-                        ${
-                          selectedEmoji === emoji
-                            ? "ring-2 ring-[#157FBF] shadow-[0_4px_20px_0_#157FBF]"
-                            : "hover:shadow-[0_4px_20px_0_#157FBF]"
-                        }
-                      `}
+                      className={`bg-[#2B2B29] text-white border-none rounded-xl p-4 transition-all text-xl ${
+                        selectedEmoji === emoji
+                          ? "ring-2 ring-[#157FBF] shadow-[0_4px_20px_0_#157FBF]"
+                          : "hover:shadow-[0_4px_20px_0_#157FBF]"
+                      }`}
                       onClick={() => setSelectedEmoji(emoji)}
                     >
                       {emoji}
@@ -371,7 +358,7 @@ export default function AddBathModal({
                 </div>
               </div>
 
-              {/* FILE UPLOAD */}
+              {/* 5. Proof */}
               <div className="grid gap-2">
                 <Label htmlFor="photo">
                   <span className="w-6 h-6 rounded-full bg-[#157FBF] text-white flex items-center justify-center text-sm font-bold">
@@ -425,7 +412,7 @@ export default function AddBathModal({
         </DialogContent>
       </Dialog>
 
-      {/* Image prompt if no image */}
+      {/* prompt om man saknar bild */}
       {showImagePrompt && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
           <div className="bg-[#2B2B29] text-white p-6 rounded-xl shadow-lg max-w-sm w-full">

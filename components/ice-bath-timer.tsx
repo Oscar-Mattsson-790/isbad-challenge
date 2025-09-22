@@ -1,7 +1,6 @@
-// components/ice-bath-timer.tsx
 "use client";
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Play, Pause, RotateCcw } from "lucide-react";
@@ -9,14 +8,47 @@ import Image from "next/image";
 import { useStopwatch } from "@/lib/hooks/useStopwatch";
 import { SoundLevel, useIceSounds } from "@/lib/hooks/useIceSounds";
 
-export default function IceBathTimer() {
-  const [soundLevel, setSoundLevel] = useState<SoundLevel>(2);
-  const [running, setRunning] = useState<boolean>(false);
-  const [showLogButton, setShowLogButton] = useState<boolean>(false);
-  const victoryFiredRef = useRef<boolean>(false);
+type Props = {
+  onAddSession?: (durationMs: number) => void;
+};
 
-  const { ms, reset } = useStopwatch(running, 100);
+const PENDING_KEY = "timer.pending";
+const MS_KEY = "timer.ms";
+
+export default function IceBathTimer({ onAddSession }: Props) {
+  const [soundLevel, setSoundLevel] = useState<SoundLevel>(2);
+  const [running, setRunning] = useState(false);
+  const [showLogButton, setShowLogButton] = useState(false);
+  const victoryFiredRef = useRef(false);
+
+  const { ms, setMs, reset } = useStopwatch(running, 100);
   const { playClick, playVictory } = useIceSounds(soundLevel, running);
+
+  // Restore pending state on mount
+  useEffect(() => {
+    try {
+      const pending = localStorage.getItem(PENDING_KEY) === "1";
+      const storedMs = Number(localStorage.getItem(MS_KEY) ?? "0");
+      if (pending && storedMs > 0) {
+        setShowLogButton(true);
+        setMs(storedMs); // show the time you had when you hit STOP
+      }
+    } catch {}
+  }, [setMs]);
+
+  // Allow parent to tell us a session was saved
+  useEffect(() => {
+    const onLogged = () => {
+      clearPending();
+      setShowLogButton(false);
+    };
+    window.addEventListener("timer-session-logged", onLogged as EventListener);
+    return () =>
+      window.removeEventListener(
+        "timer-session-logged",
+        onLogged as EventListener
+      );
+  }, []);
 
   const formatTime = (totalMs: number) => {
     const mins = Math.floor(totalMs / 60000);
@@ -35,49 +67,71 @@ export default function IceBathTimer() {
     return "Ice warrior mode activated! 🧊";
   }, [seconds]);
 
-  // Trigga segerljud en gång efter 180s
   if (running && seconds >= 180 && !victoryFiredRef.current) {
     victoryFiredRef.current = true;
     playVictory();
   }
   if (!running && seconds < 180 && victoryFiredRef.current) {
-    // om man nollat och kör igen
     victoryFiredRef.current = false;
   }
 
+  const vibrate = () =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    "vibrate" in navigator ? (navigator as any).vibrate?.(50) : undefined;
+
+  const setPending = (val: boolean, atMs: number) => {
+    try {
+      if (val) {
+        localStorage.setItem(PENDING_KEY, "1");
+        localStorage.setItem(MS_KEY, String(atMs));
+      } else {
+        clearPending();
+      }
+    } catch {}
+  };
+
+  const clearPending = () => {
+    try {
+      localStorage.removeItem(PENDING_KEY);
+      localStorage.removeItem(MS_KEY);
+    } catch {}
+  };
+
   const handleStart = () => {
     playClick();
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ("vibrate" in navigator) (navigator as any).vibrate?.(50);
+    vibrate();
     setRunning(true);
     setShowLogButton(false);
+    // When starting again, any previous pending session is no longer relevant.
+    clearPending();
   };
 
   const handleStop = () => {
     playClick();
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ("vibrate" in navigator) (navigator as any).vibrate?.(50);
+    vibrate();
     setRunning(false);
-    if (ms > 0) setShowLogButton(true);
+    if (ms > 0) {
+      setShowLogButton(true);
+      setPending(true, ms); // <— persist button + time
+    }
   };
 
   const handleReset = () => {
     playClick();
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ("vibrate" in navigator) (navigator as any).vibrate?.(50);
+    vibrate();
     setRunning(false);
     reset();
     setShowLogButton(false);
+    clearPending(); // <— button disappears on RESET
     victoryFiredRef.current = false;
   };
 
   const handleLog = () => {
     playClick();
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ("vibrate" in navigator) (navigator as any).vibrate?.(50);
-    // här kan du hooka in din DB-logik
-    console.log("Logged ice bath session:", formatTime(ms));
-    setShowLogButton(false);
+    vibrate();
+    onAddSession?.(ms); // open modal in parent
+    // DO NOT clear pending here — user might close the modal.
+    // We clear only on RESET or after successful save (parent dispatches event).
   };
 
   return (
@@ -91,7 +145,7 @@ export default function IceBathTimer() {
             height={28}
             className="opacity-80 sm:w-8 sm:h-8"
           />
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white/80 font-mono tracking-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white/80 tracking-tight">
             TIMER
           </h1>
           <Image
@@ -107,7 +161,7 @@ export default function IceBathTimer() {
       <Card className="relative overflow-hidden border-2 border-[#157FBF]/30 shadow-2xl bg-[#242422]">
         <CardContent className="p-4 sm:p-6 lg:p-8 text-center relative">
           <div className="flex justify-center items-center gap-3 mb-4">
-            <span className="text-white/60 text-xs font-mono">OFF</span>
+            <span className="text-white/60 text-xs">OFF</span>
             <input
               type="range"
               min={0}
@@ -121,7 +175,7 @@ export default function IceBathTimer() {
                 background: `linear-gradient(to right, #157FBF 0%, #157FBF ${(soundLevel / 2) * 100}%, #4a5568 ${(soundLevel / 2) * 100}%, #4a5568 100%)`,
               }}
             />
-            <span className="text-white/60 text-xs font-mono">HIGH</span>
+            <span className="text-white/60 text-xs">HIGH</span>
           </div>
 
           <div className={`mb-6 sm:mb-8 ${running ? "pulse-cold" : ""}`}>
@@ -143,29 +197,26 @@ export default function IceBathTimer() {
               <Button
                 onClick={handleStart}
                 size="lg"
-                className="flex items-center justify-center gap-2 px-4 sm:px-8 py-3 bg-[#157FBF] hover:bg-[#157FBF]/90 text-white font-semibold tracking-wide transition-all duration-200 hover:scale-105 flex-1 sm:flex-none sm:w-auto"
+                className="flex items-center gap-2 px-4 sm:px-8 py-3 bg-[#157FBF] hover:bg-[#157FBF]/90 text-white"
               >
-                <Play className="w-4 h-4 sm:w-5 sm:h-5" />
-                START
+                <Play className="w-4 h-4 sm:w-5 sm:h-5" /> START
               </Button>
             ) : (
               <Button
                 onClick={handleStop}
                 size="lg"
-                className="flex items-center justify-center gap-2 px-4 sm:px-8 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold tracking-wide transition-all duration-200 hover:scale-105 flex-1 sm:flex-none sm:w-auto"
+                className="flex items-center gap-2 px-4 sm:px-8 py-3 bg-gray-600 hover:bg-gray-500 text-white"
               >
-                <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
-                STOP
+                <Pause className="w-4 h-4 sm:w-5 sm:h-5" /> STOP
               </Button>
             )}
 
             <Button
               onClick={handleReset}
               size="lg"
-              className="flex items-center justify-center gap-2 px-3 sm:px-6 py-3 border-2 border-[#157FBF] text-[#157FBF] hover:bg-[#157FBF] hover:text-white font-semibold tracking-wide transition-all duration-200 hover:scale-105 bg-transparent flex-1 sm:flex-none sm:w-auto"
+              className="flex items-center gap-2 px-3 sm:px-6 py-3 border-2 border-[#157FBF] text-[#157FBF] hover:bg-[#157FBF] hover:text-white"
             >
-              <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5" />
-              RESET
+              <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5" /> RESET
             </Button>
           </div>
 
@@ -175,7 +226,7 @@ export default function IceBathTimer() {
                 <Button
                   onClick={handleLog}
                   size="lg"
-                  className="px-6 py-3 bg-[#157FBF] hover:bg-[#157FBF]/90 text-white font-semibold tracking-wide transition-all duration-200 hover:scale-105 uppercase"
+                  className="px-6 py-3 bg-[#157FBF] hover:bg-[#157FBF]/90 text-white uppercase"
                 >
                   ADD THIS SESSION
                 </Button>
@@ -186,7 +237,7 @@ export default function IceBathTimer() {
       </Card>
 
       <div className="text-center mt-6">
-        <p className="text-white/60 text-xs sm:text-sm tracking-wide">
+        <p className="text-white/60 text-xs sm:text-sm">
           Embrace the cold and upgrade yourself today
         </p>
       </div>
