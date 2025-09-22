@@ -26,13 +26,13 @@ export function useIceSounds(
   useEffect(() => {
     if (typeof window === "undefined" || typeof Audio === "undefined") return;
 
-    breathing.current = new Audio("/mp3/breathing-160445.mp3");
+    breathing.current = new Audio("/mp3/breathing.mp3");
     breathing.current.loop = true;
 
-    click.current = new Audio("/mp3/laptop-touchpad-click-384384.mp3");
-    victory.current = new Audio("/mp3/victory-trumpet.mp3");
+    click.current = new Audio("/mp3/laptop-touchpad-click.mp3");
+    victory.current = new Audio("/mp3/victory_trumpet.mp3");
 
-    spa.current = new Audio("/mp3/echoes-from-the-spa-385087.mp3");
+    spa.current = new Audio("/mp3/echoes-from-the-spa.mp3");
     spa.current.loop = true;
 
     return () => {
