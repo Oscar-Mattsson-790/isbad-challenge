@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendsList } from "@/components/friends-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSupabase } from "@/components/supabase-provider";
+import { computeFriendProgress } from "@/lib/challenge-progress";
 
 function ProgressBar({ value }: { value: number }) {
   const pct = Math.max(0, Math.min(100, Math.round(value)));
@@ -28,24 +29,13 @@ type ActivePair = {
   friendLength: number;
 };
 
-type Props = {
-  layout?: "tabs" | "stacked";
-};
+type Props = { layout?: "tabs" | "stacked" };
 
 export function TabsSection({ layout = "tabs" }: Props) {
   const { supabase, session } = useSupabase();
-
   const [loading, setLoading] = useState(true);
   const [pairs, setPairs] = useState<ActivePair[]>([]);
   const [myActive, setMyActive] = useState(false);
-
-  const hasPairs = useMemo(() => pairs.length > 0, [pairs]);
-
-  const countUniqueDates = (rows: { date: string }[]) => {
-    const s = new Set<string>();
-    rows.forEach((r) => r?.date && s.add(r.date));
-    return s.size;
-  };
 
   const fetchData = async () => {
     if (!session) return;
@@ -87,7 +77,6 @@ export function TabsSection({ layout = "tabs" }: Props) {
         challenge_started_at: string | null;
         challenge_length: number | null;
       };
-
       if (!p?.challenge_active || !p.challenge_started_at) continue;
 
       const friendStart = p.challenge_started_at;
@@ -107,7 +96,12 @@ export function TabsSection({ layout = "tabs" }: Props) {
         .eq("user_id", f.friend_id as string)
         .gte("date", pairStart);
 
-      const friendProgress = countUniqueDates(friendBaths ?? []);
+      const friendProgress = computeFriendProgress(
+        friendBaths ?? [],
+        pairStart,
+        true
+      );
+
       const label =
         p.full_name && p.full_name.trim().length > 0
           ? p.full_name
@@ -135,7 +129,6 @@ export function TabsSection({ layout = "tabs" }: Props) {
       <CardHeader>
         <CardTitle>Active challenges</CardTitle>
       </CardHeader>
-
       <CardContent className="space-y-4">
         {!myActive && (
           <p className="text-sm text-white/80">
@@ -145,7 +138,7 @@ export function TabsSection({ layout = "tabs" }: Props) {
 
         {loading && <p className="text-sm text-white/80">Loading…</p>}
 
-        {!loading && myActive && !hasPairs && (
+        {!loading && myActive && pairs.length === 0 && (
           <p className="text-sm">
             You have no active challenges with friends yet.
           </p>
@@ -153,9 +146,10 @@ export function TabsSection({ layout = "tabs" }: Props) {
 
         {!loading &&
           myActive &&
-          hasPairs &&
           pairs.map((p) => {
-            const pct = (p.friendProgress / p.friendLength) * 100;
+            const pct =
+              (p.friendProgress / (p.friendLength > 0 ? p.friendLength : 1)) *
+              100;
             return (
               <div
                 key={p.friendId}
@@ -190,11 +184,9 @@ export function TabsSection({ layout = "tabs" }: Props) {
         <TabsTrigger value="friends">Friends</TabsTrigger>
         <TabsTrigger value="challenges">Challenges</TabsTrigger>
       </TabsList>
-
       <TabsContent value="friends" className="border-none p-0 pt-4">
         <FriendsList />
       </TabsContent>
-
       <TabsContent value="challenges" className="border-none p-0 pt-4">
         {ChallengesCard}
       </TabsContent>
