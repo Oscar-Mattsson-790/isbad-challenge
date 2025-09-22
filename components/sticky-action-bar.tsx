@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Calendar, Plus, Activity, MailPlus } from "lucide-react";
+import { ShoppingCart, Calendar, Plus, MailPlus, Timer } from "lucide-react";
 import { useSupabase } from "@/components/supabase-provider";
 import InviteModal from "@/components/invite-modal";
 
@@ -21,11 +21,6 @@ export default function StickyActionBar({
     `flex flex-col items-center text-xs transition-colors ${
       active === name ? "text-[#157FBF]" : "text-white"
     }`;
-
-  const goToRecentActivity = () => {
-    setActive("activity");
-    router.push("/dashboard#recent-activity");
-  };
 
   return (
     <>
@@ -54,11 +49,14 @@ export default function StickyActionBar({
           </button>
 
           <button
-            onClick={goToRecentActivity}
-            className={iconClass("activity")}
+            onClick={() => {
+              setActive("timer");
+              router.push("/timer");
+            }}
+            className={iconClass("timer")}
           >
-            <Activity className="h-6 w-6" />
-            Activity
+            <Timer className="h-6 w-6" />
+            Timer
           </button>
 
           <button

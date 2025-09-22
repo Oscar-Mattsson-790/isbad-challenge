@@ -96,3 +96,106 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* ===== Ice Bath Timer keyframes ===== */
+@keyframes pulse-cold {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer-ice {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes victory-glow {
+  0% {
+    text-shadow:
+      0 0 5px #157fbf,
+      0 0 10px #157fbf,
+      0 0 15px #157fbf;
+  }
+  50% {
+    text-shadow:
+      0 0 10px #157fbf,
+      0 0 20px #157fbf,
+      0 0 30px #157fbf,
+      0 0 40px #157fbf;
+  }
+  100% {
+    text-shadow:
+      0 0 5px #157fbf,
+      0 0 10px #157fbf,
+      0 0 15px #157fbf;
+  }
+}
+
+/* ===== Ice Bath Timer utilities & slider styling ===== */
+@layer utilities {
+  /* Animerings-klasser */
+  .pulse-cold {
+    animation: pulse-cold 5.5s ease-in-out infinite;
+  }
+
+  .shimmer-ice {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer-ice 3s ease-in-out infinite;
+  }
+
+  .victory-glow {
+    animation: victory-glow 2s ease-in-out infinite;
+    font-weight: 600;
+  }
+
+  /* Volymreglage (range input) – samma klass som i komponenten: .slider */
+  .slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #157fbf;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  .slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #157fbf;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  .slider::-webkit-slider-track {
+    height: 8px;
+    border-radius: 4px;
+    background: #4a5568;
+  }
+  .slider::-moz-range-track {
+    height: 8px;
+    border-radius: 4px;
+    background: #4a5568;
+    border: none;
+  }
+}
