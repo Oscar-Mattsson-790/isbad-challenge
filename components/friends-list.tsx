@@ -17,7 +17,6 @@ export function FriendsList() {
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   const [selectedFriendName, setSelectedFriendName] = useState<string>("");
 
-  // Modal: challenge friend
   const [challengeFriend, setChallengeFriend] = useState<{
     id: string;
     label: string;
@@ -62,7 +61,6 @@ export function FriendsList() {
       </CardHeader>
 
       <CardContent>
-        {/* Inner container – samma stil som i Active challenges */}
         <div className="rounded-xl bg-[#242422] border border-white/5 overflow-hidden">
           {friends.length === 0 ? (
             <div className="px-4 py-6 text-sm text-white/70">
@@ -133,7 +131,6 @@ export function FriendsList() {
         </div>
       </CardContent>
 
-      {/* Friend stats modal */}
       {selectedFriendId && (
         <FriendStatsModal
           supabase={supabase}
@@ -144,7 +141,6 @@ export function FriendsList() {
         />
       )}
 
-      {/* Challenge modal */}
       {challengeFriend && (
         <ChallengeFriendModal
           friendId={challengeFriend.id}

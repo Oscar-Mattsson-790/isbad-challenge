@@ -29,18 +29,42 @@ type ActivePair = {
   friendLength: number;
 };
 
+type CompletedChallenge = {
+  id: string;
+  started_at: string | null;
+  completed_at: string;
+  challenge_length: number;
+};
+
 type Props = { layout?: "tabs" | "stacked" };
+
+function fmtDate(d: string | null | undefined) {
+  if (!d) return "—";
+  try {
+    return new Date(d).toLocaleDateString("sv-SE", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return d;
+  }
+}
 
 export function TabsSection({ layout = "tabs" }: Props) {
   const { supabase, session } = useSupabase();
-  const [loading, setLoading] = useState(true);
+
+  const [loadingActive, setLoadingActive] = useState(true);
   const [pairs, setPairs] = useState<ActivePair[]>([]);
   const [myActive, setMyActive] = useState(false);
 
+  const [loadingCompleted, setLoadingCompleted] = useState(true);
+  const [completed, setCompleted] = useState<CompletedChallenge[]>([]);
+
   const fetchData = async () => {
     if (!session) return;
-    setLoading(true);
 
+    setLoadingActive(true);
     const { data: me } = await supabase
       .from("profiles")
       .select("challenge_active, challenge_started_at, challenge_length")
@@ -63,64 +87,88 @@ export function TabsSection({ layout = "tabs" }: Props) {
 
     if (!iAmActive || !iStart || !friends || friends.length === 0) {
       setPairs([]);
-      setLoading(false);
-      return;
+      setLoadingActive(false);
+    } else {
+      const rows: ActivePair[] = [];
+      for (const f of friends) {
+        // @ts-expect-error alias
+        const p = f?.profiles as {
+          full_name: string | null;
+          email: string | null;
+          challenge_active: boolean | null;
+          challenge_started_at: string | null;
+          challenge_length: number | null;
+        };
+        if (!p?.challenge_active || !p.challenge_started_at) continue;
+
+        const friendStart = p.challenge_started_at;
+        const friendLen = p.challenge_length ?? 30;
+
+        const pairStart =
+          iStart && friendStart
+            ? iStart > friendStart
+              ? iStart
+              : friendStart
+            : friendStart;
+        const pairLen = Math.min(iLen, friendLen);
+
+        const { data: friendBaths } = await supabase
+          .from("baths")
+          .select("date")
+          .eq("user_id", f.friend_id as string)
+          .gte("date", pairStart);
+
+        const friendProgress = computeFriendProgress(
+          friendBaths ?? [],
+          pairStart,
+          true
+        );
+
+        const label =
+          p.full_name && p.full_name.trim().length > 0
+            ? p.full_name
+            : p.email || "Friend";
+
+        rows.push({
+          friendId: f.friend_id as string,
+          friendLabel: label,
+          friendProgress,
+          friendLength: pairLen,
+        });
+      }
+      setPairs(rows);
+      setLoadingActive(false);
     }
 
-    const rows: ActivePair[] = [];
-    for (const f of friends) {
-      // @ts-expect-error alias
-      const p = f?.profiles as {
-        full_name: string | null;
-        email: string | null;
-        challenge_active: boolean | null;
-        challenge_started_at: string | null;
-        challenge_length: number | null;
-      };
-      if (!p?.challenge_active || !p.challenge_started_at) continue;
+    setLoadingCompleted(true);
+    const { data: logs, error } = await supabase
+      .from("challenge_logs")
+      .select("id, started_at, completed_at, challenge_length")
+      .eq("user_id", session.user.id)
+      .not("completed_at", "is", null)
+      .order("completed_at", { ascending: false });
 
-      const friendStart = p.challenge_started_at;
-      const friendLen = p.challenge_length ?? 30;
-
-      const pairStart =
-        iStart && friendStart
-          ? iStart > friendStart
-            ? iStart
-            : friendStart
-          : friendStart;
-      const pairLen = Math.min(iLen, friendLen);
-
-      const { data: friendBaths } = await supabase
-        .from("baths")
-        .select("date")
-        .eq("user_id", f.friend_id as string)
-        .gte("date", pairStart);
-
-      const friendProgress = computeFriendProgress(
-        friendBaths ?? [],
-        pairStart,
-        true
-      );
-
-      const label =
-        p.full_name && p.full_name.trim().length > 0
-          ? p.full_name
-          : p.email || "Friend";
-
-      rows.push({
-        friendId: f.friend_id as string,
-        friendLabel: label,
-        friendProgress,
-        friendLength: pairLen,
-      });
+    if (error) {
+      console.error("Failed to load completed challenges:", error.message);
+      setCompleted([]);
+    } else {
+      setCompleted((logs ?? []) as CompletedChallenge[]);
     }
-
-    setPairs(rows);
-    setLoading(false);
+    setLoadingCompleted(false);
   };
 
   useEffect(() => {
     fetchData();
+    const onCompleted = () => fetchData();
+    window.addEventListener(
+      "challenge-completed",
+      onCompleted as EventListener
+    );
+    return () =>
+      window.removeEventListener(
+        "challenge-completed",
+        onCompleted as EventListener
+      );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
@@ -135,16 +183,13 @@ export function TabsSection({ layout = "tabs" }: Props) {
             Start your own challenge to see friend match-ups here.
           </p>
         )}
-
-        {loading && <p className="text-sm text-white/80">Loading…</p>}
-
-        {!loading && myActive && pairs.length === 0 && (
+        {loadingActive && <p className="text-sm text-white/80">Loading…</p>}
+        {!loadingActive && myActive && pairs.length === 0 && (
           <p className="text-sm">
             You have no active challenges with friends yet.
           </p>
         )}
-
-        {!loading &&
+        {!loadingActive &&
           myActive &&
           pairs.map((p) => {
             const pct =
@@ -169,11 +214,52 @@ export function TabsSection({ layout = "tabs" }: Props) {
     </Card>
   );
 
+  const CompletedCard = (
+    <Card className="bg-[#2B2B29] text-white border-none">
+      <CardHeader>
+        <CardTitle>Completed challenges</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {loadingCompleted && <p className="text-sm text-white/80">Loading…</p>}
+        {!loadingCompleted && completed.length === 0 && (
+          <p className="text-sm">No completed challenges yet.</p>
+        )}
+        {!loadingCompleted &&
+          completed.map((c) => {
+            const title = `${c.challenge_length}-day challenge`;
+            const subtitle = c.started_at
+              ? `${fmtDate(c.started_at)} — ${fmtDate(c.completed_at)}`
+              : `Completed: ${fmtDate(c.completed_at)}`;
+            return (
+              <div
+                key={c.id}
+                className="rounded-lg bg-[#242422] px-4 py-3 border border-white/5"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{title}</div>
+                    <div className="text-xs text-white/60">{subtitle}</div>
+                  </div>
+                  <div className="text-xs text-white/60 ml-3 whitespace-nowrap">
+                    {c.challenge_length}/{c.challenge_length} days
+                  </div>
+                </div>
+                <div className="mt-2">
+                  <ProgressBar value={100} />
+                </div>
+              </div>
+            );
+          })}
+      </CardContent>
+    </Card>
+  );
+
   if (layout === "stacked") {
     return (
       <div className="w-full space-y-6">
         <FriendsList />
         {ChallengesCard}
+        {CompletedCard}
       </div>
     );
   }
@@ -183,12 +269,17 @@ export function TabsSection({ layout = "tabs" }: Props) {
       <TabsList className="bg-[#2B2B29]">
         <TabsTrigger value="friends">Friends</TabsTrigger>
         <TabsTrigger value="challenges">Challenges</TabsTrigger>
+        <TabsTrigger value="completed">Completed</TabsTrigger>
       </TabsList>
+
       <TabsContent value="friends" className="border-none p-0 pt-4">
         <FriendsList />
       </TabsContent>
       <TabsContent value="challenges" className="border-none p-0 pt-4">
         {ChallengesCard}
+      </TabsContent>
+      <TabsContent value="completed" className="border-none p-0 pt-4">
+        {CompletedCard}
       </TabsContent>
     </Tabs>
   );

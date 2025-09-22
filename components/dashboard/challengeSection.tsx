@@ -11,6 +11,9 @@ import { ProgressCard } from "@/components/progress-card";
 import BuddyProgressCard from "@/components/buddy-progress-card";
 import { getLocalDate } from "@/lib/utils";
 import { computeMyProgressDays } from "@/lib/challenge-progress";
+import { useEffect, useRef } from "react";
+import { useChallengeActions } from "@/lib/hooks/use-challenge-actions";
+import { useSupabase } from "@/components/supabase-provider";
 
 type Props = {
   //eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,6 +47,46 @@ export function ChallengeSection({
     computeMyProgressDays(stats?.activities, challengeStartedAt, todayLocal),
     challengeLength
   );
+
+  const { supabase, session } = useSupabase();
+  const { completeLatestChallenge } = useChallengeActions(
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    supabase as any,
+    session?.user.id
+  );
+
+  const completionGuard = useRef<{ start: string | null; done: boolean }>({
+    start: null,
+    done: false,
+  });
+
+  useEffect(() => {
+    if (challengeStartedAt !== completionGuard.current.start) {
+      completionGuard.current = { start: challengeStartedAt, done: false };
+    }
+
+    const maybeComplete = async () => {
+      if (
+        challengeActive &&
+        challengeStartedAt &&
+        myProgressDays >= challengeLength &&
+        !completionGuard.current.done
+      ) {
+        await completeLatestChallenge();
+        completionGuard.current.done = true;
+
+        window.dispatchEvent(new CustomEvent("challenge-completed"));
+      }
+    };
+
+    void maybeComplete();
+  }, [
+    challengeActive,
+    challengeStartedAt,
+    myProgressDays,
+    challengeLength,
+    completeLatestChallenge,
+  ]);
 
   return (
     <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-8">
