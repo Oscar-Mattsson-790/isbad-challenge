@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { BathCalendar } from "@/components/bath-calendar";
 import { ProgressCard } from "@/components/progress-card";
 import BuddyProgressCard from "@/components/buddy-progress-card";
+import { getLocalDate } from "@/lib/utils";
+import { computeMyProgressDays } from "@/lib/challenge-progress";
 
 type Props = {
   //eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,7 +21,6 @@ type Props = {
   startChallenge: (days: number) => void;
   cancelChallenge: () => void;
   resetChallenge: () => void;
-
   buddy?: {
     friendName: string;
     friendProgress: number;
@@ -37,6 +38,13 @@ export function ChallengeSection({
   resetChallenge,
   buddy,
 }: Props) {
+  const todayLocal = getLocalDate(new Date());
+
+  const myProgressDays = Math.min(
+    computeMyProgressDays(stats?.activities, challengeStartedAt, todayLocal),
+    challengeLength
+  );
+
   return (
     <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-8">
       <Card
@@ -83,15 +91,15 @@ export function ChallengeSection({
       <div className="flex flex-col gap-4">
         <ProgressCard
           className="w-full"
-          progress={Math.min(stats?.daysCompleted ?? 0, challengeLength)}
+          progress={myProgressDays}
           challengeLength={challengeLength}
           onCancel={
-            challengeActive && (stats?.daysCompleted ?? 0) < challengeLength
+            challengeActive && myProgressDays < challengeLength
               ? cancelChallenge
               : undefined
           }
           onCompleteReset={
-            challengeActive && (stats?.daysCompleted ?? 0) >= challengeLength
+            challengeActive && myProgressDays >= challengeLength
               ? resetChallenge
               : undefined
           }

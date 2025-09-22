@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
+import { computeFriendProgress } from "@/lib/challenge-progress";
 
 export type Buddy = {
   friendId: string;
@@ -17,9 +18,6 @@ export function useBuddy(
   challengeActive?: boolean
 ) {
   const [buddy, setBuddy] = useState<Buddy>(null);
-
-  const countUniqueDates = (rows: { date: string }[]) =>
-    new Set(rows.map((r) => r.date)).size;
 
   const fetchBuddy = useCallback(async () => {
     if (!userId || !challengeActive) {
@@ -69,6 +67,7 @@ export function useBuddy(
 
     const friendId = fr.friend_id as string;
     const friendName = p.full_name?.trim() ? p.full_name : p.email || "Friend";
+
     const friendStart = p.challenge_started_at!;
     const friendLen = p.challenge_length ?? 30;
 
@@ -86,8 +85,18 @@ export function useBuddy(
       .eq("user_id", friendId)
       .gte("date", pairStart);
 
-    const friendProgress = countUniqueDates(friendBaths ?? []);
-    setBuddy({ friendId, friendName, friendProgress, friendLength: pairLen });
+    const friendProgress = computeFriendProgress(
+      friendBaths ?? [],
+      pairStart,
+      true
+    );
+
+    setBuddy({
+      friendId,
+      friendName,
+      friendProgress,
+      friendLength: pairLen,
+    });
   }, [supabase, userId, challengeActive]);
 
   return { buddy, setBuddy, fetchBuddy };
