@@ -21,7 +21,9 @@ export default function BuddyProgressCard({
   friendLength,
   className,
 }: BuddyProps) {
-  const pct = Math.min((friendProgress / friendLength) * 100, 100);
+  const safeLen = friendLength > 0 ? friendLength : 1;
+  const pct = Math.min((friendProgress / safeLen) * 100, 100);
+  const pctRounded = Math.round(pct);
 
   return (
     <Card className={`bg-[#242422] text-white border-none ${className ?? ""}`}>
@@ -31,14 +33,17 @@ export default function BuddyProgressCard({
           Your friend’s current challenge progress
         </CardDescription>
       </CardHeader>
+
       <CardContent className="px-0">
         <div className="flex items-center justify-between text-sm mb-1">
           <div>{friendName || "Friend"}</div>
-          <div className="font-medium">{Math.round(pct)}%</div>
+          <div className="font-medium">{pctRounded}%</div>
         </div>
+
         <div className="h-4 w-full overflow-hidden rounded-full bg-muted">
           <div className="h-full bg-[#157FBF]" style={{ width: `${pct}%` }} />
         </div>
+
         <p className="text-xs text-zinc-300 mt-1">
           {friendProgress}/{friendLength} days
         </p>

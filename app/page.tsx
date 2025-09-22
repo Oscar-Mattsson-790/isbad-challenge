@@ -22,13 +22,12 @@ export default function Home() {
     if (session?.user) {
       router.push("/dashboard");
     } else {
-      router.push("/signup"); // eller "/login" om du föredrar det
+      router.push("/signup");
     }
   };
 
   return (
     <>
-      {/* Hero Section with background video */}
       <section className="w-full relative overflow-hidden min-h-[87vh] flex items-center">
         <video
           src="/videos/ISBAD Challenge app Monika Amazon bakgrundsvideo.mp4"
@@ -39,10 +38,8 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover z-0"
         />
 
-        {/* Dark overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-60 z-10" />
 
-        {/* Hero Content */}
         <div className="relative z-20 container mx-auto flex flex-col items-center text-center gap-6 sm:gap-10">
           <div className="space-y-4">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight">
@@ -82,7 +79,6 @@ export default function Home() {
         </div>
       </section>
       <LayoutWrapper>
-        {/* Features Section */}
         <section className="py-8 md:py-12 bg-[#242422]">
           <div className="px-4 space-y-12">
             <div className="space-y-4 text-center">
@@ -98,10 +94,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Testimonials */}
         <Testimonials />
 
-        {/* CTA Section */}
         <section className="py-8 md:py-8">
           <div className="px-4 flex flex-col items-center gap-8 text-center">
             <div className="space-y-4">
