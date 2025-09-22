@@ -3,8 +3,8 @@ import type { BathStats } from "@/lib/get-bath-stats";
 
 type Props = {
   stats: BathStats;
-  challengeLength?: number; // krävs bara för 'self'-läge
-  mode?: "self" | "friend"; // nytt: anpassar beskrivningen
+  challengeLength?: number;
+  mode?: "self" | "friend";
 };
 
 export function StatsGrid({

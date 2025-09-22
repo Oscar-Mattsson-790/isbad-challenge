@@ -46,5 +46,30 @@ export function useChallengeActions(
       .eq("id", userId);
   };
 
-  return { startChallenge, cancelChallenge, resetChallenge };
+  const completeLatestChallenge = async () => {
+    if (!userId) return;
+
+    const { data: openLog } = await supabase
+      .from("challenge_logs")
+      .select("id")
+      .eq("user_id", userId)
+      .is("completed_at", null)
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!openLog?.id) return;
+
+    await supabase
+      .from("challenge_logs")
+      .update({ completed_at: new Date().toISOString() })
+      .eq("id", openLog.id);
+  };
+
+  return {
+    startChallenge,
+    cancelChallenge,
+    resetChallenge,
+    completeLatestChallenge,
+  };
 }
