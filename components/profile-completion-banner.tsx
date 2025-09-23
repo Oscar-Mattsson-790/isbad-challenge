@@ -14,24 +14,16 @@ export default function ProfileCompletionBanner() {
   const pathname = usePathname();
   const [dismissed, setDismissed] = useState(false);
 
-  // Safely cast + allow optional phone in profile shape
   const p = (profile ?? {}) as Partial<ProfileRow> & { phone?: string | null };
 
-  // Pages where the banner should never show (auth/onboarding flow)
   const hiddenOnPaths = useMemo(
-    () => [
-      "/set-password",
-      "/login",
-      "/signup",
-      "/confirm-signup",
-      "/auth", // covers e.g. /auth/callback
-    ],
+    () => ["/set-password", "/login", "/signup", "/confirm-signup", "/auth"],
     []
   );
 
   const isHiddenByRoute = useMemo(() => {
     if (!pathname) return false;
-    // Hide on profile page (du har redan detta) och på auth-relaterade sidor
+
     if (pathname.startsWith("/profile")) return true;
     return hiddenOnPaths.some((p) => pathname.startsWith(p));
   }, [pathname, hiddenOnPaths]);
@@ -46,11 +38,6 @@ export default function ProfileCompletionBanner() {
     return !(fullNameOk && phoneOk && avatarOk);
   }, [p.full_name, p.phone, p.avatar_url]);
 
-  // Show only when:
-  // - there is a session (user is logged in)
-  // - not on hidden routes
-  // - not dismissed
-  // - profile is incomplete
   if (!session || isHiddenByRoute || dismissed || !isIncomplete) return null;
 
   return (
