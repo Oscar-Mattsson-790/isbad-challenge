@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { FcGoogle } from "react-icons/fc";
 import LayoutWrapper from "@/components/layout-wrapper";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +84,7 @@ export default function SignUpPage() {
               <Input
                 id="fullName"
                 type="text"
-                placeholder="Your name"
+                placeholder="Challenger name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
@@ -93,7 +95,7 @@ export default function SignUpPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="name@example.com"
+                placeholder="name@isbad.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -101,13 +103,35 @@ export default function SignUpPage() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="********"
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  onMouseDown={(e) => e.preventDefault()}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  title={showPassword ? "Hide password" : "Show password"}
+                  className="absolute inset-y-0 right-2 z-10 flex items-center justify-center px-2
+                 text-black/70 hover:text-black"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
             </div>
             <Button
               type="submit"

@@ -8,6 +8,7 @@ import LayoutWrapper from "@/components/layout-wrapper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Eye, EyeOff } from "lucide-react";
 
 function readTokensFromHash() {
   if (typeof window === "undefined") return null;
@@ -38,6 +39,8 @@ export default function SetPasswordClient() {
 
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [showPw2, setShowPw2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [booting, setBooting] = useState(true);
 
@@ -85,9 +88,9 @@ export default function SetPasswordClient() {
 
       const qs =
         challengeLen !== undefined
-          ? `inviter=${encodeURIComponent(inviter)}&challenge_length=${encodeURIComponent(
-              String(challengeLen)
-            )}`
+          ? `inviter=${encodeURIComponent(
+              inviter
+            )}&challenge_length=${encodeURIComponent(String(challengeLen))}`
           : `inviter=${encodeURIComponent(inviter)}`;
 
       const res = await fetch(`/api/finalize-invite?${qs}`, {
@@ -150,26 +153,64 @@ export default function SetPasswordClient() {
           </div>
 
           <div className="grid gap-4">
+            {/* New password */}
             <div className="grid gap-2">
               <Label htmlFor="password">New password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={pw}
-                onChange={(e) => setPw(e.target.value)}
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPw ? "text" : "password"}
+                  value={pw}
+                  onChange={(e) => setPw(e.target.value)}
+                  placeholder="********"
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw((v) => !v)}
+                  onMouseDown={(e) => e.preventDefault()}
+                  aria-label={showPw ? "Hide password" : "Show password"}
+                  title={showPw ? "Hide password" : "Show password"}
+                  className="absolute inset-y-0 right-2 z-10 flex items-center justify-center px-2 text-black/70 hover:text-black"
+                >
+                  {showPw ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
             </div>
 
+            {/* Repeat password */}
             <div className="grid gap-2">
               <Label htmlFor="password2">Repeat password</Label>
-              <Input
-                id="password2"
-                type="password"
-                value={pw2}
-                onChange={(e) => setPw2(e.target.value)}
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <Input
+                  id="password2"
+                  type={showPw2 ? "text" : "password"}
+                  value={pw2}
+                  onChange={(e) => setPw2(e.target.value)}
+                  placeholder="********"
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw2((v) => !v)}
+                  onMouseDown={(e) => e.preventDefault()}
+                  aria-label={showPw2 ? "Hide password" : "Show password"}
+                  title={showPw2 ? "Hide password" : "Show password"}
+                  className="absolute inset-y-0 right-2 z-10 flex items-center justify-center px-2 text-black/70 hover:text-black"
+                >
+                  {showPw2 ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <Button

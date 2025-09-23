@@ -9,7 +9,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      {/* 🔴 Profilbanner */}
       <ProfileCompletionBanner />
       <main className="flex-1 bg-[#242422] pb-[64px]">{children}</main>
       <Footer />
