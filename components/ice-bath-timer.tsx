@@ -24,19 +24,17 @@ export default function IceBathTimer({ onAddSession }: Props) {
   const { ms, setMs, reset } = useStopwatch(running, 100);
   const { playClick, playVictory } = useIceSounds(soundLevel, running);
 
-  // Restore pending state on mount
   useEffect(() => {
     try {
       const pending = localStorage.getItem(PENDING_KEY) === "1";
       const storedMs = Number(localStorage.getItem(MS_KEY) ?? "0");
       if (pending && storedMs > 0) {
         setShowLogButton(true);
-        setMs(storedMs); // show the time you had when you hit STOP
+        setMs(storedMs);
       }
     } catch {}
   }, [setMs]);
 
-  // Allow parent to tell us a session was saved
   useEffect(() => {
     const onLogged = () => {
       clearPending();
@@ -76,7 +74,6 @@ export default function IceBathTimer({ onAddSession }: Props) {
   }
 
   const vibrate = () =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     "vibrate" in navigator ? (navigator as any).vibrate?.(50) : undefined;
 
   const setPending = (val: boolean, atMs: number) => {
@@ -102,7 +99,6 @@ export default function IceBathTimer({ onAddSession }: Props) {
     vibrate();
     setRunning(true);
     setShowLogButton(false);
-    // When starting again, any previous pending session is no longer relevant.
     clearPending();
   };
 
@@ -112,7 +108,7 @@ export default function IceBathTimer({ onAddSession }: Props) {
     setRunning(false);
     if (ms > 0) {
       setShowLogButton(true);
-      setPending(true, ms); // <— persist button + time
+      setPending(true, ms);
     }
   };
 
@@ -122,16 +118,14 @@ export default function IceBathTimer({ onAddSession }: Props) {
     setRunning(false);
     reset();
     setShowLogButton(false);
-    clearPending(); // <— button disappears on RESET
+    clearPending();
     victoryFiredRef.current = false;
   };
 
   const handleLog = () => {
     playClick();
     vibrate();
-    onAddSession?.(ms); // open modal in parent
-    // DO NOT clear pending here — user might close the modal.
-    // We clear only on RESET or after successful save (parent dispatches event).
+    onAddSession?.(ms);
   };
 
   return (

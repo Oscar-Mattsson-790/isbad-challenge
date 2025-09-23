@@ -14,11 +14,19 @@ export default function ProfileCompletionBanner() {
   const pathname = usePathname();
   const [dismissed, setDismissed] = useState(false);
 
-  // Gör en lokal, tolerant typning (inkl. 'phone')
   const p = (profile ?? {}) as Partial<ProfileRow> & { phone?: string | null };
 
-  // ✅ Hooks ovan – inga tidiga returns före hooks!
-  const isProfilePage = pathname?.startsWith("/profile") ?? false;
+  const hiddenOnPaths = useMemo(
+    () => ["/set-password", "/login", "/signup", "/confirm-signup", "/auth"],
+    []
+  );
+
+  const isHiddenByRoute = useMemo(() => {
+    if (!pathname) return false;
+
+    if (pathname.startsWith("/profile")) return true;
+    return hiddenOnPaths.some((p) => pathname.startsWith(p));
+  }, [pathname, hiddenOnPaths]);
 
   const isIncomplete = useMemo(() => {
     const fullNameOk =
@@ -27,11 +35,10 @@ export default function ProfileCompletionBanner() {
     const avatarOk =
       typeof p.avatar_url === "string" && p.avatar_url.trim().length > 0;
 
-    // kräv alla tre fälten
     return !(fullNameOk && phoneOk && avatarOk);
   }, [p.full_name, p.phone, p.avatar_url]);
 
-  if (!session || isProfilePage || dismissed || !isIncomplete) return null;
+  if (!session || isHiddenByRoute || dismissed || !isIncomplete) return null;
 
   return (
     <div className="bg-red-600 text-white">
