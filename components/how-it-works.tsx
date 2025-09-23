@@ -44,7 +44,7 @@ export default function HowItWorks() {
     {
       icon: <Users className="text-[#157FBF] h-8 w-8" />,
       title: "Add Friends",
-      description: "Search by email and invite new friends.",
+      description: "Challenge and invite new friends.",
     },
     {
       icon: <BarChart className="text-[#157FBF] h-8 w-8" />,
@@ -54,7 +54,7 @@ export default function HowItWorks() {
     {
       icon: <Pencil className="text-[#157FBF] h-8 w-8" />,
       title: "Edit Profile",
-      description: "Change name or email from profile tab.",
+      description: "Change name, phone or email from profile tab.",
     },
     {
       icon: <Share2 className="text-[#157FBF] h-8 w-8" />,
@@ -69,7 +69,7 @@ export default function HowItWorks() {
     {
       icon: <HelpCircle className="text-[#157FBF] h-8 w-8" />,
       title: "Get Support",
-      description: "Need help? Contact info@isbad.se",
+      description: "Need help? Contact info@isbad.com.",
     },
     {
       icon: <Settings className="text-[#157FBF] h-8 w-8" />,
