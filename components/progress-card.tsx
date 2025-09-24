@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardHeader,
@@ -37,47 +39,53 @@ export function ProgressCard({
           Progress towards your {challengeLength}-day goal
         </CardDescription>
       </CardHeader>
+
       <CardContent className="px-0">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <div>Progress</div>
-            <div className="font-medium">{Math.round(percentage)}%</div>
+        {/* Ljusgrå “vän-box”-stil */}
+        <div className="rounded-lg bg-[#2B2B29] px-4 py-4 border border-white/5 space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <div>Progress</div>
+              <div className="font-medium">{Math.round(percentage)}%</div>
+            </div>
+            <div className="h-4 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full bg-[#157FBF]"
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
           </div>
-          <div className="h-4 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full bg-[#157FBF]"
-              style={{ width: `${percentage}%` }}
-            />
+
+          <div>
+            <h3 className="font-medium text-[#157FBF]">Next milestone</h3>
+            <p className="text-sm text-white">{nextMilestone}</p>
           </div>
-        </div>
 
-        <h3 className="mt-10 font-medium text-[#157FBF]">Next milestone</h3>
-        <p className="text-sm text-white mb-4">{nextMilestone}</p>
-
-        {onCancel && (
-          <Button
-            className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
-            size="lg"
-            onClick={onCancel}
-          >
-            Cancel Challenge
-          </Button>
-        )}
-
-        {onCompleteReset && (
-          <div className="space-y-2 mt-4">
-            <p className="text-sm text-center font-medium">
-              🎉 Congratulations!{" "}
-            </p>
+          {onCancel && (
             <Button
-              className="bg-[#157FBF] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+              className="bg-[#157FBF] border-none hover:bg-[#115F93] hover:text-white"
               size="lg"
-              onClick={onCompleteReset}
+              onClick={onCancel}
             >
-              Start a new challenge
+              Cancel Challenge
             </Button>
-          </div>
-        )}
+          )}
+
+          {onCompleteReset && (
+            <div className="space-y-2">
+              <p className="text-sm text-center font-medium">
+                🎉 Congratulations!
+              </p>
+              <Button
+                className="bg-[#157FBF] border-[1px] border-white hover:bg-black hover:text-white hover:border-white hover:border-[1px]"
+                size="lg"
+                onClick={onCompleteReset}
+              >
+                Start a new challenge
+              </Button>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

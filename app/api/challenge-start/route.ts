@@ -23,7 +23,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Hämta inloggad användare (via cookies/SSR client)
     const cookieStore = await cookies();
     const supa = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -44,18 +43,9 @@ export async function POST(req: NextRequest) {
     if (userErr || !user)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // Läs profiler
-    const { data: me, error: meErr } = await admin
-      .from("profiles")
-      .select("id, challenge_active, challenge_started_at, challenge_length")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (meErr)
-      return NextResponse.json({ error: meErr.message }, { status: 500 });
-
     const { data: friend, error: frErr } = await admin
       .from("profiles")
-      .select("id, challenge_active, challenge_started_at, challenge_length")
+      .select("id")
       .eq("id", friendId)
       .maybeSingle();
     if (frErr)
@@ -63,7 +53,6 @@ export async function POST(req: NextRequest) {
     if (!friend)
       return NextResponse.json({ error: "Friend not found" }, { status: 404 });
 
-    // Säkerställ vänrelation (idempotent)
     const pairs = [
       { user_id: user.id, friend_id: friendId, status: "accepted" },
       { user_id: friendId, friend_id: user.id, status: "accepted" },
@@ -82,40 +71,66 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Konflikt?
-    const conflict = !!me?.challenge_active || !!friend.challenge_active;
+    const { data: mineActive } = await admin
+      .from("friend_challenges")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("friend_id", friendId)
+      .eq("active", true)
+      .maybeSingle();
+
+    const { data: theirsActive } = await admin
+      .from("friend_challenges")
+      .select("id")
+      .eq("user_id", friendId)
+      .eq("friend_id", user.id)
+      .eq("active", true)
+      .maybeSingle();
+
+    const conflict = !!mineActive || !!theirsActive;
     if (conflict && !force) {
-      // ✅ Ingen 409 – bara en flagga
       return NextResponse.json({
         needsReset: true,
-        conflict: {
-          you: !!me?.challenge_active,
-          friend: !!friend.challenge_active,
-        },
       });
     }
 
-    // Starta/Reseta båda
     const today = new Date().toISOString().slice(0, 10);
-    const updates = {
-      challenge_length: length,
-      challenge_started_at: today,
-      challenge_active: true,
-    };
 
-    const { error: upMe } = await admin
-      .from("profiles")
-      .update(updates)
-      .eq("id", user.id);
-    if (upMe)
-      return NextResponse.json({ error: upMe.message }, { status: 500 });
+    await admin
+      .from("friend_challenges")
+      .update({ active: false })
+      .eq("user_id", user.id)
+      .eq("friend_id", friendId)
+      .eq("active", true);
 
-    const { error: upFr } = await admin
-      .from("profiles")
-      .update(updates)
-      .eq("id", friendId);
-    if (upFr)
-      return NextResponse.json({ error: upFr.message }, { status: 500 });
+    await admin
+      .from("friend_challenges")
+      .update({ active: false })
+      .eq("user_id", friendId)
+      .eq("friend_id", user.id)
+      .eq("active", true);
+
+    const rows = [
+      {
+        user_id: user.id,
+        friend_id: friendId,
+        started_at: today,
+        length,
+        active: true,
+      },
+      {
+        user_id: friendId,
+        friend_id: user.id,
+        started_at: today,
+        length,
+        active: true,
+      },
+    ];
+    const { error: insErr } = await admin
+      .from("friend_challenges")
+      .insert(rows);
+    if (insErr)
+      return NextResponse.json({ error: insErr.message }, { status: 500 });
 
     return NextResponse.json({ ok: true, startedAt: today, length });
   } catch (e) {

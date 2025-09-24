@@ -62,7 +62,6 @@ export default function ProfilePage() {
   const handleSave = async () => {
     if (!session) return;
 
-    // Valfri enkel validering för E.164 (+46701234567)
     if (phone && !/^\+[1-9]\d{1,14}$/.test(phone)) {
       toast.error("Invalid phone number", {
         description: "Use international format, e.g. +46701234567.",
@@ -150,7 +149,6 @@ export default function ProfilePage() {
         <h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
 
         <div className="rounded-xl bg-[#2B2B29] border border-white/5 p-6 space-y-6">
-          {/* Avatar */}
           <div className="flex items-center gap-4">
             <label
               htmlFor="avatar"
@@ -189,7 +187,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Formfält */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="name">Full Name</Label>
@@ -214,7 +211,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex justify-end gap-2">
             <Button
               onClick={handleSave}

@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 type Props = {
-  //eslint-disable-next-line @typescript-eslint/no-explicit-any
   profile: any;
   setOpen: (open: boolean) => void;
 };
