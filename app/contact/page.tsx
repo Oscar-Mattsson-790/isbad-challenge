@@ -45,7 +45,7 @@ export default function ContactPage() {
       }
 
       toast.success("Message sent successfully!", { id: toastId });
-      // Rensa formuläret
+
       setForm({ name: "", phone: "", email: "", message: "" });
     } catch (err) {
       console.error(err);
@@ -60,9 +60,7 @@ export default function ContactPage() {
       <div className="container pt-20 py-10 max-w-2xl mx-auto text-white px-5">
         <h1 className="text-2xl font-bold mb-6">Contact ISBAD.com</h1>
 
-        {/* Kort/Container i samma stil som ProfilePage */}
         <div className="rounded-xl bg-[#2B2B29] border border-white/5 p-6 space-y-6">
-          {/* Övre grid: Name/Phone */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="name">Name</Label>
@@ -87,7 +85,6 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Email */}
           <div className="space-y-1">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -100,7 +97,6 @@ export default function ContactPage() {
             />
           </div>
 
-          {/* Message */}
           <div className="space-y-1">
             <Label htmlFor="message">Message</Label>
             <Textarea
@@ -113,7 +109,6 @@ export default function ContactPage() {
             />
           </div>
 
-          {/* Actions */}
           <div className="flex justify-end">
             <Button
               className="bg-[#157FBF] hover:bg-[#115F93] text-white"

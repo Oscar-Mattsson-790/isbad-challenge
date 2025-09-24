@@ -74,7 +74,6 @@ export async function POST(req: NextRequest) {
       })
       .eq("id", user.id);
 
-    // Markera invite som använd om den finns
     await admin
       .from("invites")
       .update({ used: true, used_at: new Date().toISOString() })

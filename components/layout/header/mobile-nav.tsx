@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function MobileNav({ session }: { session: any }) {
   return (
     <div className="md:hidden">

@@ -26,19 +26,15 @@ export default function Header() {
           />
         </Link>
 
-        {/* Desktop / iPad navigation */}
         <DesktopNav session={session} />
 
-        {/* Right side actions */}
         <div className="flex items-center gap-2">
-          {/* Mobil: visa Login om inte inloggad */}
           {!session && (
             <Button asChild size="sm" className="bg-white text-black sm:hidden">
               <Link href="/login">Login</Link>
             </Button>
           )}
 
-          {/* Inloggad: visa user dropdown på alla skärmar */}
           <UserDropdown session={session} profile={profile} />
         </div>
       </div>

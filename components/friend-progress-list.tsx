@@ -37,7 +37,7 @@ export default function FriendProgressList({ items }: { items: Item[] }) {
       <CardHeader className="px-0">
         <CardTitle className="text-[#157FBF]">Friend progress</CardTitle>
         <CardDescription className="text-white">
-          Your friend’s current challenge progress
+          Your friend&apos;s current challenge progress
         </CardDescription>
       </CardHeader>
 

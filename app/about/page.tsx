@@ -28,15 +28,12 @@ export default function AboutPage() {
   return (
     <LayoutWrapper>
       <div className="container pt-20 py-10 max-w-5xl mx-auto text-white px-5">
-        {/* Kort utan padding – vi paddar endast textkolumnen */}
         <div className="rounded-xl bg-[#2B2B29] border border-white/5 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2">
-            {/* Textkolumn med padding */}
             <div className="p-6 md:p-8">
               <h1 className="text-3xl md:text-4xl font-bold mb-6">
                 Step into the Cold and Grow
               </h1>
-
               <div className="space-y-5">
                 <p>
                   ISBAD Challenge is a community-driven movement for those who
@@ -76,7 +73,6 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* Bildkolumn – går flush mot kortets kanter */}
             <div className="relative h-[260px] sm:h-[360px] md:h-[420px] lg:h-full min-h-[260px]">
               <Image
                 src="/images/Man badar i mössa i en isbad Premium med skvätt vatten.jpg"
