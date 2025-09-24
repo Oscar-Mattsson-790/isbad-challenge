@@ -17,9 +17,14 @@ type Item = {
 
 function ProgressBar({ pct }: { pct: number }) {
   const value = Math.max(0, Math.min(100, Math.round(pct)));
+  const barColor = value >= 100 ? "#15BF6A" : "#157FBF";
+
   return (
     <div className="h-4 w-full overflow-hidden rounded-full bg-muted">
-      <div className="h-full bg-[#157FBF]" style={{ width: `${value}%` }} />
+      <div
+        className="h-full"
+        style={{ width: `${value}%`, backgroundColor: barColor }}
+      />
     </div>
   );
 }

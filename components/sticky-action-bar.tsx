@@ -56,7 +56,7 @@ export default function StickyActionBar({
             className={iconClass("timer")}
           >
             <Timer className="h-6 w-6" />
-            Timer
+            Cold Timer
           </button>
 
           <button

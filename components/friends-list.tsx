@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Swords, X } from "lucide-react";
+import { Calendar, Settings, X } from "lucide-react";
 import { useSupabase } from "@/components/supabase-provider";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
@@ -110,7 +110,7 @@ export function FriendsList() {
                       }
                       title="Challenge your friend"
                     >
-                      <Swords className="h-4 w-4 mr-1" />
+                      <Settings className="h-4 w-4 mr-1" />
                       Challenge
                     </Button>
 
