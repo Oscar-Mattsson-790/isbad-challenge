@@ -43,7 +43,6 @@ export function LeaderboardTable() {
   return (
     <div className="w-full max-w-5xl mx-auto px-4">
       <div className="rounded-xl bg-[#2B2B29] border border-white/5 text-white overflow-hidden">
-        {/* Header */}
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between p-5 md:p-6">
           <div>
             <h2 className="text-xl md:text-2xl font-semibold">
@@ -54,7 +53,6 @@ export function LeaderboardTable() {
             </p>
           </div>
 
-          {/* Sort toggle */}
           <div className="inline-flex items-center rounded-lg bg-white/10 p-1 text-sm">
             <button
               className={`px-3 py-1.5 rounded-md ${sortBy === "baths" ? "bg-[#157FBF]" : "hover:bg-white/10"}`}
@@ -73,7 +71,6 @@ export function LeaderboardTable() {
           </div>
         </div>
 
-        {/* Table header (desktop) */}
         <div className="hidden md:grid grid-cols-12 gap-3 px-5 md:px-6 pb-2 text-xs uppercase tracking-wide text-[#157FBF]">
           <div className="col-span-1">Rank</div>
           <div className="col-span-6">Ice bather</div>
@@ -81,7 +78,6 @@ export function LeaderboardTable() {
           <div className="col-span-3 text-right">Completed challenges</div>
         </div>
 
-        {/* Rows */}
         <div className="divide-y divide-white/5">
           {loading && (
             <div className="p-6 text-white/70">Loading leaderboard…</div>
@@ -102,7 +98,6 @@ export function LeaderboardTable() {
                   key={`${u.full_name}-${i}`}
                   className="px-5 md:px-6 py-4 hover:bg-white/5 transition-colors"
                 >
-                  {/* Desktop */}
                   <div className="hidden md:grid grid-cols-12 gap-3 items-center">
                     <div className="col-span-1 text-white/90">
                       {rankBadge(i)}
@@ -128,7 +123,6 @@ export function LeaderboardTable() {
                     </div>
                   </div>
 
-                  {/* Mobile */}
                   <div className="md:hidden">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">

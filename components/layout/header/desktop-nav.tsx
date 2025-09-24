@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function DesktopNav({ session }: { session: any }) {
   return (
     <nav className="hidden md:flex gap-6 items-center justify-between w-full">

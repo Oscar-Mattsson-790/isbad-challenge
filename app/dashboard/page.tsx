@@ -150,7 +150,6 @@ export default function Dashboard() {
   const resetChallenge = useCallback(async () => {
     if (!session) return;
 
-    // endast din egen
     setChallengeActive(false);
     setChallengeStartedAt(null);
     setChallengeLength(30);

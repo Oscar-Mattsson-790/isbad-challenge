@@ -20,39 +20,47 @@ export function HeaderSection({ profile, setOpen }: Props) {
   return (
     <div className="flex flex-col gap-4 md:flex-row">
       <div className="flex gap-5 items-center md:w-3/4">
-        <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full bg-[#2B2B29] overflow-hidden hover:shadow-[0_4px_20px_0_#157FBF] transition-shadow duration-300">
-          {profile?.avatar_url && (
+        <div
+          className="
+            relative shrink-0 aspect-square
+            w-24 h-24 md:w-32 md:h-32
+            rounded-full bg-[#2B2B29] overflow-hidden
+            hover:shadow-[0_4px_20px_0_#157FBF] transition-shadow duration-300
+          "
+        >
+          {profile?.avatar_url ? (
             <Image
               src={profile.avatar_url}
               alt="Avatar"
               fill
-              className="object-cover"
+              sizes="(min-width: 768px) 8rem, 6rem"
+              className="object-cover object-center"
+              priority
             />
-          )}
+          ) : null}
         </div>
+
         <div className="flex flex-col justify-center">
           <h1 className="text-base md:text-lg font-bold tracking-tight">
             Hi {displayName}!
           </h1>
-          <p className="text-white text-xs md:text-sm pb-2">
-            Keep track of your ice bath <br />
-            challenge and follow your progress.
+          <p className="text-white/90 text-xs md:text-sm leading-relaxed">
+            Upgrade yourself with cold exposure. Own your progress — solo or
+            with friends. <br className="hidden sm:block" />
+            Log ice baths, cold showers, or outdoor dips.
           </p>
         </div>
       </div>
 
       <div className="md:w-1/4 w-full flex items-center">
         <div className="w-full flex items-center gap-3">
-          <div
+          <button
             onClick={() => router.push("/timer")}
-            role="button"
-            tabIndex={0}
-            className="group bg-[#157FBF] rounded-lg p-3 cursor-pointer
-             hover:shadow-[0_2px_10px_0_#157FBF] transition-shadow duration-300
-             outline-none focus:ring-2 focus:ring-[#157FBF]/40"
+            className="group bg-[#157FBF] rounded-lg p-3 hover:shadow-[0_2px_10px_0_#157FBF] transition-shadow duration-300 outline-none focus:ring-2 focus:ring-[#157FBF]/40"
+            aria-label="Open cold timer"
           >
             <Timer className="h-6 w-6 text-white group-hover:text-black" />
-          </div>
+          </button>
 
           <Button
             onClick={() => setOpen(true)}
