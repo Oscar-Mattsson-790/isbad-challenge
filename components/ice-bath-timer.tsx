@@ -140,7 +140,7 @@ export default function IceBathTimer({ onAddSession }: Props) {
             className="opacity-80 sm:w-8 sm:h-8"
           />
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white/80 tracking-tight">
-            TIMER
+            COLD TIMER
           </h1>
           <Image
             src="/images/cube-logo.png"
@@ -180,7 +180,7 @@ export default function IceBathTimer({ onAddSession }: Props) {
 
           <div className="mb-6 sm:mb-8 h-10 sm:h-15 flex items-center justify-center px-2">
             <p
-              className={`text-s sm:text-sm text-center leading-relaxed ${seconds >= 180 ? "text-white victory-glow" : "text-white/60"}`}
+              className={`text-s sm:text-sm text-center leading-relaxed ${seconds >= 180 ? "text-white victory-glow pulse-cold" : running ? "text-white/80 pulse-cold" : "text-white/80"}`}
             >
               {motivational}
             </p>

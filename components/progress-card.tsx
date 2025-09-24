@@ -50,8 +50,11 @@ export function ProgressCard({
             </div>
             <div className="h-4 w-full overflow-hidden rounded-full bg-muted">
               <div
-                className="h-full bg-[#157FBF]"
-                style={{ width: `${percentage}%` }}
+                className="h-full"
+                style={{
+                  width: `${percentage}%`,
+                  backgroundColor: percentage >= 100 ? "#15BF6A" : "#157FBF",
+                }}
               />
             </div>
           </div>
