@@ -37,7 +37,6 @@ export default function InviteModal({ onClose }: InviteModalProps) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
       <div className="relative bg-[#2B2B29] text-white border-none rounded-xl p-6 w-full max-w-md transition-all hover:shadow-[0_4px_20px_0_#157FBF]">
-        {/* Close icon */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-zinc-400 hover:text-white transition"

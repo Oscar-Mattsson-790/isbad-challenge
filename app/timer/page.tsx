@@ -27,7 +27,6 @@ export default function TimerPage() {
         setOpen={setOpen}
         onBathAdded={() => {
           setOpen(false);
-          // tell timer the session is saved -> hide button + clear localStorage
           window.dispatchEvent(new CustomEvent("timer-session-logged"));
         }}
         presetDurationSec={presetDurationSec ?? undefined}

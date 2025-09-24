@@ -36,7 +36,6 @@ export default function Dashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [profile, setProfile] = useState<any>(null);
   const { stats, fetchBathData } = useBathStats(
     supabase,
@@ -44,11 +43,7 @@ export default function Dashboard() {
     challengeStartedAt
   );
 
-  const { buddy, fetchBuddy } = useBuddy(
-    supabase,
-    session?.user.id,
-    challengeActive
-  );
+  const { fetchBuddy } = useBuddy(supabase, session?.user.id, challengeActive);
 
   const {
     startChallenge: dbStart,
@@ -105,7 +100,6 @@ export default function Dashboard() {
           new Date(profile.challenge_started_at).toDateString();
 
         const missedYesterday = !stats.activities.some(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (a: any) =>
             new Date(a.date).toDateString() === yesterday.toDateString()
         );
@@ -140,20 +134,6 @@ export default function Dashboard() {
 
     await dbStart(days, today);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (buddy && (buddy as any).friendId) {
-      await fetch("/api/challenge-start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          friendId: (buddy as any).friendId,
-          length: days,
-          force: true,
-        }),
-      }).catch(() => {});
-    }
-
     await Promise.all([fetchBathData(), fetchBuddy()]);
   };
 
@@ -170,6 +150,7 @@ export default function Dashboard() {
   const resetChallenge = useCallback(async () => {
     if (!session) return;
 
+    // endast din egen
     setChallengeActive(false);
     setChallengeStartedAt(null);
     setChallengeLength(30);
@@ -197,7 +178,6 @@ export default function Dashboard() {
           startChallenge={startChallenge}
           cancelChallenge={cancelChallenge}
           resetChallenge={resetChallenge}
-          buddy={challengeActive ? buddy : null}
         />
 
         <Card className="bg-[#242422] border-none text-white w-full lg:col-span-2">
