@@ -56,7 +56,6 @@ export async function POST(req: NextRequest) {
 
     const today = new Date().toISOString().slice(0, 10);
 
-    // Starta samma challenge för båda
     await admin
       .from("profiles")
       .update({

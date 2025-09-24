@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -8,15 +10,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { BathCalendar } from "@/components/bath-calendar";
 import { ProgressCard } from "@/components/progress-card";
-import BuddyProgressCard from "@/components/buddy-progress-card";
 import { getLocalDate } from "@/lib/utils";
 import { computeMyProgressDays } from "@/lib/challenge-progress";
 import { useEffect, useRef } from "react";
 import { useChallengeActions } from "@/lib/hooks/use-challenge-actions";
 import { useSupabase } from "@/components/supabase-provider";
+import { useFriendChallenges } from "@/lib/hooks/use-friend-challenges";
+import FriendProgressList from "@/components/friend-progress-list";
 
 type Props = {
-  //eslint-disable-next-line @typescript-eslint/no-explicit-any
   stats: any;
   challengeLength: number;
   challengeActive: boolean;
@@ -24,11 +26,6 @@ type Props = {
   startChallenge: (days: number) => void;
   cancelChallenge: () => void;
   resetChallenge: () => void;
-  buddy?: {
-    friendName: string;
-    friendProgress: number;
-    friendLength: number;
-  } | null;
 };
 
 export function ChallengeSection({
@@ -39,7 +36,6 @@ export function ChallengeSection({
   startChallenge,
   cancelChallenge,
   resetChallenge,
-  buddy,
 }: Props) {
   const todayLocal = getLocalDate(new Date());
 
@@ -50,7 +46,11 @@ export function ChallengeSection({
 
   const { supabase, session } = useSupabase();
   const { completeLatestChallenge } = useChallengeActions(
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    supabase as any,
+    session?.user.id
+  );
+
+  const { items: friendChallenges, fetchAll } = useFriendChallenges(
     supabase as any,
     session?.user.id
   );
@@ -87,6 +87,17 @@ export function ChallengeSection({
     challengeLength,
     completeLatestChallenge,
   ]);
+
+  useEffect(() => {
+    void fetchAll();
+    const h = () => void fetchAll();
+    window.addEventListener("friend-challenges-updated", h as EventListener);
+    return () =>
+      window.removeEventListener(
+        "friend-challenges-updated",
+        h as EventListener
+      );
+  }, [fetchAll]);
 
   return (
     <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-8">
@@ -148,12 +159,14 @@ export function ChallengeSection({
           }
         />
 
-        {buddy && (
-          <BuddyProgressCard
-            className="w-full"
-            friendName={buddy.friendName}
-            friendProgress={buddy.friendProgress}
-            friendLength={buddy.friendLength}
+        {friendChallenges.length > 0 && (
+          <FriendProgressList
+            items={friendChallenges.map((fc) => ({
+              friendId: fc.friendId,
+              friendName: fc.friendName,
+              progress: fc.progress,
+              length: fc.length,
+            }))}
           />
         )}
       </div>

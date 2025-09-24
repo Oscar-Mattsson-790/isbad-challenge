@@ -1,4 +1,3 @@
-// types/supabase.ts
 export type Json =
   | string
   | number
@@ -7,7 +6,6 @@ export type Json =
   | { [key: string]: Json }
   | Json[];
 
-// ------- Extra typer du använder i appen -------
 export type LeaderboardRow = {
   full_name: string;
   bath_count: number;
@@ -141,7 +139,28 @@ export type InviteInsert = {
 
 export type InviteUpdate = Partial<InviteInsert>;
 
-// ------- Database definition -------
+export type FriendChallengeRow = {
+  id: string;
+  user_id: string;
+  friend_id: string;
+  started_at: string;
+  length: number;
+  active: boolean;
+  created_at: string;
+};
+
+export type FriendChallengeInsert = {
+  id?: string;
+  user_id: string;
+  friend_id: string;
+  started_at: string;
+  length: number;
+  active?: boolean;
+  created_at?: string;
+};
+
+export type FriendChallengeUpdate = Partial<FriendChallengeInsert>;
+
 export type Database = {
   public: {
     Tables: {
@@ -214,6 +233,26 @@ export type Database = {
         Insert: EmailResendTokenInsert;
         Update: EmailResendTokenUpdate;
         Relationships: [];
+      };
+
+      friend_challenges: {
+        Row: FriendChallengeRow;
+        Insert: FriendChallengeInsert;
+        Update: FriendChallengeUpdate;
+        Relationships: [
+          {
+            foreignKeyName: "friend_challenges_user_id_fkey";
+            columns: ["user_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "friend_challenges_friend_id_fkey";
+            columns: ["friend_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type

@@ -38,7 +38,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Finns mottagaren redan?
     const { data: existing, error: existErr } = await admin
       .from("profiles")
       .select("id, full_name, email")
@@ -54,7 +53,6 @@ export async function POST(req: NextRequest) {
     )}`;
 
     if (existing?.id) {
-      // 1) Vänkoppling (idempotent)
       const pairs = [
         { user_id: user.id, friend_id: existing.id, status: "accepted" },
         { user_id: existing.id, friend_id: user.id, status: "accepted" },
@@ -76,10 +74,8 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // 2) Skicka MAGIC LINK (Supabase skickar mail med din Magic Link-template)
       const redirectTo = `${baseUrl}/set-password?skip_pw=1&${inviteQuery}`;
 
-      // Viktigt: använd en client som får skicka OTP (service role funkar här)
       const { error: otpErr } = await admin.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: redirectTo },
@@ -94,7 +90,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // === Ny användare: skicka Supabase INVITE (använder din Invite-template) ===
     const { data: inviterProfile } = await admin
       .from("profiles")
       .select("full_name, email")

@@ -64,58 +64,48 @@ export function TabsSection({ layout = "tabs" }: Props) {
   const fetchData = async () => {
     if (!session) return;
 
-    setLoadingActive(true);
     const { data: me } = await supabase
       .from("profiles")
-      .select("challenge_active, challenge_started_at, challenge_length")
+      .select("challenge_active")
       .eq("id", session.user.id)
       .maybeSingle();
 
-    const iAmActive = !!me?.challenge_active;
-    const iStart = me?.challenge_started_at ?? null;
-    const iLen = me?.challenge_length ?? 30;
-    setMyActive(iAmActive);
+    setMyActive(!!me?.challenge_active);
 
-    const { data: friends } = await supabase
-      .from("friends")
+    setLoadingActive(true);
+    const { data: pairsRaw, error: pairsErr } = await supabase
+      .from("friend_challenges")
       .select(
-        "friend_id, profiles:friend_id(full_name, email, challenge_active, challenge_started_at, challenge_length)"
+        "friend_id, started_at, length, profiles:friend_id(full_name, email)"
       )
       .eq("user_id", session.user.id)
-      .eq("status", "accepted")
+      .eq("active", true)
       .order("created_at", { ascending: false });
 
-    if (!iAmActive || !iStart || !friends || friends.length === 0) {
+    if (pairsErr || !pairsRaw || pairsRaw.length === 0) {
       setPairs([]);
       setLoadingActive(false);
     } else {
       const rows: ActivePair[] = [];
-      for (const f of friends) {
-        // @ts-expect-error alias
-        const p = f?.profiles as {
+      for (const r of pairsRaw as any[]) {
+        const friendId = r.friend_id as string;
+        const pairStart = r.started_at as string;
+        const friendLen = r.length as number;
+
+        const p = r.profiles as {
           full_name: string | null;
           email: string | null;
-          challenge_active: boolean | null;
-          challenge_started_at: string | null;
-          challenge_length: number | null;
         };
-        if (!p?.challenge_active || !p.challenge_started_at) continue;
 
-        const friendStart = p.challenge_started_at;
-        const friendLen = p.challenge_length ?? 30;
-
-        const pairStart =
-          iStart && friendStart
-            ? iStart > friendStart
-              ? iStart
-              : friendStart
-            : friendStart;
-        const pairLen = Math.min(iLen, friendLen);
+        const label =
+          p?.full_name && p.full_name.trim().length > 0
+            ? p.full_name
+            : p?.email || "Friend";
 
         const { data: friendBaths } = await supabase
           .from("baths")
           .select("date")
-          .eq("user_id", f.friend_id as string)
+          .eq("user_id", friendId)
           .gte("date", pairStart);
 
         const friendProgress = computeFriendProgress(
@@ -124,16 +114,11 @@ export function TabsSection({ layout = "tabs" }: Props) {
           true
         );
 
-        const label =
-          p.full_name && p.full_name.trim().length > 0
-            ? p.full_name
-            : p.email || "Friend";
-
         rows.push({
-          friendId: f.friend_id as string,
+          friendId,
           friendLabel: label,
           friendProgress,
-          friendLength: pairLen,
+          friendLength: friendLen,
         });
       }
       setPairs(rows);
@@ -160,15 +145,25 @@ export function TabsSection({ layout = "tabs" }: Props) {
   useEffect(() => {
     fetchData();
     const onCompleted = () => fetchData();
+    const onPairsUpdated = () => fetchData();
     window.addEventListener(
       "challenge-completed",
       onCompleted as EventListener
     );
-    return () =>
+    window.addEventListener(
+      "friend-challenges-updated",
+      onPairsUpdated as EventListener
+    );
+    return () => {
       window.removeEventListener(
         "challenge-completed",
         onCompleted as EventListener
       );
+      window.removeEventListener(
+        "friend-challenges-updated",
+        onPairsUpdated as EventListener
+      );
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
@@ -184,13 +179,12 @@ export function TabsSection({ layout = "tabs" }: Props) {
           </p>
         )}
         {loadingActive && <p className="text-sm text-white/80">Loading…</p>}
-        {!loadingActive && myActive && pairs.length === 0 && (
+        {!loadingActive && pairs.length === 0 && (
           <p className="text-sm">
             You have no active challenges with friends yet.
           </p>
         )}
         {!loadingActive &&
-          myActive &&
           pairs.map((p) => {
             const pct =
               (p.friendProgress / (p.friendLength > 0 ? p.friendLength : 1)) *
