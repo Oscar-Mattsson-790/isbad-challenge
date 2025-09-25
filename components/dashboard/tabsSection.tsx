@@ -9,6 +9,8 @@ import { computeFriendProgress } from "@/lib/challenge-progress";
 
 function ProgressBar({ value }: { value: number }) {
   const pct = Math.max(0, Math.min(100, Math.round(value)));
+  const barColor = pct >= 100 ? "#15BF6A" : "#157FBF";
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between text-sm mb-1">
@@ -16,7 +18,10 @@ function ProgressBar({ value }: { value: number }) {
         <span className="font-medium">{pct}%</span>
       </div>
       <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
-        <div className="h-full bg-[#157FBF]" style={{ width: `${pct}%` }} />
+        <div
+          className="h-full"
+          style={{ width: `${pct}%`, backgroundColor: barColor }}
+        />
       </div>
     </div>
   );
@@ -47,7 +52,7 @@ function fmtDate(d: string | null | undefined) {
       day: "numeric",
     });
   } catch {
-    return d;
+    return d as string;
   }
 }
 

@@ -1,4 +1,3 @@
-// components/header/user-dropdown.tsx
 "use client";
 
 import {
@@ -17,9 +16,7 @@ export function UserDropdown({
   session,
   profile,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profile: any;
 }) {
   const router = useRouter();
@@ -48,37 +45,31 @@ export function UserDropdown({
           </div>
         </DropdownMenuLabel>
 
-        {/* 1) My Challenges */}
         <DropdownMenuItem onClick={() => router.push("/dashboard")}>
           <User className="mr-2 h-4 w-4 text-[#157FBF]" />
           My Challenges
         </DropdownMenuItem>
 
-        {/* 2) Top ice bathers */}
         <DropdownMenuItem onClick={() => router.push("/scoreboard")}>
           <Trophy className="mr-2 h-4 w-4 text-[#157FBF]" />
           Top ice bathers
         </DropdownMenuItem>
 
-        {/* 3) My profile */}
         <DropdownMenuItem onClick={() => router.push("/profile")}>
           <Settings className="mr-2 h-4 w-4 text-[#157FBF]" />
           My profile
         </DropdownMenuItem>
 
-        {/* 4) Contact */}
         <DropdownMenuItem onClick={() => router.push("/contact")}>
           <Mail className="mr-2 h-4 w-4 text-[#157FBF]" />
           Contact
         </DropdownMenuItem>
 
-        {/* 5) About */}
         <DropdownMenuItem onClick={() => router.push("/about")}>
           <Info className="mr-2 h-4 w-4 text-[#157FBF]" />
           About
         </DropdownMenuItem>
 
-        {/* 6) Sign out */}
         <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4 text-[#157FBF]" />
           Sign out
