@@ -3,6 +3,8 @@ import { Poppins } from "next/font/google";
 import { SupabaseProvider } from "@/components/supabase-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import AppLayout from "@/components/layout/app-layout";
+import GAProvider from "./ga-provider";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "./globals.css";
 
@@ -55,6 +57,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${poppins.variable} font-sans`}>
+        {/* Google Analytics */}
+        <GAProvider />
+
+        {/* Speeed Insights */}
+        <SpeedInsights />
+
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
