@@ -1,5 +1,6 @@
 import type React from "react";
 import { Poppins } from "next/font/google";
+import { Suspense } from "react";
 import { SupabaseProvider } from "@/components/supabase-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import AppLayout from "@/components/layout/app-layout";
@@ -58,7 +59,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${poppins.variable} font-sans`}>
         {/* Google Analytics */}
-        <GAProvider />
+        <Suspense fallback={null}>
+          <GAProvider />
+        </Suspense>
 
         {/* Speeed Insights */}
         <SpeedInsights />
