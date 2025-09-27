@@ -64,6 +64,7 @@ export async function GET(request: NextRequest) {
 
       if (chosen) {
         const today = new Date().toISOString().slice(0, 10);
+
         await admin
           .from("profiles")
           .update({
@@ -80,6 +81,30 @@ export async function GET(request: NextRequest) {
             challenge_active: true,
           })
           .eq("id", user.id);
+
+        await admin
+          .from("friend_challenges")
+          .update({ active: false })
+          .or(
+            `and(user_id.eq.${inviter},friend_id.eq.${user.id},active.eq.true),and(user_id.eq.${user.id},friend_id.eq.${inviter},active.eq.true)`
+          );
+
+        await admin.from("friend_challenges").insert([
+          {
+            user_id: inviter,
+            friend_id: user.id,
+            started_at: today,
+            length: chosen,
+            active: true,
+          },
+          {
+            user_id: user.id,
+            friend_id: inviter,
+            started_at: today,
+            length: chosen,
+            active: true,
+          },
+        ]);
       }
 
       await admin
