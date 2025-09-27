@@ -45,7 +45,9 @@ export default function SetPasswordClient() {
   const [showPw2, setShowPw2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [booting, setBooting] = useState(true);
+  const [finalizing, setFinalizing] = useState(false);
 
+  // 1) Sätt upp session från Magic Link-hashen (gäller båda fallen)
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -78,6 +80,7 @@ export default function SetPasswordClient() {
     };
   }, [session, supabase]);
 
+  // 2) Finalize-invite (körs 1 gång)
   const finalizedOnce = useRef(false);
   const finalizeInvite = async () => {
     if (!inviter || finalizedOnce.current) return;
@@ -107,23 +110,39 @@ export default function SetPasswordClient() {
     }
   };
 
+  // 3) Om skip_pw=1: kör finalize + skicka direkt till dashboard
   useEffect(() => {
     (async () => {
       if (!skipPw) return;
       const { data: s } = await supabase.auth.getSession();
       if (!s.session) return;
+      setFinalizing(true);
       await finalizeInvite();
       router.replace("/dashboard");
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skipPw, supabase]);
 
+  // 4) Om INTE skip_pw: finalize i bakgrunden men stanna på sidan
   useEffect(() => {
-    if (skipPw) return; // redan hanterat ovan
-    finalizeInvite();
+    if (skipPw) return; // hanteras av logiken ovan
+    void finalizeInvite();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skipPw, inviter, challengeLen]);
 
+  // --- RENDERING ---
+  // Visa ALDRIG formuläret när skip_pw=1. Då renderar vi bara en liten placeholder.
+  if (booting || finalizing || skipPw) {
+    return (
+      <LayoutWrapper>
+        <div className="flex h-[600px] w-full max-w-md mx-auto items-center justify-center text-white px-5">
+          {booting ? "Initializing…" : "Finalizing your invite…"}
+        </div>
+      </LayoutWrapper>
+    );
+  }
+
+  // Vanligt flöde: ny användare sätter lösenord
   const onSave = async () => {
     const { data: s } = await supabase.auth.getSession();
     if (!s.session) {
@@ -148,16 +167,6 @@ export default function SetPasswordClient() {
     toast.success("Password set. Welcome!");
     router.replace("/dashboard");
   };
-
-  if (booting) {
-    return (
-      <LayoutWrapper>
-        <div className="flex h-[600px] w-full max-w-md mx-auto items-center justify-center text-white px-5">
-          Initializing…
-        </div>
-      </LayoutWrapper>
-    );
-  }
 
   return (
     <LayoutWrapper>
