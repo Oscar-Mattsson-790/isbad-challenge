@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
 import { computeFriendProgress } from "@/lib/challenge-progress";
@@ -67,7 +67,6 @@ export function useBuddy(
 
     const friendId = fr.friend_id as string;
     const friendName = p.full_name?.trim() ? p.full_name : p.email || "Friend";
-
     const friendStart = p.challenge_started_at!;
     const friendLen = p.challenge_length ?? 30;
 
@@ -98,6 +97,16 @@ export function useBuddy(
       friendLength: pairLen,
     });
   }, [supabase, userId, challengeActive]);
+
+  useEffect(() => {
+    const h = () => void fetchBuddy();
+    window.addEventListener("friend-challenges-updated", h as EventListener);
+    return () =>
+      window.removeEventListener(
+        "friend-challenges-updated",
+        h as EventListener
+      );
+  }, [fetchBuddy]);
 
   return { buddy, setBuddy, fetchBuddy };
 }

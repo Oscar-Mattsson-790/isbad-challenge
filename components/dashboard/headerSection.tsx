@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Timer } from "lucide-react";
 
 type Props = {
-  profile: any;
+  profile: {
+    full_name?: string | null;
+    email?: string | null;
+    avatar_url?: string | null;
+  } | null;
   setOpen: (open: boolean) => void;
 };
 
@@ -13,9 +17,14 @@ export function HeaderSection({ profile, setOpen }: Props) {
   const router = useRouter();
 
   const displayName =
-    profile?.full_name && String(profile.full_name).trim().length > 0
-      ? profile.full_name
-      : (profile?.email ?? "there");
+    (profile?.full_name && profile.full_name.trim()) ||
+    profile?.email ||
+    "there";
+
+  const hasAvatar = Boolean(profile?.avatar_url);
+  const avatarSrc = hasAvatar
+    ? (profile!.avatar_url as string)
+    : "/images/cube-logo.png";
 
   return (
     <div className="flex flex-col gap-4 md:flex-row">
@@ -28,16 +37,14 @@ export function HeaderSection({ profile, setOpen }: Props) {
             hover:shadow-[0_4px_20px_0_#157FBF] transition-shadow duration-300
           "
         >
-          {profile?.avatar_url ? (
-            <Image
-              src={profile.avatar_url}
-              alt="Avatar"
-              fill
-              sizes="(min-width: 768px) 8rem, 6rem"
-              className="object-cover object-center"
-              priority
-            />
-          ) : null}
+          <Image
+            src={avatarSrc}
+            alt={hasAvatar ? "Avatar" : "Placeholder"}
+            fill
+            sizes="(min-width: 768px) 8rem, 6rem"
+            className={hasAvatar ? "object-cover" : "object-contain p-3"}
+            priority
+          />
         </div>
 
         <div className="flex flex-col justify-center">
@@ -46,7 +53,8 @@ export function HeaderSection({ profile, setOpen }: Props) {
           </h1>
           <p className="text-white/90 text-xs md:text-sm leading-relaxed">
             Upgrade yourself with cold exposure. Own your progress — solo or
-            with friends. <br className="hidden sm:block" />
+            with friends.
+            <br className="hidden sm:block" />
             Log ice baths, cold showers, or outdoor dips.
           </p>
         </div>

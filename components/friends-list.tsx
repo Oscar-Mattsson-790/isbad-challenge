@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Settings, X } from "lucide-react";
@@ -6,7 +7,7 @@ import { useSupabase } from "@/components/supabase-provider";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { fetchFriends } from "@/lib/friends/fetch-friends";
-import { removeFriend } from "@/lib/friends/remove-friend";
+import { removeFriend } from "@/app/api/friends/remove-friend";
 import { FriendStatsModal } from "@/components/friendsStatsModal";
 import ChallengeFriendModal from "@/components/challenge-friend-modal";
 
@@ -41,9 +42,9 @@ export function FriendsList() {
   }, [loadFriends]);
 
   const handleRemoveFriend = async (friendId: string) => {
-    if (!session) return;
     try {
-      await removeFriend(supabase, session.user.id, friendId);
+      await removeFriend(friendId);
+
       toast.success("Friend removed");
       loadFriends();
     } catch (err: any) {

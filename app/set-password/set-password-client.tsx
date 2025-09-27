@@ -28,6 +28,8 @@ export default function SetPasswordClient() {
   const sp = useSearchParams();
 
   const inviter = useMemo(() => sp.get("inviter") || "", [sp]);
+  const skipPw = useMemo(() => sp.get("skip_pw") === "1", [sp]);
+
   const challengeLenParam = useMemo(
     () => sp.get("challenge_length") || "",
     [sp]
@@ -43,6 +45,7 @@ export default function SetPasswordClient() {
   const [showPw2, setShowPw2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [booting, setBooting] = useState(true);
+  const [finalizing, setFinalizing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,33 +80,61 @@ export default function SetPasswordClient() {
   }, [session, supabase]);
 
   const finalizedOnce = useRef(false);
-  useEffect(() => {
-    (async () => {
-      if (!inviter || finalizedOnce.current) return;
+  const finalizeInvite = async () => {
+    if (!inviter || finalizedOnce.current) return;
+    const { data: sess } = await supabase.auth.getSession();
+    if (!sess.session) return;
 
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) return;
+    finalizedOnce.current = true;
 
-      finalizedOnce.current = true;
+    const qs =
+      challengeLen !== undefined
+        ? `inviter=${encodeURIComponent(inviter)}&challenge_length=${encodeURIComponent(
+            String(challengeLen)
+          )}`
+        : `inviter=${encodeURIComponent(inviter)}`;
 
-      const qs =
-        challengeLen !== undefined
-          ? `inviter=${encodeURIComponent(
-              inviter
-            )}&challenge_length=${encodeURIComponent(String(challengeLen))}`
-          : `inviter=${encodeURIComponent(inviter)}`;
-
+    try {
       const res = await fetch(`/api/finalize-invite?${qs}`, {
         method: "POST",
         credentials: "include",
       });
-
       if (!res.ok) {
-        const msg = await res.text();
-        console.error("finalize-invite failed:", msg);
+        const txt = await res.text();
+        console.error("finalize-invite failed:", txt);
       }
+    } catch (e) {
+      console.error("finalize-invite error:", e);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      if (!skipPw) return;
+      const { data: s } = await supabase.auth.getSession();
+      if (!s.session) return;
+      setFinalizing(true);
+      await finalizeInvite();
+      router.replace("/dashboard");
     })();
-  }, [inviter, challengeLen, supabase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skipPw, supabase]);
+
+  useEffect(() => {
+    if (skipPw) return;
+    void finalizeInvite();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skipPw, inviter, challengeLen]);
+
+  if (booting || finalizing || skipPw) {
+    return (
+      <LayoutWrapper>
+        <div className="flex h-[600px] w-full max-w-md mx-auto items-center justify-center text-white px-5">
+          {booting ? "Initializing…" : "Finalizing your invite…"}
+        </div>
+      </LayoutWrapper>
+    );
+  }
 
   const onSave = async () => {
     const { data: s } = await supabase.auth.getSession();
@@ -130,16 +161,6 @@ export default function SetPasswordClient() {
     router.replace("/dashboard");
   };
 
-  if (booting) {
-    return (
-      <LayoutWrapper>
-        <div className="flex h-[600px] w-full max-w-md mx-auto items-center justify-center text-white px-5">
-          Initializing…
-        </div>
-      </LayoutWrapper>
-    );
-  }
-
   return (
     <LayoutWrapper>
       <div className="flex h-[600px] w-full max-w-md mx-auto flex-col items-center justify-center text-white px-5">
@@ -153,7 +174,6 @@ export default function SetPasswordClient() {
           </div>
 
           <div className="grid gap-4">
-            {/* New password */}
             <div className="grid gap-2">
               <Label htmlFor="password">New password</Label>
               <div className="relative">
@@ -183,7 +203,6 @@ export default function SetPasswordClient() {
               </div>
             </div>
 
-            {/* Repeat password */}
             <div className="grid gap-2">
               <Label htmlFor="password2">Repeat password</Label>
               <div className="relative">

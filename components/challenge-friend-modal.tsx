@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useSupabase } from "@/components/supabase-provider";
 
 type Props = {
   friendId: string;
@@ -16,20 +17,48 @@ type Props = {
   onClose: () => void;
 };
 
-const LENGTHS = [10, 15, 30, 50, 100, 365];
+const LENGTHS = [10, 15, 30, 50, 100, 365] as const;
+type Allowed = (typeof LENGTHS)[number];
 
 export default function ChallengeFriendModal({
   friendId,
   friendLabel,
   onClose,
 }: Props) {
+  const { supabase, session } = useSupabase();
+
   const [open, setOpen] = useState(true);
-  const [length, setLength] = useState<number>(15);
+
+  const [length, setLength] = useState<Allowed>(30);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLength(15);
-  }, []);
+    let cancelled = false;
+    (async () => {
+      if (!session?.user.id) return;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("challenge_length, challenge_active")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      if (cancelled || error) return;
+
+      const active = !!data?.challenge_active;
+      const rawLen = Number(data?.challenge_length);
+
+      const validLen: Allowed = LENGTHS.includes(rawLen as Allowed)
+        ? (rawLen as Allowed)
+        : 30;
+
+      setLength(active ? validLen : 30);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session, supabase]);
 
   const start = async () => {
     try {
@@ -37,6 +66,7 @@ export default function ChallengeFriendModal({
       const res = await fetch("/api/challenge-start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ friendId, length, force: true }),
       });
 
@@ -46,7 +76,10 @@ export default function ChallengeFriendModal({
       }
 
       toast.success(`Challenge started with ${friendLabel} (${length} days)`);
-      window.dispatchEvent(new CustomEvent("friend-challenges-updated"));
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("friend-challenges-updated"));
+      }
       setOpen(false);
       onClose();
     } catch (e: any) {
@@ -73,10 +106,12 @@ export default function ChallengeFriendModal({
 
         <div className="space-y-4">
           <p className="text-sm text-white/80">Choose a duration:</p>
+
           <div className="grid grid-cols-3 gap-2">
             {LENGTHS.map((d) => (
               <Button
                 key={d}
+                type="button"
                 variant={d === length ? "default" : "secondary"}
                 className={
                   d === length
