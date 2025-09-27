@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import admin from "@/lib/supabase-admin";
 import type { Database } from "@/types/supabase";
 
@@ -10,8 +10,10 @@ export async function POST(req: NextRequest) {
       email?: string;
       challengeLength?: number;
     };
-    if (!email)
+
+    if (!email) {
       return NextResponse.json({ error: "Missing email" }, { status: 400 });
+    }
 
     const cl = Number.isFinite(Number(challengeLength))
       ? Number(challengeLength)
@@ -24,8 +26,15 @@ export async function POST(req: NextRequest) {
       {
         cookies: {
           get: (name: string) => cookieStore.get(name)?.value,
-          set: () => {},
-          remove: () => {},
+          set: (_name: string, _value: string, _options: CookieOptions) => {
+            void _name;
+            void _value;
+            void _options;
+          },
+          remove: (_name: string, _options: CookieOptions) => {
+            void _name;
+            void _options;
+          },
         },
       }
     );
@@ -34,6 +43,7 @@ export async function POST(req: NextRequest) {
       data: { user },
       error: userErr,
     } = await supa.auth.getUser();
+
     if (userErr || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -43,14 +53,21 @@ export async function POST(req: NextRequest) {
       .select("id, full_name, email")
       .eq("email", email)
       .maybeSingle();
+
     if (existErr) {
       return NextResponse.json({ error: existErr.message }, { status: 500 });
     }
 
+    const { data: inviterProfile } = await admin
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", user.id)
+      .maybeSingle();
+
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
-    const inviteQuery = `inviter=${encodeURIComponent(user.id)}&challenge_length=${encodeURIComponent(
-      cl
-    )}`;
+    const inviteQuery = `inviter=${encodeURIComponent(
+      user.id
+    )}&challenge_length=${encodeURIComponent(cl)}`;
 
     if (existing?.id) {
       const pairs = [
@@ -66,38 +83,41 @@ export async function POST(req: NextRequest) {
           .maybeSingle();
         if (!f) {
           const { error: insErr } = await admin.from("friends").insert(r);
-          if (insErr)
+          if (insErr) {
             return NextResponse.json(
               { error: insErr.message },
               { status: 500 }
             );
+          }
         }
       }
 
-      const redirectTo = `${baseUrl}/set-password?skip_pw=1&${inviteQuery}`;
+      await admin.auth.admin.updateUserById(existing.id, {
+        user_metadata: {
+          inviter_id: user.id,
+          inviter_email: inviterProfile?.email ?? user.email,
+          inviter_name: inviterProfile?.full_name ?? null,
+          challenge_length: cl,
+        },
+      });
 
+      const redirectTo = `${baseUrl}/set-password?skip_pw=1&${inviteQuery}`;
       const { error: otpErr } = await admin.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: redirectTo },
       });
-      if (otpErr)
+      if (otpErr) {
         return NextResponse.json({ error: otpErr.message }, { status: 500 });
+      }
 
       return NextResponse.json({
         success: true,
         existing: true,
-        note: "Existing user: friendship created and magic link email sent.",
+        note: "Existing user: metadata set, friendship created, and Magic Link sent.",
       });
     }
 
-    const { data: inviterProfile } = await admin
-      .from("profiles")
-      .select("full_name, email")
-      .eq("id", user.id)
-      .maybeSingle();
-
     const redirectTo = `${baseUrl}/set-password?${inviteQuery}`;
-
     const { error: inviteErr } = await admin.auth.admin.inviteUserByEmail(
       email,
       {

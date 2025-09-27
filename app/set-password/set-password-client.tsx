@@ -28,6 +28,8 @@ export default function SetPasswordClient() {
   const sp = useSearchParams();
 
   const inviter = useMemo(() => sp.get("inviter") || "", [sp]);
+  const skipPw = useMemo(() => sp.get("skip_pw") === "1", [sp]);
+
   const challengeLenParam = useMemo(
     () => sp.get("challenge_length") || "",
     [sp]
@@ -77,33 +79,50 @@ export default function SetPasswordClient() {
   }, [session, supabase]);
 
   const finalizedOnce = useRef(false);
-  useEffect(() => {
-    (async () => {
-      if (!inviter || finalizedOnce.current) return;
+  const finalizeInvite = async () => {
+    if (!inviter || finalizedOnce.current) return;
+    const { data: sess } = await supabase.auth.getSession();
+    if (!sess.session) return;
 
-      const { data: sess } = await supabase.auth.getSession();
-      if (!sess.session) return;
+    finalizedOnce.current = true;
 
-      finalizedOnce.current = true;
+    const qs =
+      challengeLen !== undefined
+        ? `inviter=${encodeURIComponent(inviter)}&challenge_length=${encodeURIComponent(
+            String(challengeLen)
+          )}`
+        : `inviter=${encodeURIComponent(inviter)}`;
 
-      const qs =
-        challengeLen !== undefined
-          ? `inviter=${encodeURIComponent(
-              inviter
-            )}&challenge_length=${encodeURIComponent(String(challengeLen))}`
-          : `inviter=${encodeURIComponent(inviter)}`;
-
+    try {
       const res = await fetch(`/api/finalize-invite?${qs}`, {
         method: "POST",
         credentials: "include",
       });
-
       if (!res.ok) {
-        const msg = await res.text();
-        console.error("finalize-invite failed:", msg);
+        const txt = await res.text();
+        console.error("finalize-invite failed:", txt);
       }
+    } catch (e) {
+      console.error("finalize-invite error:", e);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      if (!skipPw) return;
+      const { data: s } = await supabase.auth.getSession();
+      if (!s.session) return;
+      await finalizeInvite();
+      router.replace("/dashboard");
     })();
-  }, [inviter, challengeLen, supabase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skipPw, supabase]);
+
+  useEffect(() => {
+    if (skipPw) return; // redan hanterat ovan
+    finalizeInvite();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skipPw, inviter, challengeLen]);
 
   const onSave = async () => {
     const { data: s } = await supabase.auth.getSession();
@@ -153,7 +172,6 @@ export default function SetPasswordClient() {
           </div>
 
           <div className="grid gap-4">
-            {/* New password */}
             <div className="grid gap-2">
               <Label htmlFor="password">New password</Label>
               <div className="relative">
@@ -183,7 +201,6 @@ export default function SetPasswordClient() {
               </div>
             </div>
 
-            {/* Repeat password */}
             <div className="grid gap-2">
               <Label htmlFor="password2">Repeat password</Label>
               <div className="relative">
