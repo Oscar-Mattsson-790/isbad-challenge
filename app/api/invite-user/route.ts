@@ -43,14 +43,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Finns profil redan?
     const { data: existingProfile } = await admin
       .from("profiles")
       .select("id")
       .eq("email", email)
       .maybeSingle();
 
-    // Hämta även i auth.users
     let page = 1;
     let userByEmail: any = null;
     while (!userByEmail) {
@@ -66,7 +64,6 @@ export async function POST(req: NextRequest) {
 
     const alreadyInAuth = !!userByEmail;
 
-    // Hämta inviterare för metadata
     const { data: inviterProfile } = await admin
       .from("profiles")
       .select("full_name, email")
@@ -78,11 +75,9 @@ export async function POST(req: NextRequest) {
       user.id
     )}&challenge_length=${encodeURIComponent(cl)}`;
 
-    // === Befintlig användare ===
     if (existingProfile?.id || alreadyInAuth) {
       const targetId = existingProfile?.id ?? userByEmail!.id;
 
-      // Lägg till vänskapsrelation
       const pairs = [
         { user_id: user.id, friend_id: targetId, status: "accepted" },
         { user_id: targetId, friend_id: user.id, status: "accepted" },
@@ -99,7 +94,6 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Skapa aktiv challenge även för befintliga användare
       const today = new Date().toISOString().slice(0, 10);
       await admin
         .from("profiles")
@@ -110,7 +104,6 @@ export async function POST(req: NextRequest) {
         })
         .in("id", [user.id, targetId]);
 
-      // Avsluta ev. gamla parningar
       await admin
         .from("friend_challenges")
         .update({ active: false })
@@ -119,7 +112,6 @@ export async function POST(req: NextRequest) {
            and(user_id.eq.${targetId},friend_id.eq.${user.id},active.eq.true)`
         );
 
-      // Skapa ny aktiv parning i båda riktningar
       const freshPairs = [
         {
           user_id: user.id,
@@ -138,7 +130,6 @@ export async function POST(req: NextRequest) {
       ];
       await admin.from("friend_challenges").insert(freshPairs);
 
-      // Skicka magic link (OBS: Supabase ignorerar metadata här)
       const redirectTo = `${baseUrl}/dashboard?${inviteQuery}`;
       await admin.auth.signInWithOtp({
         email,
@@ -154,7 +145,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // === Ny användare ===
     const redirectTo = `${baseUrl}/set-password?${inviteQuery}`;
     await admin.auth.admin.inviteUserByEmail(email, {
       redirectTo,
@@ -162,7 +152,7 @@ export async function POST(req: NextRequest) {
         inviter_id: user.id,
         inviter_email: inviterProfile?.email ?? user.email,
         inviter_name: inviterProfile?.full_name ?? null,
-        challenge_length: cl.toString(), // ✅ Detta används i Supabase template
+        challenge_length: cl.toString(),
       },
     });
 

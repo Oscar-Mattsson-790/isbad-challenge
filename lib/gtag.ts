@@ -1,4 +1,3 @@
-// Make TypeScript aware of gtag/dataLayer on window
 declare global {
   interface Window {
     dataLayer: unknown[];

@@ -13,10 +13,6 @@ export type FriendChallenge = {
   progress: number;
 };
 
-/**
- * Hook för att hämta ALLA aktiva friend_challenges som den inloggade är med i.
- * Returnerar en lista med vänner, deras namn och progress.
- */
 export function useFriendChallenges(
   supabase: SupabaseClient<Database>,
   userId?: string | null
@@ -29,7 +25,6 @@ export function useFriendChallenges(
 
     setLoading(true);
 
-    // Hämta alla aktiva friend_challenges där jag är inblandad
     const { data, error } = await supabase
       .from("friend_challenges")
       .select(
@@ -70,7 +65,6 @@ export function useFriendChallenges(
       const startedAt: string = row.started_at as string;
       const length: number = row.length as number;
 
-      // Hämta motpartens bad sedan startdatumet
       const { data: baths } = await supabase
         .from("baths")
         .select("date")

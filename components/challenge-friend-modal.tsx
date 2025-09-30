@@ -36,7 +36,6 @@ export default function ChallengeFriendModal({
     (async () => {
       if (!session?.user.id) return;
 
-      // Hämta aktiv challenge mellan mig och vännen
       const { data, error } = await supabase
         .from("friend_challenges")
         .select("length")
@@ -50,7 +49,7 @@ export default function ChallengeFriendModal({
       if (data?.length && LENGTHS.includes(data.length as Allowed)) {
         setLength(data.length as Allowed);
       } else {
-        setLength(30); // fallback
+        setLength(30);
       }
     })();
 
