@@ -26,15 +26,10 @@ export async function POST(req: NextRequest) {
       {
         cookies: {
           get: (name: string) => cookieStore.get(name)?.value,
-          set: (_name: string, _value: string, _options: CookieOptions) => {
-            void _name;
-            void _value;
-            void _options;
-          },
-          remove: (_name: string, _options: CookieOptions) => {
-            void _name;
-            void _options;
-          },
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          set: (_name: string, _value: string, _options: CookieOptions) => {},
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          remove: (_name: string, _options: CookieOptions) => {},
         },
       }
     );
@@ -48,43 +43,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Kolla om användaren redan finns i profiles
-    const { data: existingProfile, error: existErr } = await admin
+    const { data: existingProfile } = await admin
       .from("profiles")
-      .select("id, full_name, email")
+      .select("id")
       .eq("email", email)
       .maybeSingle();
 
-    if (existErr) {
-      return NextResponse.json({ error: existErr.message }, { status: 500 });
-    }
-
-    // Kolla även i auth.users via paginering
     let page = 1;
     let userByEmail: any = null;
-
     while (!userByEmail) {
-      const { data: pageData, error: authErr } =
-        await admin.auth.admin.listUsers({
-          page,
-          perPage: 50,
-        });
-
-      if (authErr) {
-        return NextResponse.json({ error: authErr.message }, { status: 500 });
-      }
-
-      if (!pageData?.users?.length) break; // slut på användare
-
+      const { data: pageData } = await admin.auth.admin.listUsers({
+        page,
+        perPage: 50,
+      });
+      if (!pageData?.users?.length) break;
       userByEmail = pageData.users.find((u) => u.email === email) || null;
-
       if (userByEmail) break;
       page++;
     }
 
     const alreadyInAuth = !!userByEmail;
 
-    // Hämta inbjudaren
     const { data: inviterProfile } = await admin
       .from("profiles")
       .select("full_name, email")
@@ -96,11 +75,9 @@ export async function POST(req: NextRequest) {
       user.id
     )}&challenge_length=${encodeURIComponent(cl)}`;
 
-    // === Befintlig användare ===
     if (existingProfile?.id || alreadyInAuth) {
       const targetId = existingProfile?.id ?? userByEmail!.id;
 
-      // Lägg till vänrelation
       const pairs = [
         { user_id: user.id, friend_id: targetId, status: "accepted" },
         { user_id: targetId, friend_id: user.id, status: "accepted" },
@@ -113,70 +90,77 @@ export async function POST(req: NextRequest) {
           .eq("friend_id", r.friend_id)
           .maybeSingle();
         if (!f) {
-          const { error: insErr } = await admin.from("friends").insert(r);
-          if (insErr) {
-            return NextResponse.json(
-              { error: insErr.message },
-              { status: 500 }
-            );
-          }
+          await admin.from("friends").insert(r);
         }
       }
 
-      // Uppdatera metadata
-      await admin.auth.admin.updateUserById(targetId, {
-        user_metadata: {
-          inviter_id: user.id,
-          inviter_email: inviterProfile?.email ?? user.email,
-          inviter_name: inviterProfile?.full_name ?? null,
+      const today = new Date().toISOString().slice(0, 10);
+      await admin
+        .from("profiles")
+        .update({
           challenge_length: cl,
+          challenge_started_at: today,
+          challenge_active: true,
+        })
+        .in("id", [user.id, targetId]);
+
+      await admin
+        .from("friend_challenges")
+        .update({ active: false })
+        .or(
+          `and(user_id.eq.${user.id},friend_id.eq.${targetId},active.eq.true),
+           and(user_id.eq.${targetId},friend_id.eq.${user.id},active.eq.true)`
+        );
+
+      const freshPairs = [
+        {
+          user_id: user.id,
+          friend_id: targetId,
+          started_at: today,
+          length: cl,
+          active: true,
+        },
+        {
+          user_id: targetId,
+          friend_id: user.id,
+          started_at: today,
+          length: cl,
+          active: true,
+        },
+      ];
+      await admin.from("friend_challenges").insert(freshPairs);
+
+      const redirectTo = `${baseUrl}/dashboard?${inviteQuery}`;
+      await admin.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: redirectTo,
         },
       });
-
-      // Skicka Magic Link → dashboard
-      const redirectTo = `${baseUrl}/dashboard?${inviteQuery}`;
-      const { error: otpErr } = await admin.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: redirectTo },
-      });
-      if (otpErr) {
-        return NextResponse.json({ error: otpErr.message }, { status: 500 });
-      }
 
       return NextResponse.json({
         success: true,
         existing: true,
-        note: "Existing user: friendship created, metadata set, Magic Link sent.",
+        note: "Existing user: friendship + active challenge created, Magic Link sent.",
       });
     }
 
-    // === Ny användare ===
     const redirectTo = `${baseUrl}/set-password?${inviteQuery}`;
-    const { error: inviteErr } = await admin.auth.admin.inviteUserByEmail(
-      email,
-      {
-        redirectTo,
-        data: {
-          inviter_id: user.id,
-          inviter_email: inviterProfile?.email ?? user.email,
-          inviter_name: inviterProfile?.full_name ?? null,
-          challenge_length: cl,
-        },
-      }
-    );
-    if (inviteErr) {
-      return NextResponse.json({ error: inviteErr.message }, { status: 500 });
-    }
+    await admin.auth.admin.inviteUserByEmail(email, {
+      redirectTo,
+      data: {
+        inviter_id: user.id,
+        inviter_email: inviterProfile?.email ?? user.email,
+        inviter_name: inviterProfile?.full_name ?? null,
+        challenge_length: cl.toString(),
+      },
+    });
 
-    // Spara i invites-tabellen
-    const { error: invErr } = await admin.from("invites").insert({
+    await admin.from("invites").insert({
       inviter_id: user.id,
       email,
       used: false,
     });
-    if (invErr) {
-      return NextResponse.json({ error: invErr.message }, { status: 500 });
-    }
 
     return NextResponse.json({ success: true, existing: false });
   } catch (e: unknown) {

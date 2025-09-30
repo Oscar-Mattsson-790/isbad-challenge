@@ -28,7 +28,6 @@ export default function ChallengeFriendModal({
   const { supabase, session } = useSupabase();
 
   const [open, setOpen] = useState(true);
-
   const [length, setLength] = useState<Allowed>(30);
   const [loading, setLoading] = useState(false);
 
@@ -38,32 +37,31 @@ export default function ChallengeFriendModal({
       if (!session?.user.id) return;
 
       const { data, error } = await supabase
-        .from("profiles")
-        .select("challenge_length, challenge_active")
-        .eq("id", session.user.id)
+        .from("friend_challenges")
+        .select("length")
+        .eq("user_id", session.user.id)
+        .eq("friend_id", friendId)
+        .eq("active", true)
         .maybeSingle();
 
       if (cancelled || error) return;
 
-      const active = !!data?.challenge_active;
-      const rawLen = Number(data?.challenge_length);
-
-      const validLen: Allowed = LENGTHS.includes(rawLen as Allowed)
-        ? (rawLen as Allowed)
-        : 30;
-
-      setLength(active ? validLen : 30);
+      if (data?.length && LENGTHS.includes(data.length as Allowed)) {
+        setLength(data.length as Allowed);
+      } else {
+        setLength(30);
+      }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [session, supabase]);
+  }, [session, supabase, friendId]);
 
   const start = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/challenge-start", {
+      const res = await fetch("/api/invite-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
