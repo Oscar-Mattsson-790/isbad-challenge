@@ -48,7 +48,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data: existing, error: existErr } = await admin
+    // Kolla om användaren redan finns i profiles
+    const { data: existingProfile, error: existErr } = await admin
       .from("profiles")
       .select("id, full_name, email")
       .eq("email", email)
@@ -58,6 +59,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: existErr.message }, { status: 500 });
     }
 
+    // Kolla även i auth.users via paginering
+    let page = 1;
+    let userByEmail: any = null;
+
+    while (!userByEmail) {
+      const { data: pageData, error: authErr } =
+        await admin.auth.admin.listUsers({
+          page,
+          perPage: 50,
+        });
+
+      if (authErr) {
+        return NextResponse.json({ error: authErr.message }, { status: 500 });
+      }
+
+      if (!pageData?.users?.length) break; // slut på användare
+
+      userByEmail = pageData.users.find((u) => u.email === email) || null;
+
+      if (userByEmail) break;
+      page++;
+    }
+
+    const alreadyInAuth = !!userByEmail;
+
+    // Hämta inbjudaren
     const { data: inviterProfile } = await admin
       .from("profiles")
       .select("full_name, email")
@@ -69,10 +96,14 @@ export async function POST(req: NextRequest) {
       user.id
     )}&challenge_length=${encodeURIComponent(cl)}`;
 
-    if (existing?.id) {
+    // === Befintlig användare ===
+    if (existingProfile?.id || alreadyInAuth) {
+      const targetId = existingProfile?.id ?? userByEmail!.id;
+
+      // Lägg till vänrelation
       const pairs = [
-        { user_id: user.id, friend_id: existing.id, status: "accepted" },
-        { user_id: existing.id, friend_id: user.id, status: "accepted" },
+        { user_id: user.id, friend_id: targetId, status: "accepted" },
+        { user_id: targetId, friend_id: user.id, status: "accepted" },
       ];
       for (const r of pairs) {
         const { data: f } = await admin
@@ -92,7 +123,8 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      await admin.auth.admin.updateUserById(existing.id, {
+      // Uppdatera metadata
+      await admin.auth.admin.updateUserById(targetId, {
         user_metadata: {
           inviter_id: user.id,
           inviter_email: inviterProfile?.email ?? user.email,
@@ -101,7 +133,8 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      const redirectTo = `${baseUrl}/set-password?skip_pw=1&${inviteQuery}`;
+      // Skicka Magic Link → dashboard
+      const redirectTo = `${baseUrl}/dashboard?${inviteQuery}`;
       const { error: otpErr } = await admin.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: redirectTo },
@@ -113,10 +146,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         existing: true,
-        note: "Existing user: metadata set, friendship created, and Magic Link sent.",
+        note: "Existing user: friendship created, metadata set, Magic Link sent.",
       });
     }
 
+    // === Ny användare ===
     const redirectTo = `${baseUrl}/set-password?${inviteQuery}`;
     const { error: inviteErr } = await admin.auth.admin.inviteUserByEmail(
       email,
@@ -134,6 +168,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: inviteErr.message }, { status: 500 });
     }
 
+    // Spara i invites-tabellen
     const { error: invErr } = await admin.from("invites").insert({
       inviter_id: user.id,
       email,
