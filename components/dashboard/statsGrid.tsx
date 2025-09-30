@@ -37,7 +37,7 @@ export function StatsGrid({
       <BathStatsCard
         title="Latest bath"
         value={stats.latestBath}
-        description={`at ${stats.latestTime}`}
+        description={`${stats.latestTime}`}
       />
     </div>
   );
