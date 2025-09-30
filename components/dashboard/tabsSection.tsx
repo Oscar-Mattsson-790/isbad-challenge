@@ -78,12 +78,23 @@ export function TabsSection({ layout = "tabs" }: Props) {
     setMyActive(!!me?.challenge_active);
 
     setLoadingActive(true);
+
+    // Hämta alla aktiva friend_challenges där jag är med (som user_id eller friend_id)
     const { data: pairsRaw, error: pairsErr } = await supabase
       .from("friend_challenges")
       .select(
-        "friend_id, started_at, length, profiles:friend_id(full_name, email)"
+        `
+        id,
+        user_id,
+        friend_id,
+        started_at,
+        length,
+        active,
+        user_profile:user_id(full_name,email),
+        friend_profile:friend_id(full_name,email)
+      `
       )
-      .eq("user_id", session.user.id)
+      .or(`user_id.eq.${session.user.id},friend_id.eq.${session.user.id}`)
       .eq("active", true)
       .order("created_at", { ascending: false });
 
@@ -93,24 +104,22 @@ export function TabsSection({ layout = "tabs" }: Props) {
     } else {
       const rows: ActivePair[] = [];
       for (const r of pairsRaw as any[]) {
-        const friendId = r.friend_id as string;
-        const pairStart = r.started_at as string;
-        const friendLen = r.length as number;
-
-        const p = r.profiles as {
-          full_name: string | null;
-          email: string | null;
-        };
+        const iAmUser = r.user_id === session.user.id;
+        const counterpartId = iAmUser ? r.friend_id : r.user_id;
+        const labelSrc = iAmUser ? r.friend_profile : r.user_profile;
 
         const label =
-          p?.full_name && p.full_name.trim().length > 0
-            ? p.full_name
-            : p?.email || "Friend";
+          labelSrc?.full_name && labelSrc.full_name.trim().length > 0
+            ? labelSrc.full_name
+            : labelSrc?.email || "Friend";
+
+        const pairStart = r.started_at as string;
+        const friendLen = r.length as number;
 
         const { data: friendBaths } = await supabase
           .from("baths")
           .select("date")
-          .eq("user_id", friendId)
+          .eq("user_id", counterpartId)
           .gte("date", pairStart);
 
         const friendProgress = computeFriendProgress(
@@ -120,7 +129,7 @@ export function TabsSection({ layout = "tabs" }: Props) {
         );
 
         rows.push({
-          friendId,
+          friendId: counterpartId,
           friendLabel: label,
           friendProgress,
           friendLength: friendLen,

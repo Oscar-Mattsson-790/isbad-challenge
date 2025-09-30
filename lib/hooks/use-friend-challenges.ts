@@ -13,6 +13,10 @@ export type FriendChallenge = {
   progress: number;
 };
 
+/**
+ * Hook för att hämta ALLA aktiva friend_challenges som den inloggade är med i.
+ * Returnerar en lista med vänner, deras namn och progress.
+ */
 export function useFriendChallenges(
   supabase: SupabaseClient<Database>,
   userId?: string | null
@@ -22,54 +26,69 @@ export function useFriendChallenges(
 
   const fetchAll = useCallback(async () => {
     if (!userId) return;
+
     setLoading(true);
 
-    const { data: pairs, error } = await supabase
+    // Hämta alla aktiva friend_challenges där jag är inblandad
+    const { data, error } = await supabase
       .from("friend_challenges")
       .select(
-        "friend_id, started_at, length, profiles:friend_id(full_name, email)"
+        `
+        id,
+        user_id,
+        friend_id,
+        started_at,
+        length,
+        active,
+        user_profile:user_id(full_name,email),
+        friend_profile:friend_id(full_name,email)
+      `
       )
-      .eq("user_id", userId)
+      .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
       .eq("active", true)
       .order("created_at", { ascending: false });
 
-    if (error || !pairs) {
+    if (error || !data) {
+      console.error("Failed to load friend challenges:", error?.message);
       setItems([]);
       setLoading(false);
       return;
     }
 
-    const rows: FriendChallenge[] = [];
-    for (const r of pairs as any[]) {
-      const friendId = r.friend_id as string;
-      const startedAt = r.started_at as string;
-      const length = r.length as number;
+    const out: FriendChallenge[] = [];
 
-      const labelSrc = r.profiles as {
-        full_name: string | null;
-        email: string | null;
-      };
+    for (const row of data as any[]) {
+      const iAmUser = row.user_id === userId;
+      const counterpartId: string = iAmUser ? row.friend_id : row.user_id;
+      const labelSrc = iAmUser ? row.friend_profile : row.user_profile;
+
       const friendName =
-        (labelSrc?.full_name?.trim()?.length
+        (labelSrc?.full_name && labelSrc.full_name.trim().length > 0
           ? labelSrc.full_name
           : labelSrc?.email) ?? "Friend";
 
-      const { data: friendBaths } = await supabase
+      const startedAt: string = row.started_at as string;
+      const length: number = row.length as number;
+
+      // Hämta motpartens bad sedan startdatumet
+      const { data: baths } = await supabase
         .from("baths")
         .select("date")
-        .eq("user_id", friendId)
+        .eq("user_id", counterpartId)
         .gte("date", startedAt);
 
-      const progress = computeFriendProgress(
-        friendBaths ?? [],
-        startedAt,
-        true
-      );
+      const progress = computeFriendProgress(baths ?? [], startedAt, true);
 
-      rows.push({ friendId, friendName, startedAt, length, progress });
+      out.push({
+        friendId: counterpartId,
+        friendName,
+        startedAt,
+        length,
+        progress,
+      });
     }
 
-    setItems(rows);
+    setItems(out);
     setLoading(false);
   }, [supabase, userId]);
 

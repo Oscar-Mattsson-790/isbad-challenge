@@ -1,140 +1,179 @@
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
-import admin from "@/lib/supabase-admin";
-import type { Database } from "@/types/supabase";
+// import { NextResponse, type NextRequest } from "next/server";
+// import { cookies } from "next/headers";
+// import { createServerClient, type CookieOptions } from "@supabase/ssr";
+// import admin from "@/lib/supabase-admin";
+// import type { Database } from "@/types/supabase";
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = (await req.json()) as {
-      friendId?: string;
-      length?: number;
-      force?: boolean;
-    };
+// export async function POST(req: NextRequest) {
+//   try {
+//     const { email, challengeLength } = (await req.json()) as {
+//       email?: string;
+//       challengeLength?: number;
+//     };
 
-    const friendId = body.friendId;
-    const length = Number(body.length);
-    const force = !!body.force;
+//     if (!email) {
+//       return NextResponse.json({ error: "Missing email" }, { status: 400 });
+//     }
 
-    if (!friendId || !Number.isFinite(length) || length <= 0) {
-      return NextResponse.json(
-        { error: "Missing/invalid friendId or length" },
-        { status: 400 }
-      );
-    }
+//     const cl = Number.isFinite(Number(challengeLength))
+//       ? Number(challengeLength)
+//       : 30;
 
-    const cookieStore = await cookies();
-    const supa = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get: (name: string) => cookieStore.get(name)?.value,
-          set: () => {},
-          remove: () => {},
-        },
-      }
-    );
+//     const cookieStore = await cookies();
+//     const supa = createServerClient<Database>(
+//       process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+//       {
+//         cookies: {
+//           get: (name: string) => cookieStore.get(name)?.value,
+//           // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//           set: (_name: string, _value: string, _options: CookieOptions) => {},
+//           // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//           remove: (_name: string, _options: CookieOptions) => {},
+//         },
+//       }
+//     );
 
-    const {
-      data: { user },
-      error: userErr,
-    } = await supa.auth.getUser();
-    if (userErr || !user)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//     const {
+//       data: { user },
+//       error: userErr,
+//     } = await supa.auth.getUser();
 
-    const { data: friend, error: frErr } = await admin
-      .from("profiles")
-      .select("id")
-      .eq("id", friendId)
-      .maybeSingle();
-    if (frErr)
-      return NextResponse.json({ error: frErr.message }, { status: 500 });
-    if (!friend)
-      return NextResponse.json({ error: "Friend not found" }, { status: 404 });
+//     if (userErr || !user) {
+//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//     }
 
-    const pairs = [
-      { user_id: user.id, friend_id: friendId, status: "accepted" },
-      { user_id: friendId, friend_id: user.id, status: "accepted" },
-    ];
-    for (const r of pairs) {
-      const { data: exists } = await admin
-        .from("friends")
-        .select("id")
-        .eq("user_id", r.user_id)
-        .eq("friend_id", r.friend_id)
-        .maybeSingle();
-      if (!exists) {
-        const { error: insErr } = await admin.from("friends").insert(r);
-        if (insErr)
-          return NextResponse.json({ error: insErr.message }, { status: 500 });
-      }
-    }
+//     // Finns profil redan?
+//     const { data: existingProfile } = await admin
+//       .from("profiles")
+//       .select("id")
+//       .eq("email", email)
+//       .maybeSingle();
 
-    const { data: mineActive } = await admin
-      .from("friend_challenges")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("friend_id", friendId)
-      .eq("active", true)
-      .maybeSingle();
+//     // Hämta även i auth.users
+//     let page = 1;
+//     let userByEmail: any = null;
+//     while (!userByEmail) {
+//       const { data: pageData } = await admin.auth.admin.listUsers({
+//         page,
+//         perPage: 50,
+//       });
+//       if (!pageData?.users?.length) break;
+//       userByEmail = pageData.users.find((u) => u.email === email) || null;
+//       if (userByEmail) break;
+//       page++;
+//     }
 
-    const { data: theirsActive } = await admin
-      .from("friend_challenges")
-      .select("id")
-      .eq("user_id", friendId)
-      .eq("friend_id", user.id)
-      .eq("active", true)
-      .maybeSingle();
+//     const alreadyInAuth = !!userByEmail;
 
-    const conflict = !!mineActive || !!theirsActive;
-    if (conflict && !force) {
-      return NextResponse.json({
-        needsReset: true,
-      });
-    }
+//     // Hämta inviterare för metadata
+//     const { data: inviterProfile } = await admin
+//       .from("profiles")
+//       .select("full_name, email")
+//       .eq("id", user.id)
+//       .maybeSingle();
 
-    const today = new Date().toISOString().slice(0, 10);
+//     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
+//     const inviteQuery = `inviter=${encodeURIComponent(
+//       user.id
+//     )}&challenge_length=${encodeURIComponent(cl)}`;
 
-    await admin
-      .from("friend_challenges")
-      .update({ active: false })
-      .eq("user_id", user.id)
-      .eq("friend_id", friendId)
-      .eq("active", true);
+//     // === Befintlig användare ===
+//     if (existingProfile?.id || alreadyInAuth) {
+//       const targetId = existingProfile?.id ?? userByEmail!.id;
 
-    await admin
-      .from("friend_challenges")
-      .update({ active: false })
-      .eq("user_id", friendId)
-      .eq("friend_id", user.id)
-      .eq("active", true);
+//       // Lägg till vänskapsrelation
+//       const pairs = [
+//         { user_id: user.id, friend_id: targetId, status: "accepted" },
+//         { user_id: targetId, friend_id: user.id, status: "accepted" },
+//       ];
+//       for (const r of pairs) {
+//         const { data: f } = await admin
+//           .from("friends")
+//           .select("id")
+//           .eq("user_id", r.user_id)
+//           .eq("friend_id", r.friend_id)
+//           .maybeSingle();
+//         if (!f) {
+//           await admin.from("friends").insert(r);
+//         }
+//       }
 
-    const rows = [
-      {
-        user_id: user.id,
-        friend_id: friendId,
-        started_at: today,
-        length,
-        active: true,
-      },
-      {
-        user_id: friendId,
-        friend_id: user.id,
-        started_at: today,
-        length,
-        active: true,
-      },
-    ];
-    const { error: insErr } = await admin
-      .from("friend_challenges")
-      .insert(rows);
-    if (insErr)
-      return NextResponse.json({ error: insErr.message }, { status: 500 });
+//       // === FIX: skapa aktiv challenge även för befintliga användare ===
+//       const today = new Date().toISOString().slice(0, 10);
+//       await admin
+//         .from("profiles")
+//         .update({
+//           challenge_length: cl,
+//           challenge_started_at: today,
+//           challenge_active: true,
+//         })
+//         .in("id", [user.id, targetId]);
 
-    return NextResponse.json({ ok: true, startedAt: today, length });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Server error";
-    return NextResponse.json({ error: msg }, { status: 500 });
-  }
-}
+//       // Avsluta ev. gamla parningar
+//       await admin
+//         .from("friend_challenges")
+//         .update({ active: false })
+//         .or(
+//           `and(user_id.eq.${user.id},friend_id.eq.${targetId},active.eq.true),
+//            and(user_id.eq.${targetId},friend_id.eq.${user.id},active.eq.true)`
+//         );
+
+//       // Skapa ny aktiv parning i båda riktningar
+//       const freshPairs = [
+//         {
+//           user_id: user.id,
+//           friend_id: targetId,
+//           started_at: today,
+//           length: cl,
+//           active: true,
+//         },
+//         {
+//           user_id: targetId,
+//           friend_id: user.id,
+//           started_at: today,
+//           length: cl,
+//           active: true,
+//         },
+//       ];
+//       await admin.from("friend_challenges").insert(freshPairs);
+
+//       // Skicka magic link (med rätt challenge_length i querystring)
+//       const redirectTo = `${baseUrl}/dashboard?${inviteQuery}`;
+//       await admin.auth.signInWithOtp({
+//         email,
+//         options: { emailRedirectTo: redirectTo },
+//       });
+
+//       return NextResponse.json({
+//         success: true,
+//         existing: true,
+//         note: "Existing user: friendship + active challenge created, Magic Link sent.",
+//       });
+//     }
+
+//     // === Ny användare ===
+//     const redirectTo = `${baseUrl}/set-password?${inviteQuery}`;
+//     await admin.auth.admin.inviteUserByEmail(email, {
+//       redirectTo,
+//       data: {
+//         inviter_id: user.id,
+//         inviter_email: inviterProfile?.email ?? user.email,
+//         inviter_name: inviterProfile?.full_name ?? null,
+//         challenge_length: cl.toString(), // ✅ se till att templaten får rätt antal dagar
+//       },
+//     });
+
+//     await admin.from("invites").insert({
+//       inviter_id: user.id,
+//       email,
+//       used: false,
+//     });
+
+//     return NextResponse.json({ success: true, existing: false });
+//   } catch (e: unknown) {
+//     const msg = e instanceof Error ? e.message : "Server error";
+//     console.error(e);
+//     return NextResponse.json({ error: msg }, { status: 500 });
+//   }
+// }
