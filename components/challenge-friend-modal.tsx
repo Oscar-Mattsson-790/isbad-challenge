@@ -62,7 +62,7 @@ export default function ChallengeFriendModal({
   const start = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/challenge-start", {
+      const res = await fetch("/api/invite-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
